@@ -102,6 +102,8 @@ NOTE: update paths from ~ to something better in final version.
   mkdir -p ~/certificate_authority
   mkdir -p ~/certificate_authority/ca
   mkdir -p ~/certificate_authority/intermediate
+  mkdir -p ~/certificate_authority/intermediate/cluster
+  mkdir -p ~/certificate_authority/intermediate/development
   mkdir -p ~/certificate_authority/certs
   ```
 
@@ -132,6 +134,69 @@ NOTE: update paths from ~ to something better in final version.
 cfssl gencert -initca certificate_authority/ca/ca-sr.json \
   | cfssljson -bare certificate_authority/ca
 ```
+
+# Create Intermediate Certificate Authorities
+
+* Create Intermediate CSR JSON files
+
+
+
+* Create an Intermediate CA Certificate CSR
+
+  ```json
+  {
+    "signing": {
+      "default": {
+          "expiry": "43800h"
+      },
+      "profiles": {
+        "etcd": {
+          "usages": [
+              "signing",
+              "key encipherment",
+              "cert sign",
+              "crl sign",
+              "server auth",
+              "client auth"
+          ],
+          "ca_constraint": {
+            "is_ca": true
+          }
+        },
+        "kubernetes": {
+          "usages": [
+              "signing",
+              "key encipherment",
+              "cert sign",
+              "crl sign",
+              "server auth",
+              "client auth"
+          ],
+          "ca_constraint": {
+            "is_ca": true
+          }
+        },
+        "development": {
+          "usages": [
+            "signing",
+            "key encipherment",
+            "cert sign",
+            "crl sign"
+          ],
+          "ca_constraint": {
+            "is_ca": true
+          }
+        }
+      }
+    }
+  }
+  ```
+
+* Create the Intermediate Certificates
+
+  ```bash
+  ```
+
 # References
 
 * [Certificate Authority with CFSSL](https://jite.eu/2019/2/6/ca-with-cfssl/)
