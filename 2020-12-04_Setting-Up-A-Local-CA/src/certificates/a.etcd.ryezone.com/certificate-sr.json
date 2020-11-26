@@ -1,0 +1,19 @@
+{
+  "CN": "etcd peer",
+  "hosts": [
+    "*.etcd.ryezone.com",
+    "*.example.default.svc.cluster.local",
+    "10.5.30.10"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "CA",
+      "ST": "San Francisco"
+    }
+  ]
+}

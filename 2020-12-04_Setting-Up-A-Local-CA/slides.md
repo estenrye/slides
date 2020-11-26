@@ -64,8 +64,8 @@ Image Credit: [DigiCert Blog, 2020-06-11](https://www.digicert.com/blog/impacts-
 | Certificate Type            | Validity Period | Renew At  |
 | --------------------------- | --------------- | ----------- |
 | Root CA Certificate         | 5 years         | 2.5 years   |
-| Intermediate CA Certificate | 2 years         | 1 years   |
-| Issued TLS Certificate      | 1 years         | .5 years   |
+| Intermediate CA Certificate | 2.5 years       | 1.25 years  |
+| Issued TLS Certificate      | 1 years         | 1 years     |
 
 # Why not use LetsEncrypt for Peer TLS Certificates?
 
@@ -94,13 +94,12 @@ Image Credit: [DigiCert Blog, 2020-06-11](https://www.digicert.com/blog/impacts-
 
 # Create Root CA Certificate
 
-NOTE: update paths from ~ to something better in final version.
-
 * Create directory structure
 
   ```bash
-  mkdir -p ca intermediate certs
+  mkdir -p ca intermediate certificates
   mkdir -p intermediate/etcd intermediate/kubernetes intermediate/development
+  mkdir -p certificates/etcd01 certificates/etcd02 certificates/etcd03
   ```
 
 * Create a Root CA Certificate CSR
@@ -131,7 +130,7 @@ cfssl gencert -initca certificate_authority/ca/ca-sr.json \
   | cfssljson -bare certificate_authority/ca
 ```
 
-# Create an Intermediate CA Certificate Config File
+# Create an Intermediate CA Certificate Signing Config File
 
 * intermediate/config.json
   ```json
@@ -201,17 +200,66 @@ cfssl gencert -initca certificate_authority/ca/ca-sr.json \
     | cfssljson -bare development
 
   cd ../etcd
+  # Generate CSR and Private Key
   cfssl genkey -initca intermediate-ca-sr.json | cfssljson -bare etcd
+  # Sign Intermediate CA with Root CA and generate certificate
   cfssl sign -ca ../../ca/ca.pem -ca-key ../../ca/ca-key.pem \
     --config ../config.json etcd.csr \
     | cfssljson -bare etcd
 
   cd ../kubernetes
+  # Generate CSR and Private Key
   cfssl genkey -initca intermediate-ca-sr.json | cfssljson -bare kubernetes
+  # Sign Intermediate CA with Root CA and generate certificate
   cfssl sign -ca ../../ca/ca.pem -ca-key ../../ca/ca-key.pem \
     --config ../config.json kubernetes.csr \
     | cfssljson -bare kubernetes
   ```
+
+# Create Certificate Signing Config File
+
+* certificates/config.json
+
+  ```json
+  {
+    "signing": {
+      "profiles": {
+        "server": {
+          "expiry": "10950h",
+          "usages": [
+            "signing",
+            "digital signing",
+            "key encipherment",
+            "server auth"
+          ]
+        },
+        "peer": {
+          "expiry": "10950h",
+          "usages": [
+            "signing",
+            "digital signature",
+            "key encipherment", 
+            "client auth",
+            "server auth"
+          ]
+        },
+        "client": {
+          "expiry": "10950h",
+          "usages": [
+            "signing",
+            "digital signature",
+            "key encipherment", 
+            "client auth"
+          ]
+        }
+      }
+    }
+  }
+  ```
+
+# Create Certificate Signing Requests
+
+
 
 # References
 
