@@ -99,31 +99,27 @@ NOTE: update paths from ~ to something better in final version.
 * Create directory structure
 
   ```bash
-  mkdir -p ~/certificate_authority
-  mkdir -p ~/certificate_authority/ca
-  mkdir -p ~/certificate_authority/intermediate
-  mkdir -p ~/certificate_authority/intermediate/cluster
-  mkdir -p ~/certificate_authority/intermediate/development
-  mkdir -p ~/certificate_authority/certs
+  mkdir -p ca intermediate certs
+  mkdir -p intermediate/etcd intermediate/kubernetes intermediate/development
   ```
 
 * Create a Root CA Certificate CSR
-  ~/certificate_authority/ca/ca-sr.json
+  `ca/ca-sr.json`
 
   ```json
   {
     "CN": "Ryezone Labs CA",
     "key": {
-        "algo": "rsa",
-        "size": 4096
+      "algo": "rsa",
+      "size": 4096
     },
     "names": [
-        {
-               "C": "US",
-               "L": "Bloomington",
-               "O": "Ryezone Labs",
-               "ST": "Minnesota"
-        }
+      {
+        "C": "US",
+        "L": "Bloomington",
+        "O": "Ryezone Labs",
+        "ST": "Minnesota"
+      }
     ]
   }
   ```
@@ -135,66 +131,86 @@ cfssl gencert -initca certificate_authority/ca/ca-sr.json \
   | cfssljson -bare certificate_authority/ca
 ```
 
-# Create Intermediate Certificate Authorities
+# Create an Intermediate CA Certificate Config File
 
-* Create Intermediate CSR JSON files
-
-
-
-* Create an Intermediate CA Certificate CSR
-
+* intermediate/config.json
   ```json
   {
     "signing": {
       "default": {
-          "expiry": "43800h"
+        "expiry": "21900h",
+        "usages": [
+          "signing",
+          "key encipherment",
+          "cert sign",
+          "crl sign",
+          "server auth",
+          "client auth"
+        ],
+        "ca_constraint": {
+          "is_ca": true
+        }
       },
       "profiles": {
-        "etcd": {
-          "usages": [
-              "signing",
-              "key encipherment",
-              "cert sign",
-              "crl sign",
-              "server auth",
-              "client auth"
-          ],
-          "ca_constraint": {
-            "is_ca": true
-          }
-        },
-        "kubernetes": {
-          "usages": [
-              "signing",
-              "key encipherment",
-              "cert sign",
-              "crl sign",
-              "server auth",
-              "client auth"
-          ],
-          "ca_constraint": {
-            "is_ca": true
-          }
-        },
         "development": {
+          "expiry":"21900h",
           "usages": [
             "signing",
             "key encipherment",
             "cert sign",
             "crl sign"
-          ],
-          "ca_constraint": {
-            "is_ca": true
-          }
+          ]
         }
       }
     }
   }
   ```
 
-* Create the Intermediate Certificates
+# Create Intermediate Certificate Signing Request
+
+* intermediate/development/intermediate-ca-sr.json
+
+  ```json
+  {
+    "CN": "Ryezone Labs Intermediate CA - Development",
+    "key": {
+      "algo": "rsa",
+      "size": 4096
+    },
+    "names": [
+      {
+        "C": "US",
+        "L": "Bloomington",
+        "O": "Ryezone Labs",
+        "ST": "Minnesota"
+      }
+    ]
+  }
+  ```
+* Repeat for etcd and kubernetes
+
+# Create the Intermediate Certificates
 
   ```bash
+  cd intermediate/development
+  # Generate CSR and Private Key
+  cfssl genkey -initca intermediate-ca-sr.json | cfssljson -bare development
+  # Sign Intermediate CA with Root CA and generate certificate
+  cfssl sign -ca ../../ca/ca.pem -ca-key ../../ca/ca-key.pem \
+    --config ../config.json -profile development development.csr \
+    | cfssljson -bare development
+
+  cd ../etcd
+  cfssl genkey -initca intermediate-ca-sr.json | cfssljson -bare etcd
+  cfssl sign -ca ../../ca/ca.pem -ca-key ../../ca/ca-key.pem \
+    --config ../config.json etcd.csr \
+    | cfssljson -bare etcd
+
+  cd ../kubernetes
+  cfssl genkey -initca intermediate-ca-sr.json | cfssljson -bare kubernetes
+  cfssl sign -ca ../../ca/ca.pem -ca-key ../../ca/ca-key.pem \
+    --config ../config.json kubernetes.csr \
+    | cfssljson -bare kubernetes
   ```
 
 # References

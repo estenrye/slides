@@ -1,0 +1,15 @@
+{
+  "CN": "Ryezone Labs CA",
+  "key": {
+    "algo": "rsa",
+    "size": 4096
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Bloomington",
+      "O": "Ryezone Labs",
+      "ST": "Minnesota"
+    }
+  ]
+}
