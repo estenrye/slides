@@ -1,9 +1,9 @@
 {
   "CN": "peer.etcd.ryezone.com",
   "hosts": [
-    "a.etcd.ryezone.com",
+    "b.etcd.ryezone.com",
     "*.etcd.ryezone.com",
-    "10.5.30.10",
+    "10.5.30.11",
     "127.0.0.1",
     "localhost"
   ],
