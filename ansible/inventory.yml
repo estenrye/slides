@@ -1,0 +1,16 @@
+all:
+  children:
+    etcd:
+      hosts:
+        a.etcd.ryezone.com:
+        b.etcd.ryezone.com:
+        c.etcd.ryezone.com:
+  vars:
+    ansible_connection: ssh
+    ansible_ssh_user: automation_user
+    docker_compose_version: 1.27.4
+    docker_compose_checksum: sha256:04216d65ce0cd3c27223eab035abfeb20a8bef20259398e3b9d9aa8de633286d
+    docker_version: 5:19.03.13~3-0~ubuntu-bionic
+    docker_cli_version: 5:19.03.13~3-0~ubuntu-bionic
+    docker_users:
+      - automation_user
