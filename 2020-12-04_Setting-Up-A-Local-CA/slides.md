@@ -257,10 +257,138 @@ cfssl gencert -initca certificate_authority/ca/ca-sr.json \
   }
   ```
 
-# Create Certificate Signing Requests
+# Create etcd Server Certificate Signing Requests
 
+```json
+{
+  "CN": "a.etcd.ryezone.com",
+  "hosts": [
+    "a.etcd.ryezone.com",
+    "*.etcd.ryezone.com",
+    "etcd.ryezone.com",
+    "localhost",
+    "127.0.0.1",
+    "10.5.30.10"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Bloomington",
+      "O": "Ryezone Labs",
+      "ST": "Minnesota"
+    }
+  ]
+}
+```
 
+Repeat for remaining servers in the cluster.
 
+# Create etcd Peer Certificate Signing Requests
+
+## Notes:
+
+* When using the `--peer-cert-allowed-cn ${ALLOWED_CN}` flag, `CN` must match 
+  the value of `${ALLOWED_CN}`.
+* When using DNS Discovery using the `--discovery-srv ${CLUSTER_NAME}` flag,
+  `hosts` must contain the value of `${CLUSTER_NAME}`.
+* Peers will not be authenticated if the following are true:
+  * No IP Addresses in the SAN field of the certificate match the remote IP.
+  * Forward DNS Lookup does not match remote IP when only hostnames are present
+    in the SAN field of the certificate.
+  * Reverse lookup of remote IP returns no DNS names that match declared
+    wildcard names in the SAN field of the certificate when peer certificate
+    has only wildcard entries. 
+
+```json
+{
+  "CN": "peer.etcd.ryezone.com",
+  "hosts": [
+    "a.etcd.ryezone.com",
+    "*.etcd.ryezone.com",
+    "etcd.ryezone.com",
+    "10.5.30.10"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Bloomington",
+      "O": "Ryezone Labs",
+      "ST": "Minnesota"
+    }
+  ]
+}
+```
+
+# Create etcd Server and Peer Certificates
+
+```bash
+export INTERMEDIATE_CA_CERT="../../intermediate/etcd/etcd.pem"
+export INTERMEDIATE_CA_KEY="../../intermediate/etcd/etcd-key.pem"
+export CERTIFICATE_CONFIG="../config.json"
+
+cd certificates/a.etcd.ryezone.com
+cfssl gencert -ca=${INTERMEDIATE_CA_CERT} -ca-key=${INTERMEDIATE_CA_KEY} \
+  -config=${CERTIFICATE_CONFIG} -profile=server certificate-sr.json \
+  | cfssljson -bare server
+cfssl gencert -ca=${INTERMEDIATE_CA_CERT} -ca-key=${INTERMEDIATE_CA_KEY} \
+  -config=${CERTIFICATE_CONFIG} -profile=peer peer-sr.json \
+  | cfssljson -bare peer
+
+cd ../b.etcd.ryezone.com
+cfssl gencert -ca=${INTERMEDIATE_CA_CERT} -ca-key=${INTERMEDIATE_CA_KEY} \
+  -config=${CERTIFICATE_CONFIG} -profile=server certificate-sr.json \
+  | cfssljson -bare server
+cfssl gencert -ca=${INTERMEDIATE_CA_CERT} -ca-key=${INTERMEDIATE_CA_KEY} \
+  -config=${CERTIFICATE_CONFIG} -profile=peer peer-sr.json \
+  | cfssljson -bare peer
+
+cd ../c.etcd.ryezone.com
+cfssl gencert -ca=${INTERMEDIATE_CA_CERT} -ca-key=${INTERMEDIATE_CA_KEY} \
+  -config=${CERTIFICATE_CONFIG} -profile=server certificate-sr.json \
+  | cfssljson -bare server
+cfssl gencert -ca=${INTERMEDIATE_CA_CERT} -ca-key=${INTERMEDIATE_CA_KEY} \
+  -config=${CERTIFICATE_CONFIG} -profile=peer peer-sr.json \
+  | cfssljson -bare peer
+
+cd ../root@etcd.ryezone.com
+cfssl gencert -ca=${INTERMEDIATE_CA_CERT} -ca-key=${INTERMEDIATE_CA_KEY} \
+  -config=${CERTIFICATE_CONFIG} -profile=client certificate-sr.json \
+  | cfssljson -bare client
+```
+
+# Copy intermediate CA certificates and server/client/peer certificates to hosts.
+
+```bash
+export INTERMEDIATE_CA_PATH="intermediate/etcd/etcd.pem"
+export TARGET_CA_CERT="/opt/etcd/certs/etcd-ca.crt"
+export TARGET_SERVER_CERT="/opt/etcd/certs/etcd-server.crt"
+export TARGET_SERVER_KEY="/opt/etcd/certs/etcd-server.key"
+export TARGET_PEER_CERT="/opt/etcd/certs/etcd-peer.crt"
+export TARGET_PEER_KEY="/opt/etcd/certs/etcd-peer.key"
+export TARGET_CLIENT_CERT="/opt/etcd/certs/etcd-client.crt"
+export TARGET_CLIENT_KEY="/opt/etcd/certs/etcd-client.key"
+
+export USER="automation_user"
+export TARGET="a.etcd.ryezone.com"
+
+scp ${INTERMEDIATE_CA_PATH} ${USER}@${TARGET}:${TARGET_CA_CERT}
+scp certificates/${TARGET}/server.pem ${USER}@${TARGET}:${TARGET_SERVER_CERT}
+scp certificates/${TARGET}/server-key.pem ${USER}@${TARGET}:${TARGET_SERVER_KEY}
+scp certificates/${TARGET}/peer.pem ${USER}@${TARGET}:${TARGET_PEER_CERT}
+scp certificates/${TARGET}/peer-key.pem ${USER}@${TARGET}:${TARGET_PEER_KEY}
+scp certificates/root@etcd.ryezone.com/client.pem ${USER}@${TARGET}:${TARGET_CLIENT_CERT}
+scp certificates/root@etcd.ryezone.com/client-key.pem ${USER}@${TARGET}:${TARGET_CLIENT_KEY}
+```
+
+Repeat for remaining Hosts
 # References
 
 * [Certificate Authority with CFSSL](https://jite.eu/2019/2/6/ca-with-cfssl/)

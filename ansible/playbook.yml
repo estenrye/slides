@@ -2,3 +2,16 @@
 - hosts: etcd
   roles:
     - ryezone_labs.docker
+  tasks:
+    - name: Create etcd certificates directory
+      file:
+        path: "{{item}}"
+        state: directory
+        owner: automation_user
+        group: root
+        mode: u+rwx,g+x,o+x,g-rw,o-rw
+      loop:
+        - /opt/etcd
+        - /opt/etcd/certs
+        - /opt/etcd/data
+      become: true

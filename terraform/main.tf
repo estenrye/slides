@@ -33,13 +33,13 @@ resource "cloudflare_record" "c_etcd" {
 
 resource "cloudflare_record" "a_etcd_server_ssl_etcd" {
   zone_id = data.cloudflare_zones.ryezone_com.zones[0].id
-  name    = "_etcd-server-ssl-etcd._tcp"
+  name    = "_etcd-server-ssl._tcp.etcd"
   type    = "SRV"
 
   data = {
-    service  = "_etcd-server-ssl-etcd"
+    service  = "_etcd-server-ssl"
     proto    = "_tcp"
-    name     = "${data.cloudflare_zones.ryezone_com.zones[0].name}."
+    name     = "etcd.${data.cloudflare_zones.ryezone_com.zones[0].name}."
     port     = 2380
     target   = "${cloudflare_record.a_etcd.hostname}."
     weight   = 33
@@ -49,13 +49,13 @@ resource "cloudflare_record" "a_etcd_server_ssl_etcd" {
 
 resource "cloudflare_record" "a_etcd_client_ssl_etcd" {
   zone_id = data.cloudflare_zones.ryezone_com.zones[0].id
-  name    = "_etcd-client-ssl-etcd._tcp"
+  name    = "_etcd-client-ssl._tcp.etcd"
   type    = "SRV"
 
   data = {
-    service  = "_etcd-client-ssl-etcd"
+    service  = "_etcd-client-ssl"
     proto    = "_tcp"
-    name     = "${data.cloudflare_zones.ryezone_com.zones[0].name}."
+    name     = "etcd.${data.cloudflare_zones.ryezone_com.zones[0].name}."
     port     = 2379
     target   = "${cloudflare_record.a_etcd.hostname}."
     weight   = 33
@@ -65,13 +65,13 @@ resource "cloudflare_record" "a_etcd_client_ssl_etcd" {
 
 resource "cloudflare_record" "b_etcd_server_ssl_etcd" {
   zone_id = data.cloudflare_zones.ryezone_com.zones[0].id
-  name    = "_etcd-server-ssl-etcd._tcp"
+  name    = "_etcd-server-ssl._tcp.etcd"
   type    = "SRV"
 
   data = {
-    service  = "_etcd-server-ssl-etcd"
+    service  = "_etcd-server-ssl"
     proto    = "_tcp"
-    name     = "${data.cloudflare_zones.ryezone_com.zones[0].name}."
+    name     = "etcd.${data.cloudflare_zones.ryezone_com.zones[0].name}."
     port     = 2380
     target   = "${cloudflare_record.b_etcd.hostname}."
     weight   = 33
@@ -81,13 +81,13 @@ resource "cloudflare_record" "b_etcd_server_ssl_etcd" {
 
 resource "cloudflare_record" "b_etcd_client_ssl_etcd" {
   zone_id = data.cloudflare_zones.ryezone_com.zones[0].id
-  name    = "_etcd-client-ssl-etcd._tcp"
+  name    = "_etcd-client-ssl._tcp.etcd"
   type    = "SRV"
 
   data = {
-    service  = "_etcd-client-ssl-etcd"
+    service  = "_etcd-client-ssl"
     proto    = "_tcp"
-    name     = "${data.cloudflare_zones.ryezone_com.zones[0].name}."
+    name     = "etcd.${data.cloudflare_zones.ryezone_com.zones[0].name}."
     port     = 2379
     target   = "${cloudflare_record.b_etcd.hostname}."
     weight   = 33
@@ -97,13 +97,13 @@ resource "cloudflare_record" "b_etcd_client_ssl_etcd" {
 
 resource "cloudflare_record" "c_etcd_server_ssl_etcd" {
   zone_id = data.cloudflare_zones.ryezone_com.zones[0].id
-  name    = "_etcd-server-ssl-etcd._tcp"
+  name    = "_etcd-server-ssl._tcp.etcd"
   type    = "SRV"
 
   data = {
-    service  = "_etcd-server-ssl-etcd"
+    service  = "_etcd-server-ssl"
     proto    = "_tcp"
-    name     = "${data.cloudflare_zones.ryezone_com.zones[0].name}."
+    name     = "etcd.${data.cloudflare_zones.ryezone_com.zones[0].name}."
     port     = 2380
     target   = "${cloudflare_record.c_etcd.hostname}."
     weight   = 33
@@ -113,13 +113,13 @@ resource "cloudflare_record" "c_etcd_server_ssl_etcd" {
 
 resource "cloudflare_record" "c_etcd_client_ssl_etcd" {
   zone_id = data.cloudflare_zones.ryezone_com.zones[0].id
-  name    = "_etcd-client-ssl-etcd._tcp"
+  name    = "_etcd-client-ssl._tcp.etcd"
   type    = "SRV"
 
   data = {
-    service  = "_etcd-client-ssl-etcd"
+    service  = "_etcd-client-ssl"
     proto    = "_tcp"
-    name     = "${data.cloudflare_zones.ryezone_com.zones[0].name}."
+    name     = "etcd.${data.cloudflare_zones.ryezone_com.zones[0].name}."
     port     = 2379
     target   = "${cloudflare_record.c_etcd.hostname}."
     weight   = 33

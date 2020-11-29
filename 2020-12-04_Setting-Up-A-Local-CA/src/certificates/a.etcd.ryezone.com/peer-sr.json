@@ -1,12 +1,10 @@
 {
-  "CN": "b.etcd.ryezone.com",
+  "CN": "peer.etcd.ryezone.com",
   "hosts": [
-    "b.etcd.ryezone.com",
+    "a.etcd.ryezone.com",
     "*.etcd.ryezone.com",
     "etcd.ryezone.com",
-    "localhost",
-    "127.0.0.1",
-    "10.5.30.11"
+    "10.5.30.10"
   ],
   "key": {
     "algo": "rsa",
