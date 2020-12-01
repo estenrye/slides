@@ -1,3 +1,12 @@
+# Deploying a Secure ETCD Cluster Using DNS Discovery
+
+etcd 
+
+# Create the DNS SRV Records in Cloudflare with Terraform
+
+```
+
+```
 # References
 
 - [What is a DNS SRV record?](https://www.cloudflare.com/learning/dns/dns-records/dns-srv-record/)
