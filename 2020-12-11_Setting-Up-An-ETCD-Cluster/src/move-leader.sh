@@ -6,7 +6,7 @@ export REGISTRY="gcr.io/etcd-development/etcd"
 export TAG="latest"
 export CERT_DIR="/opt/etcd/certs"
 export SRV_RECORD="etcd.ryezone.com"
-export NODE_ID="16be7b366a2c299f"
+export NODE_ID="959bce788f9c574d"
 
 docker run \
   -e ETCDCTL_API=3 \
@@ -14,7 +14,7 @@ docker run \
   --rm \
   ${REGISTRY}:${TAG} \
   etcdctl \
-    --discovery-srv ${SRV_RECORD} \
+    --endpoints=b.etcd.ryezone.com:2379 \
     --cert=/etcd-cert/etcd-client.crt \
     --key=/etcd-cert/etcd-client.key \
     --cacert=/etcd-cert/etcd-ca.crt \

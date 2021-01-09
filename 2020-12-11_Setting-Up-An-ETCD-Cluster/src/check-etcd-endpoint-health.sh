@@ -13,7 +13,7 @@ docker run \
   --rm \
   ${REGISTRY}:${TAG} \
   etcdctl \
-    --discovery-srv ${SRV_RECORD} \
+    --endpoints=b.etcd.ryezone.com:2379 \
     --cert=/etcd-cert/etcd-client.crt \
     --key=/etcd-cert/etcd-client.key \
     --cacert=/etcd-cert/etcd-ca.crt \

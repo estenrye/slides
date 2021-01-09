@@ -1,10 +1,16 @@
 all:
   children:
     etcd:
-      hosts:
-        a.etcd.ryezone.com:
-        b.etcd.ryezone.com:
-        c.etcd.ryezone.com:
+      children:
+        a_etcd:
+          hosts:
+            a.etcd.ryezone.com:
+        b_etcd:
+          hosts:
+            b.etcd.ryezone.com:
+        c_etcd:
+          hosts:
+            c.etcd.ryezone.com:
   vars:
     ansible_connection: ssh
     ansible_ssh_user: automation_user
@@ -14,3 +20,6 @@ all:
     docker_cli_version: 5:19.03.13~3-0~ubuntu-bionic
     docker_users:
       - automation_user
+    node_a_ip_addr: 10.5.30.10
+    node_b_ip_addr: 10.5.30.11
+    node_c_ip_addr: 10.5.30.12
