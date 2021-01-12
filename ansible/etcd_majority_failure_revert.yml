@@ -1,0 +1,74 @@
+---
+# host a
+- hosts: a_etcd
+  tasks:
+  - name: Block Incoming Traffic by IP
+    iptables:
+      chain: INPUT
+      source: "{{ item }}"
+      jump: DROP
+      action: insert
+      state: absent
+    become: yes
+    loop:
+      - "{{ node_b_ip_addr }}"
+      - "{{ node_c_ip_addr }}"
+  - name: Block Outgoing Traffic by IP
+    iptables:
+      chain: OUTPUT
+      destination: "{{ item }}"
+      jump: DROP
+      action: insert
+      state: absent
+    become: yes
+    loop:
+      - "{{ node_b_ip_addr }}"
+      - "{{ node_c_ip_addr }}"
+  - name: Block Forwarded Docker Traffic by IP
+    iptables:
+      action: insert
+      chain: FORWARD
+      destination: "{{ item }}"
+      jump: DROP
+      state: absent
+    become: yes
+    loop:
+      - "{{ node_b_ip_addr }}"
+      - "{{ node_c_ip_addr }}"
+
+# Host b
+- hosts: b_etcd
+  tasks:
+  - name: Block Incoming Traffic by IP
+    iptables:
+      chain: INPUT
+      source: "{{ item }}"
+      jump: DROP
+      action: insert
+      state: absent
+    become: yes
+    loop:
+      - "{{ node_a_ip_addr }}"
+      - "{{ node_c_ip_addr }}"
+  - name: Block Outgoing Traffic by IP
+    iptables:
+      chain: OUTPUT
+      destination: "{{ item }}"
+      jump: DROP
+      action: insert
+      state: absent
+    become: yes
+    loop:
+      - "{{ node_a_ip_addr }}"
+      - "{{ node_c_ip_addr }}"
+  - name: Block Forwarded Docker Traffic by IP
+    iptables:
+      action: insert
+      chain: FORWARD
+      destination: "{{ item }}"
+      jump: DROP
+      state: absent
+    become: yes
+    loop:
+      - "{{ node_a_ip_addr }}"
+      - "{{ node_c_ip_addr }}"

@@ -13,4 +13,4 @@ docker run --rm \
     --cert=/etcd-cert/etcd-client.crt \
     --key=/etcd-cert/etcd-client.key \
     --cacert=/etcd-cert/etcd-ca.crt \
-    put boo foo
+    put bar foo
