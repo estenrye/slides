@@ -3,6 +3,12 @@ dependency:
   name: galaxy
 driver:
   name: vagrant
+verifier:
+  name: testinfra
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ../../playbook.yml
 platforms:
   - name: controlplane01
     groups:
@@ -11,6 +17,11 @@ platforms:
     box_version: 1.0.2
     memory: 2048
     cpu: 2
+    interfaces:
+      - network_name: private_network
+        type: static
+        ip: 10.5.50.1
+        auto_config: true
   - name: controlplane02
     groups:
       - controlplane
@@ -18,9 +29,8 @@ platforms:
     box_version: 1.0.2
     memory: 2048
     cpu: 2
-provisioner:
-  name: ansible
-  playbooks:
-    converge: ../../playbook.yml
-verifier:
-  name: testinfra
+    interfaces:
+      - network_name: private_network
+        type: static
+        ip: 10.5.50.2
+        auto_config: true
