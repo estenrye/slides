@@ -1,0 +1,9 @@
+---
+com:
+  ryezone:
+    platform:
+      k8s:
+        kube_api_server:
+          keepalived:
+            state: master
+            priority: 100

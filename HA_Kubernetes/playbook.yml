@@ -1,0 +1,6 @@
+---
+- hosts: controlplane
+  tasks:
+    - name: test-vars
+      debug:
+        msg: "keepalived: {{com.ryezone.platform.k8s.kube_api_server.keepalived.state}}"

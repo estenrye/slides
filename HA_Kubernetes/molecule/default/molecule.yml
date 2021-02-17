@@ -1,0 +1,26 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+platforms:
+  - name: controlplane01
+    groups:
+      - controlplane
+    box: geerlingguy/ubuntu2004
+    box_version: 1.0.2
+    memory: 2048
+    cpu: 2
+  - name: controlplane02
+    groups:
+      - controlplane
+    box: geerlingguy/ubuntu2004
+    box_version: 1.0.2
+    memory: 2048
+    cpu: 2
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ../../playbook.yml
+verifier:
+  name: testinfra

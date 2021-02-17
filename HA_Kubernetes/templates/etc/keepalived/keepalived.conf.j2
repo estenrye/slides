@@ -1,0 +1,29 @@
+! /etc/keepalived/keepalived.conf
+! Configuration File for keepalived
+global_defs {
+    router_id {{com.ryezone.platform.k8s.kube_api_server.hostname}}
+}
+vrrp_script check_apiserver {
+  script "/etc/keepalived/check_apiserver.sh"
+  interval 3
+  weight -2
+  fall 10
+  rise 2
+}
+
+vrrp_instance VI_1 {
+    state {{com.ryezone.platform.k8s.kube_api_server.keepalived.state}}
+    interface {{com.ryezone.platform.k8s.kube_api_server.keepalived.interface}}
+    virtual_router_id {{com.ryezone.platform.k8s.kube_api_server.keepalived.router_id}}
+    priority {{com.ryezone.platform.k8s.kube_api_server.keepalived.priority}}
+    authentication {
+        auth_type PASS
+        auth_pass {{com.ryezone.platform.k8s.kube_api_server.keepalived.auth_pass}}
+    }
+    virtual_ipaddress {
+        {{com.ryezone.platform.k8s.kube_api_server.keepalived.vip}}
+    }
+    track_script {
+        check_apiserver
+    }
+}
