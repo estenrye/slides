@@ -1,74 +1,50 @@
 """Role testing files using testinfra."""
 
-def test_keepalived_conf_directory(host):
-    """Validate /etc/keepalived directory."""
-    f = host.file("/etc/keepalived")
+def assert_directory(host, dir, user, group):
+    f = host.file(dir)
 
     assert f.exists
     assert f.is_directory
-    assert f.user == "root"
-    assert f.group == "root"
+    assert f.user == user
+    assert f.group == group
 
-
-def test_keepalived_conf_file(host):
-    """Validate /etc/keepalived/keepalived.conf file."""
-    f = host.file("/etc/keepalived/keepalived.conf")
+def assert_file(host, file, user, group):
+    f = host.file(file)
 
     assert f.exists
     assert f.is_file
-    assert f.user == "root"
-    assert f.group == "root"
+    assert f.user == user
+    assert f.group == group
 
-def test_keepalived_check_file(host):
-    """Validate /etc/keepalived/check_apiserver.sh file."""
-    f = host.file("/etc/keepalived/check_apiserver.sh")
-
-    assert f.exists
-    assert f.is_file
-    assert f.user == "root"
-    assert f.group == "root"
+def test_keepalived_conf_directory(host):
+    assert_directory(host, "/etc/keepalived", "root", "root")
 
 def test_haproxy_conf_directory(host):
-    """Validate /etc/haproxy directory."""
-    f = host.file("/etc/haproxy/haproxy.cfg")
+    assert_directory(host, "/etc/haproxy", "root", "root")
 
-    assert f.exists
-    assert f.is_directory
-    assert f.user == "root"
-    assert f.group == "root"
+def test_modules_load_d_conf_directory(host):
+    assert_directory(host, "/etc/modules-load.d", "root", "root")
+
+def test_sysctl_d_conf_directory(host):
+    assert_directory(host, "/etc/sysctl.d", "root", "root")
+
+def test_kubernetes_conf_directory(host):
+    assert_directory(host, "/etc/kubernetes", "root", "root")
+    assert_directory(host, "/etc/kubernetes/manifests", "root", "root")
+
+def test_keepalived_conf_files(host):
+    assert_file(host, "/etc/keepalived/keepalived.conf", "root", "root")
+    assert_file(host, "/etc/keepalived/check_apiserver.sh", "root", "root")
 
 def test_haproxy_conf_file(host):
-    """Validate /etc/haproxy/haproxy.cfg file."""
-    f = host.file("/etc/haproxy/haproxy.cfg")
+    assert_file(host, "/etc/haproxy/haproxy.cfg", "root", "root")
 
-    assert f.exists
-    assert f.is_file
-    assert f.user == "root"
-    assert f.group == "root"
+def test_kubernetes_manifest_file(host):
+    assert_file(host, "/etc/kubernetes/manifests/keepalived.yml", "root", "root")
+    assert_file(host, "/etc/kubernetes/manifests/haproxy.yml", "root", "root")
 
-def test_kubernetes_manifest_directory(host):
-    """Validate /etc/kubernetes/manifests directory."""
-    f = host.file("/etc/kubernetes/manifests")
+def test_crio_module_load_d_conf_file(host):
+    assert_file(host, "/etc/modules-load.d/crio.conf", "root", "root")
 
-    assert f.exists
-    assert f.is_directory
-    assert f.user == "root"
-    assert f.group == "root"
-
-def test_haproxy_manifest_file(host):
-    """Validate /etc/kubernetes/manifests/haproxy.yml file."""
-    f = host.file("/etc/kubernetes/manifests/haproxy.yml")
-
-    assert f.exists
-    assert f.is_file
-    assert f.user == "root"
-    assert f.group == "root"
-
-def test_keepalived_manifest_file(host):
-    """Validate /etc/kubernetes/manifests/keepalived.yml file."""
-    f = host.file("/etc/kubernetes/manifests/keepalived.yml")
-
-    assert f.exists
-    assert f.is_file
-    assert f.user == "root"
-    assert f.group == "root"
+def test_crio_module_load_d_conf_file(host):
+    assert_file(host, "/etc/sysctl.d/99-kubernetes-cri.conf", "root", "root")

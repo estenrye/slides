@@ -1,6 +1,52 @@
 ---
-- hosts: controlplane
+- hosts: all
   tasks:
-    - name: test-vars
-      debug:
-        msg: "keepalived: {{com.ryezone.platform.k8s.kube_api_server.keepalived.state}}"
+    - name: Create Configuration Directories
+      file:
+        path: "{{ item }}"
+        group: root
+        owner: root
+        state: directory
+      loop: "{{ com.ryezone.node.directories }}"
+      become: true
+    - name: Create Configuration Files
+      template:
+        src: "{{ item.template }}"
+        dest: "{{ item.path }}"
+        mode: "{{ item.mode }}"
+        owner: root
+        group: root
+      loop: "{{ com.ryezone.node.conf_files }}"
+      become: true
+    # - name: add Package signing Keys
+    #   apt_key:
+    #     url: "{{ item }}"
+    #     state: present
+    #   loop:
+    #     - https://download.docker.com/linux/ubuntu/gpg
+    #   become: true
+
+    # - name: Add Package Repositories
+    #   apt_repository:
+    #     repo: "{{ item }}"
+    #     state: present
+    #   loop:
+    #     - "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    #   become: true
+
+    # - name: Update Cache
+    #   apt:
+    #     cache_valid_time: 3600
+    #     update_cache: true
+    #   become: true
+
+    # - name: Install packages
+    #   apt:
+    #     name: "{{ item }}"
+    #   loop:
+    #     - apt-transport-https
+    #     - ca-certificates
+    #     - curl
+    #     - software-properties-common
+    #     - gnupg2
+    #   become: true

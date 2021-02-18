@@ -7,11 +7,15 @@ verifier:
   name: testinfra
 provisioner:
   name: ansible
+  config_options:
+    defaults:
+      hash_behaviour: merge
   playbooks:
     converge: ../../playbook.yml
 platforms:
   - name: controlplane01
     groups:
+      - all
       - controlplane
     box: geerlingguy/ubuntu2004
     box_version: 1.0.2
@@ -24,6 +28,7 @@ platforms:
         auto_config: true
   - name: controlplane02
     groups:
+      - all
       - controlplane
     box: geerlingguy/ubuntu2004
     box_version: 1.0.2

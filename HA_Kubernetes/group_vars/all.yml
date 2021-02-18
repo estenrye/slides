@@ -1,0 +1,23 @@
+---
+com:
+  ryezone:
+    node:
+      directories:
+        - /etc/modules-load.d
+        - /etc/sysctl.d
+      conf_files:
+        - template: etc/modules-load.d/crio.conf.j2
+          path: /etc/modules-load.d/crio.conf
+          mode: 644
+        - template: etc/sysctl.d/99-kubernetes-cri.conf.j2
+          path: /etc/sysctl.d/99-kubernetes-cri.conf
+          mode: 644
+    platform:
+      zone: dev.ryezone.com
+      k8s:
+        images:
+          haproxy: haproxy:2.1.4
+          keepalived: osixia/keepalived:1.3.5-1
+        kube_api_server:
+          hostname: kube_api.dev.ryezone.com
+          port: 64443
