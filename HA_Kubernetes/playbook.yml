@@ -57,22 +57,31 @@
         - net.bridge.bridge-nf-call-ip6tables
         - net.ipv4.ip_forward
       become: true
-
-    # - name: add Package signing Keys
-    #   apt_key:
-    #     url: "{{ item }}"
-    #     state: present
-    #   loop:
-    #     - https://download.docker.com/linux/ubuntu/gpg
-    #   become: true
-
-    # - name: Add Package Repositories
-    #   apt_repository:
-    #     repo: "{{ item }}"
-    #     state: present
-    #   loop:
-    #     - "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
-    #   become: true
+    - name: add cri-o Package signing Keys
+      ansible.builtin.apt_key:
+        url: "{{ item.url }}"
+        keyring: "{{ item.keyring }}"
+        id: "{{ item.key_id }}"
+        state: present
+      loop:
+        - url: "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ com.ryezone.platform.k8s.cri_o.os }}/Release.key"
+          keyring: "/etc/apt/trusted.gpg.d/libcontainers.gpg"
+          key_id: 2472D6D0D2F66AF87ABA8DA34D64390375060AA4
+        - url: "https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:{{ com.ryezone.platform.k8s.cri_o.version }}/{{ com.ryezone.platform.k8s.cri_o.os }}/Release.key"
+          keyring: /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg
+          key_id: 2472D6D0D2F66AF87ABA8DA34D64390375060AA4
+      become: true
+    - name: Add cri-o Package Repositories
+      ansible.builtin.apt_repository:
+        repo: "{{ item.repo }}"
+        filename: "{{ item.path }}"
+        state: present
+      loop:
+        - path: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable
+          repo: "deb [arch=amd64] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ com.ryezone.platform.k8s.cri_o.os }}/ /"
+        - path: "/etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:{{ com.ryezone.platform.k8s.cri_o.version }}"
+          repo: "deb [arch=amd64] http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ com.ryezone.platform.k8s.cri_o.version }}/{{ com.ryezone.platform.k8s.cri_o.os }}/ /"
+      become: true
 
     # - name: Update Cache
     #   apt:
