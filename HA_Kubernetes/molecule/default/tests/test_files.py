@@ -1,20 +1,5 @@
-"""Role testing files using testinfra."""
-
-def assert_directory(host, dir, user, group):
-    f = host.file(dir)
-
-    assert f.exists
-    assert f.is_directory
-    assert f.user == user
-    assert f.group == group
-
-def assert_file(host, file, user, group):
-    f = host.file(file)
-
-    assert f.exists
-    assert f.is_file
-    assert f.user == user
-    assert f.group == group
+from utils import assert_directory
+from utils import assert_file
 
 def test_keepalived_conf_directory(host):
     assert_directory(host, "/etc/keepalived", "root", "root")
@@ -42,9 +27,3 @@ def test_haproxy_conf_file(host):
 def test_kubernetes_manifest_file(host):
     assert_file(host, "/etc/kubernetes/manifests/keepalived.yml", "root", "root")
     assert_file(host, "/etc/kubernetes/manifests/haproxy.yml", "root", "root")
-
-def test_crio_module_load_d_conf_file(host):
-    assert_file(host, "/etc/modules-load.d/crio.conf", "root", "root")
-
-def test_crio_module_load_d_conf_file(host):
-    assert_file(host, "/etc/sysctl.d/99-kubernetes-cri.conf", "root", "root")
