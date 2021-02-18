@@ -2,15 +2,16 @@
 - hosts: all
   tasks:
     - name: Create Configuration Directories
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         group: root
         owner: root
         state: directory
       loop: "{{ com.ryezone.node.directories }}"
       become: true
+
     - name: Create Configuration Files
-      template:
+      ansible.builtin.template:
         src: "{{ item.template }}"
         dest: "{{ item.path }}"
         mode: "{{ item.mode }}"
@@ -18,6 +19,45 @@
         group: root
       loop: "{{ com.ryezone.node.conf_files }}"
       become: true
+
+    # install and configure pre-requisites
+    - name: Touch Files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        group: root
+        owner: root
+        mode: 644
+      loop:
+        - /etc/modules-load.d/crio.conf
+        - /etc/sysctl.d/99-kubernetes-cri.conf
+      become: true
+    - name: crio.conf - Set Values
+      ansible.builtin.lineinfile:
+        path: /etc/modules-load.d/crio.conf
+        line: "{{ item }}"
+      loop:
+        - overlay
+        - br_netfilter
+      become: yes
+    - name: load modules
+      community.general.modprobe:
+        name: "{{ item }}"
+      loop:
+        - overlay
+        - br_netfilter
+      become: true
+    - name: 99-kubernetes-cri.conf - Set Values
+      ansible.posix.sysctl:
+        name: "{{ item }}"
+        value: 1
+        sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
+        sysctl_set: true
+      loop:
+        - net.bridge.bridge-nf-call-iptables
+        - net.bridge.bridge-nf-call-ip6tables
+        - net.ipv4.ip_forward
+      become: true
+
     # - name: add Package signing Keys
     #   apt_key:
     #     url: "{{ item }}"
