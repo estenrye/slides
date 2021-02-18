@@ -82,20 +82,27 @@
         - path: "/etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:{{ com.ryezone.platform.k8s.cri_o.version }}"
           repo: "deb [arch=amd64] http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ com.ryezone.platform.k8s.cri_o.version }}/{{ com.ryezone.platform.k8s.cri_o.os }}/ /"
       become: true
-
-    # - name: Update Cache
-    #   apt:
-    #     cache_valid_time: 3600
-    #     update_cache: true
-    #   become: true
-
-    # - name: Install packages
-    #   apt:
-    #     name: "{{ item }}"
-    #   loop:
-    #     - apt-transport-https
-    #     - ca-certificates
-    #     - curl
-    #     - software-properties-common
-    #     - gnupg2
-    #   become: true
+    - name: Install CRI-O
+      ansible.builtin.apt:
+        name: "{{ item }}"
+      loop:
+        - cri-o
+        - cri-o-runc
+      become: true
+    - name: Create CRI-O Configuration Files
+      ansible.builtin.template:
+        src: "{{ item }}"
+        dest: "/{{ item }}"
+        mode: "644"
+        owner: root
+        group: root
+      loop:
+        - etc/crio/crio.conf.d/02-cgroup-manager.conf
+      become: true
+    - name: Enable CRI-O Daemon
+      ansible.builtin.systemd:
+        name: crio
+        daemon_reload: true
+        enabled: true
+        state: started
+      become: true

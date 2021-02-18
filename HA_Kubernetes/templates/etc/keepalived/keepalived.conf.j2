@@ -1,5 +1,7 @@
 ! /etc/keepalived/keepalived.conf
 ! Configuration File for keepalived
+! {{ ansible_managed }}
+
 global_defs {
     router_id {{com.ryezone.platform.k8s.kube_api_server.hostname}}
 }
