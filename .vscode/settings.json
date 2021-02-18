@@ -1,0 +1,6 @@
+{
+    "files.insertFinalNewline": true,
+    "files.eol": "\n",
+    "editor.tabSize": 2,
+    "files.trimTrailingWhitespace": true
+}
