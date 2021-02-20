@@ -8,6 +8,8 @@ com:
     platform:
       zone: dev.ryezone.com
       k8s:
+        kubeadm:
+          release: xenial
         cri_o:
           os: "x{{ ansible_distribution  }}_{{ ansible_distribution_version }}"
           version: "1.20"
