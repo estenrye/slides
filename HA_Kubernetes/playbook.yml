@@ -117,15 +117,16 @@
         - kubectl
       when: item not in holds.stdout
       become: true
-    - name: Create CRI-O Configuration Files
+    - name: Create Configuration Files
       ansible.builtin.template:
-        src: "{{ item }}"
+        src: "{{ item }}.j2"
         dest: "/{{ item }}"
         mode: "644"
         owner: root
         group: root
       loop:
         - etc/crio/crio.conf.d/02-cgroup-manager.conf
+        - etc/kubelet/config.yaml
       become: true
     - name: Enable CRI-O Daemon
       ansible.builtin.systemd:
@@ -133,4 +134,20 @@
         daemon_reload: true
         enabled: true
         state: started
+      become: true
+    - name: Disable Swap
+      ansible.builtin.command: swapoff -a
+      become: true
+    - name: Ensure Swap file path is removed
+      ansible.builtin.file:
+        path: /swapfile
+        state: absent
+      become: true
+    - name: Manage swap file entry in fstab.
+      mount:
+        name: none
+        src: /swapfile
+        fstype: swap
+        opts: sw
+        state: absent
       become: true

@@ -5,9 +5,11 @@ com:
       directories:
         - /etc/modules-load.d
         - /etc/sysctl.d
+        - /etc/kubelet
     platform:
       zone: dev.ryezone.com
       k8s:
+        cgroup_driver: cgroupfs
         kubeadm:
           release: xenial
         cri_o:

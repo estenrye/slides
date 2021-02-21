@@ -1,0 +1,4 @@
+# {{ ansible_managed }}
+[crio.runtime]
+conmon_cgroup = "pod"
+cgroup_manager = "{{ com.ryezone.platform.k8s.cgroup_driver }}"
