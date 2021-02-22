@@ -1,42 +1,16 @@
 ---
 com:
   ryezone:
-    node:
-      directories:
-        - /etc/haproxy
-        - /etc/keepalived
-        - /etc/kubernetes
-        - /etc/kubernetes/manifests
-        - /etc/kubelet
-        - /etc/modules-load.d
-        - /etc/sysctl.d
-      conf_files:
-        - template: etc/haproxy/haproxy.cfg.j2
-          path: /etc/haproxy/haproxy.cfg
-          mode: 644
-        - template: etc/keepalived/check_apiserver.sh.j2
-          path: /etc/keepalived/check_apiserver.sh
-          mode: 755
-        - template: etc/keepalived/keepalived.conf.j2
-          path: /etc/keepalived/keepalived.conf
-          mode: 644
-        - template: etc/kubernetes/manifests/haproxy.yml.j2
-          path: /etc/kubernetes/manifests/haproxy.yml
-          mode: 644
-        - template: etc/kubernetes/manifests/keepalived.yml.j2
-          path: /etc/kubernetes/manifests/keepalived.yml
-          mode: 644
     platform:
-      zone: dev.ryezone.com
       k8s:
         kube_api_server:
           keepalived:
-            state: backup
-            interface: eth0
+            state: BACKUP
+            interface: enp0s8
             router_id: 50
             priority: 101
             auth_pass: 42
-            vip: 10.5.50.20
+            vip: 10.5.99.20
           haproxy:
             backend_servers:
               - controlplane01

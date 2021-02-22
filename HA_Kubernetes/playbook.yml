@@ -7,35 +7,21 @@
         group: root
         owner: root
         state: directory
-      loop: "{{ com.ryezone.node.directories }}"
-      become: true
-
-    - name: Create Configuration Files
-      ansible.builtin.template:
-        src: "{{ item.template }}"
-        dest: "{{ item.path }}"
-        mode: "{{ item.mode }}"
-        owner: root
-        group: root
-      loop: "{{ com.ryezone.node.conf_files }}"
+      loop:
+        - /etc/modules-load.d
+        - /etc/sysctl.d
+        - /etc/kubelet
+        - /etc/iac_flags
       become: true
 
     # install and configure pre-requisites
-    - name: Touch Files
-      ansible.builtin.file:
-        path: "{{ item }}"
-        group: root
-        owner: root
-        mode: 644
-      loop:
-        - /etc/modules-load.d/crio.conf
-        - /etc/sysctl.d/99-kubernetes-cri.conf
-      become: true
     - name: crio.conf - Set Values
       ansible.builtin.lineinfile:
         path: /etc/modules-load.d/crio.conf
         line: "{{ item }}"
+        create: true
       loop:
+        - "# Ansible Managed"
         - overlay
         - br_netfilter
       become: yes
@@ -46,10 +32,16 @@
         - overlay
         - br_netfilter
       become: true
+    - name: 99-kubernetes-cri.conf
+      ansible.builtin.lineinfile:
+        path: /etc/sysctl.d/99-kubernetes-cri.conf
+        line: "# Ansible Managed"
+        create: true
+      become: yes
     - name: 99-kubernetes-cri.conf - Set Values
       ansible.posix.sysctl:
         name: "{{ item }}"
-        value: 1
+        value: "1"
         sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
         sysctl_set: true
       loop:
@@ -117,6 +109,17 @@
         - kubectl
       when: item not in holds.stdout
       become: true
+    - name: Clear default kubeadm files
+      ansible.builtin.command:
+        cmd: kubeadm reset --force
+        creates: /etc/iac_flags/kubeadm_reset.log
+      become: true
+    - name: create kubeadm reset flag
+      ansible.builtin.lineinfile:
+        path: /etc/iac_flags/kubeadm_reset.log
+        line: delete this file to enable the Clear default kubeadm files task.
+        create: true
+      become: true
     - name: Create Configuration Files
       ansible.builtin.template:
         src: "{{ item }}.j2"
@@ -136,7 +139,15 @@
         state: started
       become: true
     - name: Disable Swap
-      ansible.builtin.command: swapoff -a
+      ansible.builtin.command:
+        cmd: swapoff -a
+        creates: /etc/iac_flags/swapoff.log
+      become: true
+    - name: create swapoff flag
+      ansible.builtin.lineinfile:
+        path: /etc/iac_flags/swapoff.log
+        line: delete this file to enable the Disable Swap task.
+        create: true
       become: true
     - name: Ensure Swap file path is removed
       ansible.builtin.file:
@@ -150,4 +161,76 @@
         fstype: swap
         opts: sw
         state: absent
+      become: true
+
+- hosts: controlplane
+  tasks:
+    - name: Create Configuration Directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        group: root
+        owner: root
+        state: directory
+      loop:
+        - /etc/haproxy
+        - /etc/keepalived
+        - /etc/kubernetes
+        - /etc/kubernetes/manifests
+      become: true
+    - name: Create Configuration Files
+      ansible.builtin.template:
+        src: "{{ item }}.j2"
+        dest: "/{{ item }}"
+        mode: "644"
+        owner: root
+        group: root
+      loop:
+        - etc/haproxy/haproxy.cfg
+        - etc/keepalived/keepalived.conf
+        - etc/kubernetes/manifests/haproxy.yml
+        - etc/kubernetes/manifests/keepalived.yml
+      become: true
+    - name: Create Configuration Files
+      ansible.builtin.template:
+        src: "{{ item }}.j2"
+        dest: "/{{ item }}"
+        mode: "755"
+        owner: root
+        group: root
+      loop:
+        - etc/keepalived/check_apiserver.sh
+      become: true
+
+- hosts: controlplane01
+  tasks:
+    - name: run kubeadm init on initial controlplane node
+      command:
+        argv:
+          - kubeadm
+          - init
+          - --control-plane-endpoint
+          - "kube-api.{{ com.ryezone.platform.environment }}.{{ com.ryezone.platform.cloudflare.zone }}:{{ com.ryezone.platform.k8s.kube_api_server.port }}"
+          - --apiserver-cert-extra-sans
+          - "{{ansible_hostname}}.{{ com.ryezone.platform.environment }}.{{ com.ryezone.platform.cloudflare.zone }}"
+          - --apiserver-cert-extra-sans
+          - "{{ com.ryezone.platform.k8s.kube_api_server.keepalived.vip }}"
+          - --apiserver-advertise-address
+          - "{{ ansible_all_ipv4_addresses[0] }}"
+        creates: /etc/kubernetes/manifests/kube-apiserver.yaml
+      become: yes
+    - name: Create .kube Directory
+      ansible.builtin.file:
+        path: "{{ item }}"
+        group: vagrant
+        owner: vagrant
+        state: directory
+      loop:
+        - /home/vagrant/.kube
+    - name: Copy kube config
+      ansible.builtin.copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/vagrant/.kube/config
+        remote_src: true
+        owner: vagrant
+        group: vagrant
       become: true

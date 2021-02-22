@@ -34,7 +34,7 @@ defaults
 # apiserver frontend which proxys to the masters
 #---------------------------------------------------------------------
 frontend apiserver
-    bind *:{{com.ryezone.platform.k8s.kube_api_server.port}}
+    bind *:{{ com.ryezone.platform.k8s.kube_api_server.port }}
     mode tcp
     option tcplog
     default_backend apiserver
@@ -48,6 +48,6 @@ backend apiserver
     mode tcp
     option ssl-hello-chk
     balance     roundrobin
-    {%- for backend in com.ryezone.platform.k8s.kube_api_server.haproxy.backend_servers %}
-        server {{backend}} {{backend}}.{{com.ryezone.platform.zone}}:{{com.ryezone.platform.k8s.kube_api_server.haproxy.source_port}} check
-    {% endfor %}
+{% for backend in com.ryezone.platform.k8s.kube_api_server.haproxy.backend_servers %}
+        server {{ backend }} {{ backend }}.{{ com.ryezone.platform.environment }}.{{ com.ryezone.platform.cloudflare.zone }}:{{ com.ryezone.platform.k8s.kube_api_server.haproxy.source_port }} check
+{% endfor %}

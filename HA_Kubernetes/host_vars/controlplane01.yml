@@ -5,5 +5,5 @@ com:
       k8s:
         kube_api_server:
           keepalived:
-            state: master
+            state: MASTER
             priority: 100

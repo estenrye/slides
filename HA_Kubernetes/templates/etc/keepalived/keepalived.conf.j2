@@ -3,7 +3,7 @@
 ! {{ ansible_managed }}
 
 global_defs {
-    router_id {{com.ryezone.platform.k8s.kube_api_server.hostname}}
+    router_id kube-api.{{ com.ryezone.platform.environment }}.{{ com.ryezone.platform.cloudflare.zone }}
 }
 vrrp_script check_apiserver {
   script "/etc/keepalived/check_apiserver.sh"
