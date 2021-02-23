@@ -1,6 +1,8 @@
 ---
 com:
   ryezone:
+    node:
+      ip_advertise_address: 10.5.99.21
     platform:
       k8s:
         kube_api_server:

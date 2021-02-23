@@ -1,0 +1,5 @@
+---
+com:
+  ryezone:
+    node:
+      ip_advertise_address: 10.5.99.23

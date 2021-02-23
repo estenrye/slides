@@ -1,6 +1,8 @@
 ---
 com:
   ryezone:
+    node:
+      ip_advertise_address: "{{ ansible_all_ipv4_addresses[0] }}"
     platform:
       environment: dev
       cloudflare:

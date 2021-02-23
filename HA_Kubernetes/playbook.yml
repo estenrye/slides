@@ -163,7 +163,7 @@
         state: absent
       become: true
 
-- hosts: controlplane
+- hosts: controlplane01
   tasks:
     - name: Create Configuration Directories
       ansible.builtin.file:
@@ -200,9 +200,6 @@
       loop:
         - etc/keepalived/check_apiserver.sh
       become: true
-
-- hosts: controlplane01
-  tasks:
     - name: run kubeadm init on initial controlplane node
       command:
         argv:
@@ -215,9 +212,10 @@
           - --apiserver-cert-extra-sans
           - "{{ com.ryezone.platform.k8s.kube_api_server.keepalived.vip }}"
           - --apiserver-advertise-address
-          - "{{ ansible_all_ipv4_addresses[0] }}"
+          - "{{ com.ryezone.node.ip_advertise_address }}"
+          - --upload-certs
         creates: /etc/kubernetes/manifests/kube-apiserver.yaml
-      become: yes
+      become: true
     - name: Create .kube Directory
       ansible.builtin.file:
         path: "{{ item }}"
@@ -233,4 +231,206 @@
         remote_src: true
         owner: vagrant
         group: vagrant
+      become: true
+    - name: register kube config content
+      ansible.builtin.command:
+        cmd: cat /home/vagrant/.kube/config
+      register: kube_config
+    - name: register kube ca.crt
+      ansible.builtin.command:
+        cmd: cat /etc/kubernetes/pki/ca.crt
+      register: kube_ca_crt
+    - name: register kube ca.key
+      ansible.builtin.command:
+        cmd: cat /etc/kubernetes/pki/ca.key
+      register: kube_ca_key
+      become: true
+    - name: register kube sa.key
+      ansible.builtin.command:
+        cmd: cat /etc/kubernetes/pki/sa.key
+      register: kube_sa_key
+      become: true
+    - name: register kube sa.pub
+      ansible.builtin.command:
+        cmd: cat /etc/kubernetes/pki/sa.pub
+      register: kube_sa_pub
+      become: true
+    - name: register kube front-proxy-ca.crt
+      ansible.builtin.command:
+        cmd: cat /etc/kubernetes/pki/front-proxy-ca.crt
+      register: kube_front_proxy_ca_crt
+      become: true
+    - name: register kube front-proxy-ca.key
+      ansible.builtin.command:
+        cmd: cat /etc/kubernetes/pki/front-proxy-ca.key
+      register: kube_front_proxy_ca_key
+      become: true
+    - name: register kube etcd/ca.key
+      ansible.builtin.command:
+        cmd: cat /etc/kubernetes/pki/etcd/ca.key
+      register: kube_etcd_ca_key
+      become: true
+    - name: register kube etcd/ca.crt
+      ansible.builtin.command:
+        cmd: cat /etc/kubernetes/pki/etcd/ca.crt
+      register: kube_etcd_ca_crt
+      become: true
+
+- hosts: controlplane
+  tasks:
+    - name: check join status
+      ansible.builtin.stat:
+        path: /etc/kubernetes/manifests/kube-apiserver.yaml
+      register: control_plane_joined
+    - name: Create Configuration Directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        group: root
+        owner: root
+        state: directory
+      loop:
+        - /etc/haproxy
+        - /etc/keepalived
+        - /etc/kubernetes
+        - /etc/kubernetes/pki
+        - /etc/kubernetes/pki/etcd
+        - /etc/kubernetes/manifests
+      become: true
+    - name: Create .kube Directory
+      ansible.builtin.file:
+        path: "{{ item }}"
+        group: vagrant
+        owner: vagrant
+        state: directory
+      loop:
+        - /home/vagrant/.kube
+    - name: write kube config
+      ansible.builtin.copy:
+        dest: /home/vagrant/.kube/config
+        content: "{{ hostvars['controlplane01']['kube_config'].stdout }}"
+        owner: vagrant
+        group: vagrant
+    - name: write kube ca.crt
+      ansible.builtin.copy:
+        dest: /etc/kubernetes/pki/ca.crt
+        content: "{{ hostvars['controlplane01']['kube_ca_crt'].stdout }}"
+        owner: root
+        group: root
+        mode: "644"
+      when:
+        - hostvars['controlplane01']['kube_ca_crt'] is defined
+        - not control_plane_joined.stat.exists
+      become: true
+    - name: write kube ca.key
+      ansible.builtin.copy:
+        dest: /etc/kubernetes/pki/ca.key
+        content: "{{ hostvars['controlplane01']['kube_ca_key'].stdout }}"
+        owner: root
+        group: root
+        mode: "600"
+      when:
+        - hostvars['controlplane01']['kube_ca_key'] is defined
+        - not control_plane_joined.stat.exists
+      become: true
+    - name: write kube sa.key
+      ansible.builtin.copy:
+        dest: /etc/kubernetes/pki/sa.key
+        content: "{{ hostvars['controlplane01']['kube_sa_key'].stdout }}"
+        owner: root
+        group: root
+        mode: "600"
+      when:
+        - hostvars['controlplane01']['kube_sa_key'] is defined
+        - not control_plane_joined.stat.exists
+      become: true
+    - name: write kube sa.pub
+      ansible.builtin.copy:
+        dest: /etc/kubernetes/pki/sa.pub
+        content: "{{ hostvars['controlplane01']['kube_sa_pub'].stdout }}"
+        owner: root
+        group: root
+        mode: "644"
+      when:
+        - hostvars['controlplane01']['kube_sa_pub'] is defined
+        - not control_plane_joined.stat.exists
+      become: true
+    - name: write kube front-proxy-ca.crt
+      ansible.builtin.copy:
+        dest: /etc/kubernetes/pki/front-proxy-ca.crt
+        content: "{{ hostvars['controlplane01']['kube_front_proxy_ca_crt'].stdout }}"
+        owner: root
+        group: root
+        mode: "644"
+      when:
+        - hostvars['controlplane01']['kube_front_proxy_ca_crt'] is defined
+        - not control_plane_joined.stat.exists
+      become: true
+    - name: write kube front-proxy-ca.key
+      ansible.builtin.copy:
+        dest: /etc/kubernetes/pki/front-proxy-ca.key
+        content: "{{ hostvars['controlplane01']['kube_front_proxy_ca_key'].stdout }}"
+        owner: root
+        group: root
+        mode: "600"
+      when:
+        - hostvars['controlplane01']['kube_front_proxy_ca_key'] is defined
+        - not control_plane_joined.stat.exists
+      become: true
+    - name: write kube etcd/ca.key
+      ansible.builtin.copy:
+        dest: /etc/kubernetes/pki/etcd/ca.key
+        content: "{{ hostvars['controlplane01']['kube_etcd_ca_key'].stdout }}"
+        owner: root
+        group: root
+        mode: "600"
+      when:
+        - hostvars['controlplane01']['kube_etcd_ca_key'] is defined
+        - not control_plane_joined.stat.exists
+      become: true
+    - name: write kube etcd/ca.crt
+      ansible.builtin.copy:
+        dest: /etc/kubernetes/pki/etcd/ca.crt
+        content: "{{ hostvars['controlplane01']['kube_etcd_ca_crt'].stdout }}"
+        owner: root
+        group: root
+        mode: "644"
+      when:
+        - hostvars['controlplane01']['kube_etcd_ca_crt'] is defined
+        - not control_plane_joined.stat.exists
+      become: true
+    - name: join control plane node
+      ansible.builtin.command:
+        cmd: >
+          kubeadm join
+          --discovery-file /home/vagrant/.kube/config
+          --control-plane
+          --apiserver-advertise-address {{ com.ryezone.node.ip_advertise_address }}
+        creates: /etc/kubernetes/manifests/kube-apiserver.yaml
+      when:
+        - not control_plane_joined.stat.exists
+      become: true
+    - name: Create Configuration Files
+      ansible.builtin.template:
+        src: "{{ item }}.j2"
+        dest: "/{{ item }}"
+        mode: "644"
+        owner: root
+        group: root
+      loop:
+        - etc/haproxy/haproxy.cfg
+        - etc/keepalived/keepalived.conf
+        - etc/kubernetes/manifests/haproxy.yml
+        - etc/kubernetes/manifests/keepalived.yml
+      when: control_plane_joined.stat.exists
+      become: true
+    - name: Create Configuration Files
+      ansible.builtin.template:
+        src: "{{ item }}.j2"
+        dest: "/{{ item }}"
+        mode: "755"
+        owner: root
+        group: root
+      loop:
+        - etc/keepalived/check_apiserver.sh
+      when: control_plane_joined.stat.exists
       become: true
