@@ -1,0 +1,8 @@
+---
+haproxy_user: haproxy
+haproxy_group: haproxy
+
+haproxy_global_vars: []
+
+haproxy_frontends: []
+haproxy_backends: []

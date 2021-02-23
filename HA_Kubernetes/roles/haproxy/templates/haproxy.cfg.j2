@@ -1,0 +1,62 @@
+global
+  log /dev/log  local0
+  log /dev/log  local1 notice
+  stats socket /var/run/haproxy.sock mode 600 level admin
+  user {{ haproxy_user }}
+  group {{ haproxy_group }}
+  daemon
+{% for global_var in haproxy_global_vars %}
+  {{ global_var }}
+{% endfor %}
+
+defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option                  http-server-close
+    option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    retries                 1
+    timeout http-request    10s
+    timeout queue           20s
+    timeout connect         5s
+    timeout client          20s
+    timeout server          20s
+    timeout http-keep-alive 10s
+    timeout check           10s
+
+{% if ansible_os_family == 'Debian' %}
+  errorfile 400 /etc/haproxy/errors/400.http
+  errorfile 403 /etc/haproxy/errors/403.http
+  errorfile 408 /etc/haproxy/errors/408.http
+  errorfile 500 /etc/haproxy/errors/500.http
+  errorfile 502 /etc/haproxy/errors/502.http
+  errorfile 503 /etc/haproxy/errors/503.http
+  errorfile 504 /etc/haproxy/errors/504.http
+{% endif %}
+
+{% for frontend in haproxy_frontends %}
+frontend {{ frontend.name }}
+    bind {{ frontend.bind_address }}:{{ frontend.bind_port }}
+    mode {{ frontend.mode }}
+    default_backend {{ frontend.default_backend }}
+{% for option in frontend.options %}
+    option {{ option }}
+{% endfor %}
+{% endfor %}
+
+{% for backend in haproxy_backends %}
+backend {{ backend.name }}
+    mode {{ backend.mode }}
+    balance {{ backend.balance_method }}
+{% for option in backend.options %}
+    option {{ option }}
+{% endfor %}
+{% for check in backend.http_checks %}
+    http-check {{ check }}
+{% endfor %}
+{% for server in backend.servers %}
+    server {{ server.name }} {{ server.address }}:{{ server.port }} check
+{% endfor %}
+{% endfor %}
