@@ -13,6 +13,10 @@
       record: "{{ item.record }}.{{ com.ryezone.platform.environment }}"
       state: present
     loop:
+      - record: haproxy01
+        value: 10.5.99.18
+      - record: haproxy02
+        value: 10.5.99.19
       - record: kube-api
         value: 10.5.99.20
       - record: controlplane01
