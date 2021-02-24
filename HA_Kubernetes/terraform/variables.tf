@@ -103,7 +103,7 @@ variable "target_node" {
 variable "template_name" {
   description = "This is the proxmox template to use when provisioning servers."
   type        = string
-  default     = "ubuntu2004-tmpl-504"
+  default     = "ubuntu2004-tmpl-507"
 }
 
 variable "ciuser" {

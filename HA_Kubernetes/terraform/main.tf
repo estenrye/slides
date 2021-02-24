@@ -1,4 +1,4 @@
-resource "proxmox_vm_qemu" "a-etcd" {
+resource "proxmox_vm_qemu" "machine" {
   for_each = var.machines
 
   vmid = each.value.id
