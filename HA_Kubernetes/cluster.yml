@@ -8,9 +8,10 @@
       become: true
     - name: apt upgrade
       ansible.builtin.apt:
-        upgrade: yes
+        upgrade: true
       become: yes
 
 - hosts: external_load_balancer
   roles:
     - haproxy
+    - keepalived

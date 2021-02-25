@@ -3,24 +3,16 @@ all:
     external_load_balancer:
       hosts:
         haproxy01.dev.ryezone.com:
-          ansible_host: 10.5.99.18
         haproxy02.dev.ryezone.com:
-          ansible_host: 10.5.99.19
     controlplane:
       hosts:
         controlplane01.dev.ryezone.com:
-          ansible_host: 10.5.99.21
         controlplane02.dev.ryezone.com:
-          ansible_host: 10.5.99.22
         controlplane03.dev.ryezone.com:
-          ansible_host: 10.5.99.23
     nodes:
       hosts:
         node01.dev.ryezone.com:
-          ansible_host: 10.5.99.31
         node02.dev.ryezone.com:
-          ansible_host: 10.5.99.32
         node03.dev.ryezone.com:
-          ansible_host: 10.5.99.33
   vars:
-    ansible-user: automation-user
+    ansible_user: automation-user

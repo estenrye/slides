@@ -1,7 +1,27 @@
+# Decisions Open
+
+- Ubuntu Disk Encryption
+  - Can it boot without user intervention?
+  - How does this work with templates?
+- Partition Strategy
+  - Good Candidates
+    - /
+    - /var
+    - /home
+    - /swap partitions are unnecessary, these are replaced with /swapfile
+- should we put files in /etc/skel to build a consitent terminal experience on servers.
+  - include read only kube config?
+  - install zsh?
+
 # Decisions Made
 
+- Operating System
 - Container Runtime
 - Topology
+
+# Operating System
+
+- Ubuntu 20.04
 
 # Container Runtime
 

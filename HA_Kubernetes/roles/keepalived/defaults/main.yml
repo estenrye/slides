@@ -1,2 +1,10 @@
 ---
 # defaults file for keepalived
+keepalived_router_id: your-router-id
+keepalived_state: BACKUP
+keepalived_interface: enp0s3
+keepalived_virtual_router_id: 50
+keepalived_priority: 101
+keepalived_auth_pass: 42
+keepalived_vip: 192.168.1.50
+keepalived_check_port: 64443

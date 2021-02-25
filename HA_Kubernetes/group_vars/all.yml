@@ -8,6 +8,10 @@ com:
       cloudflare:
         api_token: "{{ lookup ('env', 'CLOUDFLARE_API_TOKEN') }}"
         zone: ryezone.com
+      keepalived:
+        virtual_router_id: 50
+        auth_pass: 42
+        vip: 10.5.99.20
       k8s:
         cgroup_driver: cgroupfs
         kubeadm:
