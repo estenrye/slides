@@ -1,0 +1,4 @@
+# {{ ansible_managed }}
+[crio.runtime]
+conmon_cgroup = "{{ crio_common_cgroup }}"
+cgroup_manager = "{{ crio_cgroup_driver }}"

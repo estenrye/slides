@@ -172,8 +172,6 @@
         owner: root
         state: directory
       loop:
-        - /etc/haproxy
-        - /etc/keepalived
         - /etc/kubernetes
         - /etc/kubernetes/manifests
       become: true
@@ -185,20 +183,8 @@
         owner: root
         group: root
       loop:
-        - etc/haproxy/haproxy.cfg
-        - etc/keepalived/keepalived.conf
         - etc/kubernetes/manifests/haproxy.yml
         - etc/kubernetes/manifests/keepalived.yml
-      become: true
-    - name: Create Configuration Files
-      ansible.builtin.template:
-        src: "{{ item }}.j2"
-        dest: "/{{ item }}"
-        mode: "755"
-        owner: root
-        group: root
-      loop:
-        - etc/keepalived/check_apiserver.sh
       become: true
     - name: run kubeadm init on initial controlplane node
       command:
@@ -289,8 +275,6 @@
         owner: root
         state: directory
       loop:
-        - /etc/haproxy
-        - /etc/keepalived
         - /etc/kubernetes
         - /etc/kubernetes/pki
         - /etc/kubernetes/pki/etcd
@@ -408,29 +392,4 @@
         creates: /etc/kubernetes/manifests/kube-apiserver.yaml
       when:
         - not control_plane_joined.stat.exists
-      become: true
-    - name: Create Configuration Files
-      ansible.builtin.template:
-        src: "{{ item }}.j2"
-        dest: "/{{ item }}"
-        mode: "644"
-        owner: root
-        group: root
-      loop:
-        - etc/haproxy/haproxy.cfg
-        - etc/keepalived/keepalived.conf
-        - etc/kubernetes/manifests/haproxy.yml
-        - etc/kubernetes/manifests/keepalived.yml
-      when: control_plane_joined.stat.exists
-      become: true
-    - name: Create Configuration Files
-      ansible.builtin.template:
-        src: "{{ item }}.j2"
-        dest: "/{{ item }}"
-        mode: "755"
-        owner: root
-        group: root
-      loop:
-        - etc/keepalived/check_apiserver.sh
-      when: control_plane_joined.stat.exists
       become: true

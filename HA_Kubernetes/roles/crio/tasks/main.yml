@@ -1,0 +1,111 @@
+---
+- name: Create Configuration Directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    group: root
+    owner: root
+    state: directory
+  loop:
+    - /etc/modules-load.d
+    - /etc/sysctl.d
+    - /etc/iac_flags
+  become: true
+
+- name: Create the .conf file to load the modules at bootup
+  ansible.builtin.template:
+    src: crio.conf.j2
+    dest: /etc/modules-load.d/crio.conf
+    mode: "644"
+    owner: root
+    group: root
+  become: true
+
+- name: load modules
+  community.general.modprobe:
+    name: "{{ item }}"
+  loop: "{{ crio_modules }}"
+  become: true
+
+- name: Set up required sysctl params, these persist across reboots.
+  ansible.builtin.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    reload: true
+    sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
+  become: yes
+  with_dict: "{{ crio_sysctl_parameters }}"
+
+- name: Flush Handlers
+  meta: flush_handlers
+
+- name: addPackage signing Keys
+  ansible.builtin.apt_key:
+    url: "{{ item.url }}"
+    keyring: "{{ item.keyring }}"
+    id: "{{ item.key_id }}"
+    state: present
+  loop:
+    - url: "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ crio_os }}/Release.key"
+      keyring: /etc/apt/trusted.gpg.d/libcontainers.gpg
+      key_id: "{{ crio_package_signing_key_id }}"
+    - url: "https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:{{ crio_version }}/{{ crio_os }}/Release.key"
+      keyring: /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg
+      key_id: "{{ crio_package_signing_key_id }}"
+  become: true
+
+- name: Add Package Repositories
+  ansible.builtin.apt_repository:
+    repo: "{{ item.repo }}"
+    filename: "{{ item.path }}"
+    state: present
+  loop:
+    - path: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable
+      repo: "deb [arch=amd64] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ crio_os }}/ /"
+    - path: "/etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:{{ crio_version }}"
+      repo: "deb [arch=amd64] http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ crio_version }}/{{ crio_os }}/ /"
+  become: true
+
+- name: Only run "update_cache=yes" if the last one is more than 3600 seconds ago
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  become: true
+
+- name: Install Packages
+  ansible.builtin.apt:
+    name:
+      - cri-o
+      - cri-o-runc
+  become: true
+
+- name: get apt mark holds
+  ansible.builtin.command: apt-mark showhold
+  register: holds
+  changed_when: false
+  become: true
+
+- name: apt mark packages
+  ansible.builtin.command: "apt-mark hold {{item}}"
+  loop:
+    - cri-o
+    - cri-o-runc
+  when: item not in holds.stdout
+  become: true
+
+- name: Configure CRI-O to use cgroupfs cgroup driver.
+  ansible.builtin.template:
+    src: 02-cgroup-manager.conf.j2
+    dest: /etc/crio/crio.conf.d/02-cgroup-manager.conf
+    mode: "644"
+    owner: root
+    group: root
+  become: true
+  notify: reload systemd
+
+- name: Enable CRI-O Daemon
+  ansible.builtin.systemd:
+    name: crio
+    daemon_reload: true
+    enabled: true
+    state: started
+  become: true
