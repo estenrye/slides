@@ -1,0 +1,43 @@
+- name: check join status
+  ansible.builtin.stat:
+    path: /etc/kubernetes/manifests/kube-apiserver.yaml
+  register: control_plane_joined
+
+- name: run kubeadm init on initial controlplane node
+  ansible.builtin.command:
+    argv:
+      - kubeadm
+      - init
+      - --control-plane-endpoint
+      - "{{ kubernetes_control_plane_endpoint_address }}:{{ kubernetes_control_plane_endpoint_port }}"
+      - --apiserver-cert-extra-sans
+      - "{{ kubernetes_node_fqdn }}"
+      - --apiserver-cert-extra-sans
+      - "{{ kubernetes_control_plane_endpoint_vip }}"
+      - --apiserver-advertise-address
+      - "{{ kubernetes_advertise_address }}"
+    creates: /etc/kubernetes/manifests/kube-apiserver.yaml
+  become: true
+  when:
+    - not control_plane_joined.stat.exists
+
+- name: Create .kube Directory
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    group: "{{ ansible_user }}"
+    owner: "{{ ansible_user }}"
+    state: directory
+  when:
+    - kubernetes_is_initial_controlplane
+    - not control_plane_joined.stat.exists
+
+- name: Copy kube config
+  ansible.builtin.copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    remote_src: true
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  become: true
+  when:
+    - not control_plane_joined.stat.exists

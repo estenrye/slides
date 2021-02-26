@@ -1,0 +1,42 @@
+- name: check join status
+  ansible.builtin.stat:
+    path: /etc/kubernetes/manifests/kube-apiserver.yaml
+  register: control_plane_joined
+
+# Pull kube conf to node.
+
+- name: Pull cluster certificates to Control Plane Node
+  ansible.posix.synchronize:
+    src: "rsync://{{ kubernetes_initial_controlplane }}{{ item }}"
+    dest: "{{ item }}"
+    mode: pull
+  become: true
+  loop:
+    - "/home/{{ ansible_user }}/.kube"
+    - /etc/kubernetes/pki/ca.crt
+    - /etc/kubernetes/pki/ca.key
+    - /etc/kubernetes/pki/sa.key
+    - /etc/kubernetes/pki/sa.pub
+    - /etc/kubernetes/pki/front-proxy-ca.crt
+    - /etc/kubernetes/pki/front-proxy-ca.key
+    - /etc/kubernetes/pki/etcd/ca.key
+    - /etc/kubernetes/pki/etcd/ca.crt
+
+- name: Pull cluster certificates to Control Plane Node
+  ansible.posix.synchronize:
+    src: "rsync://{{ kubernetes_initial_controlplane }}{{ item }}"
+    dest: "{{ item }}"
+    mode: pull
+  become: true
+  loop:
+    - "/home/{{ ansible_user }}/.kube"
+    - /etc/kubernetes/pki/ca.crt
+    - /etc/kubernetes/pki/ca.key
+    - /etc/kubernetes/pki/sa.key
+    - /etc/kubernetes/pki/sa.pub
+    - /etc/kubernetes/pki/front-proxy-ca.crt
+    - /etc/kubernetes/pki/front-proxy-ca.key
+    - /etc/kubernetes/pki/etcd/ca.key
+    - /etc/kubernetes/pki/etcd/ca.crt
+  when:
+    - not control_plane_joined.stat.exists

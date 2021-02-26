@@ -1,0 +1,2 @@
+kubernetes_is_controlplane: false
+kubernetes_is_initial_controlplane: false

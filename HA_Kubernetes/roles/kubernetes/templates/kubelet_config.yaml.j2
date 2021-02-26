@@ -1,0 +1,4 @@
+# {{ ansible_managed }}
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+cgroupDriver: "{{ kubernetes_cgroup_driver }}"

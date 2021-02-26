@@ -6,11 +6,11 @@
   tasks:
   - name: Set A Records
     community.general.cloudflare_dns:
-      zone: "{{ com.ryezone.platform.cloudflare.zone }}"
-      api_token: "{{ com.ryezone.platform.cloudflare.api_token }}"
+      zone: "{{ cloudflare.zone }}"
+      api_token: "{{ cloudflare.api_token }}"
       type: A
       value: "{{ item.value }}"
-      record: "{{ item.record }}.{{ com.ryezone.platform.environment }}"
+      record: "{{ item.record }}.{{ platform_environment }}"
       state: present
     loop:
       - record: haproxy01

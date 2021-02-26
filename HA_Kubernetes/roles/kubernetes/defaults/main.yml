@@ -1,2 +1,24 @@
 ---
-# defaults file for kubernetes
+kubernetes_package_signing_key_id: 54A647F9048D5688D7DA2ABE6A030B21BA07F4FB
+kubernetes_kubeadm_release: xenial
+kubernetes_cgroup_driver: cgroupfs
+kubernetes_cni_calico_manifest_url: https://docs.projectcalico.org/manifests/calico.yaml
+
+kubernetes_packages:
+  - kubelet
+  - kubeadm
+  - kubectl
+
+kubernetes_zone: example.com
+
+kubernetes_control_plane_endpoint_address: "kube-api.{{ kubernetes_zone }}"
+kubernetes_control_plane_endpoint_port: 64443
+kubernetes_control_plane_endpoint_vip: 192.168.1.50
+
+kubernetes_advertise_address: "{{ ansible_all_ipv4_addresses[0] }}"
+
+kubernetes_is_initial_controlplane: false
+kubernetes_node_fqdn: "{{ ansible_hostname }}.{{ kubernetes_zone }}"
+kubernetes_is_controlplane: false
+
+kubernetes_cni_certificate_entrust_not_after: "+365d"

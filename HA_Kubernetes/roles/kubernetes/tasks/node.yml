@@ -1,0 +1,12 @@
+- name: join worker node
+  ansible.builtin.command:
+    argv:
+      - kubeadm
+      - join
+      - --discovery-file
+      - "/home/{{ ansible_user }}/.kube/config"
+      - --apiserver-advertise-address
+      - "{{ kubernetes_advertise_address }}"
+    creates: /etc/iac_flags/kubeadm_node_join.flag
+    notify: create node join flag
+  become: true

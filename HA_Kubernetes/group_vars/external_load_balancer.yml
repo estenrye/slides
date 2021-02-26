@@ -1,15 +1,12 @@
-keepalived_router_id: "kube-api.{{ com.ryezone.platform.environment }}.{{ com.ryezone.platform.cloudflare.zone }}:{{ com.ryezone.platform.k8s.kube_api_server.port }}"
-keepalived_state: BACKUP
+keepalived_virtual_router_id: 50
+keepalived_auth_pass: 42
+keepalived_vip: "{{ kubernetes_api_server_vip }}"
 keepalived_interface: eth0
-keepalived_virtual_router_id: "{{ com.ryezone.platform.keepalived.virtual_router_id }}"
-keepalived_priority: 101
-keepalived_auth_pass: "{{ com.ryezone.platform.keepalived.auth_pass }}"
-keepalived_vip: "{{ com.ryezone.platform.keepalived.vip }}"
-keepalived_check_port: "{{ com.ryezone.platform.k8s.kube_api_server.port }}"
+keepalived_check_port: "{{ kubernetes_api_server_port }}"
 haproxy_frontends:
   - name: apiserver
     bind_address: "*"
-    bind_port: "{{ com.ryezone.platform.k8s.kube_api_server.port }}"
+    bind_port: "{{ kubernetes_api_server_port }}"
     mode: tcp
     default_backend: apiserver
     options:
@@ -25,11 +22,11 @@ haproxy_backends:
       - expect status 200
     servers:
       - name: controlplane01
-        address: "controlplane01.{{ com.ryezone.platform.environment }}.{{ com.ryezone.platform.cloudflare.zone }}"
+        address: "controlplane01.{{ kubernetes_zone }}"
         port: 6443
       - name: controlplane02
-        address: "controlplane02.{{ com.ryezone.platform.environment }}.{{ com.ryezone.platform.cloudflare.zone }}"
+        address: "controlplane02.{{ kubernetes_zone }}"
         port: 6443
       - name: controlplane03
-        address: "controlplane03.{{ com.ryezone.platform.environment }}.{{ com.ryezone.platform.cloudflare.zone }}"
+        address: "controlplane03.{{ kubernetes_zone }}"
         port: 6443

@@ -8,47 +8,11 @@
         owner: root
         state: directory
       loop:
-        - /etc/modules-load.d
-        - /etc/sysctl.d
         - /etc/kubelet
         - /etc/iac_flags
       become: true
 
     # install and configure pre-requisites
-    - name: crio.conf - Set Values
-      ansible.builtin.lineinfile:
-        path: /etc/modules-load.d/crio.conf
-        line: "{{ item }}"
-        create: true
-      loop:
-        - "# Ansible Managed"
-        - overlay
-        - br_netfilter
-      become: yes
-    - name: load modules
-      community.general.modprobe:
-        name: "{{ item }}"
-      loop:
-        - overlay
-        - br_netfilter
-      become: true
-    - name: 99-kubernetes-cri.conf
-      ansible.builtin.lineinfile:
-        path: /etc/sysctl.d/99-kubernetes-cri.conf
-        line: "# Ansible Managed"
-        create: true
-      become: yes
-    - name: 99-kubernetes-cri.conf - Set Values
-      ansible.posix.sysctl:
-        name: "{{ item }}"
-        value: "1"
-        sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
-        sysctl_set: true
-      loop:
-        - net.bridge.bridge-nf-call-iptables
-        - net.bridge.bridge-nf-call-ip6tables
-        - net.ipv4.ip_forward
-      become: true
     - name: addPackage signing Keys
       ansible.builtin.apt_key:
         url: "{{ item.url }}"
@@ -56,12 +20,6 @@
         id: "{{ item.key_id }}"
         state: present
       loop:
-        - url: "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ com.ryezone.platform.k8s.cri_o.os }}/Release.key"
-          keyring: /etc/apt/trusted.gpg.d/libcontainers.gpg
-          key_id: 2472D6D0D2F66AF87ABA8DA34D64390375060AA4
-        - url: "https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:{{ com.ryezone.platform.k8s.cri_o.version }}/{{ com.ryezone.platform.k8s.cri_o.os }}/Release.key"
-          keyring: /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg
-          key_id: 2472D6D0D2F66AF87ABA8DA34D64390375060AA4
         - url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
           keyring: /etc/apt/trusted.gpg.d/google_cloud_packages.gpg
           key_id: 54A647F9048D5688D7DA2ABE6A030B21BA07F4FB
@@ -72,10 +30,6 @@
         filename: "{{ item.path }}"
         state: present
       loop:
-        - path: /etc/apt/sources.list.d/devel:kubic:libcontainers:stable
-          repo: "deb [arch=amd64] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ com.ryezone.platform.k8s.cri_o.os }}/ /"
-        - path: "/etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:{{ com.ryezone.platform.k8s.cri_o.version }}"
-          repo: "deb [arch=amd64] http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ com.ryezone.platform.k8s.cri_o.version }}/{{ com.ryezone.platform.k8s.cri_o.os }}/ /"
         - path: /etc/apt/sources.list.d/kubernetes
           repo: "deb https://apt.kubernetes.io/ kubernetes-{{ com.ryezone.platform.k8s.kubeadm.release }} main"
       become: true
@@ -88,8 +42,6 @@
       ansible.builtin.apt:
         name: "{{ item }}"
       loop:
-        - cri-o
-        - cri-o-runc
         - kubelet
         - kubeadm
         - kubectl
@@ -102,8 +54,6 @@
     - name: apt mark packages
       ansible.builtin.command: "apt-mark hold {{item}}"
       loop:
-        - cri-o
-        - cri-o-runc
         - kubelet
         - kubeadm
         - kubectl
@@ -111,15 +61,15 @@
       become: true
     - name: Clear default kubeadm files
       ansible.builtin.command:
-        cmd: kubeadm reset --force
-        creates: /etc/iac_flags/kubeadm_reset.log
+        cmd: kubeadm reset --force && touch /etc/iac_flags/kubeadm_reset.flag
+        creates: /etc/iac_flags/kubeadm_reset.flag
       become: true
-    - name: create kubeadm reset flag
-      ansible.builtin.lineinfile:
-        path: /etc/iac_flags/kubeadm_reset.log
-        line: delete this file to enable the Clear default kubeadm files task.
-        create: true
-      become: true
+    # - name: create kubeadm reset flag
+    #   ansible.builtin.lineinfile:
+    #     path: /etc/iac_flags/kubeadm_reset.log
+    #     line: delete this file to enable the Clear default kubeadm files task.
+    #     create: true
+    #   become: true
     - name: Create Configuration Files
       ansible.builtin.template:
         src: "{{ item }}.j2"
@@ -128,27 +78,20 @@
         owner: root
         group: root
       loop:
-        - etc/crio/crio.conf.d/02-cgroup-manager.conf
         - etc/kubelet/config.yaml
       become: true
-    - name: Enable CRI-O Daemon
-      ansible.builtin.systemd:
-        name: crio
-        daemon_reload: true
-        enabled: true
-        state: started
-      become: true
+
     - name: Disable Swap
       ansible.builtin.command:
-        cmd: swapoff -a
-        creates: /etc/iac_flags/swapoff.log
+        cmd: swapoff -a && touch /etc/iac_flags/swapoff.flag
+        creates: /etc/iac_flags/swapoff.flag
       become: true
     - name: create swapoff flag
-      ansible.builtin.lineinfile:
-        path: /etc/iac_flags/swapoff.log
-        line: delete this file to enable the Disable Swap task.
-        create: true
-      become: true
+      # ansible.builtin.lineinfile:
+      #   path: /etc/iac_flags/swapoff.log
+      #   line: delete this file to enable the Disable Swap task.
+      #   create: true
+      # become: true
     - name: Ensure Swap file path is removed
       ansible.builtin.file:
         path: /swapfile

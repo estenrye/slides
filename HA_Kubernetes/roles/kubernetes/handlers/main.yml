@@ -1,2 +1,28 @@
 ---
 # handlers file for kubernetes
+- name: create swapoff flag
+  ansible.builtin.lineinfile:
+    path: /etc/iac_flags/swapoff.flag
+    line: delete this file to enable the Disable Swap task.
+    create: true
+
+- name: create reset flag
+  ansible.builtin.lineinfile:
+    path: /etc/iac_flags/kubeadm_reset.flag
+    line: delete this file to enable the Clear default kubeadm files task.
+    create: true
+  become: true
+
+- name: create node join flag
+  ansible.builtin.lineinfile:
+    path: /etc/iac_flags/kubeadm_node_join.flag
+    line: delete this file to enable the Clear default kubeadm files task.
+    create: true
+  become: true
+
+- name: apply cni manifest to cluster
+  ansible.builtin.lineinfile:
+    path: /etc/iac_flags/cni_apply_cluster.flag
+    line: delete this file to enable the Apply CNI Manifest task.
+    create: true
+  become: true

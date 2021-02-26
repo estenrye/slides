@@ -1,0 +1,25 @@
+- name: create platform manifests directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    state: directory
+  loop:
+    - /etc/platform
+    - /etc/platform/manifests
+  become: true
+
+- name: download cni manifest
+  ansible.builtin.get_url:
+    dest: /etc/platform/manifests/cni_calico_manifest.yml
+    url: "{{ kubernetes_cni_calico_manifest_url }}"
+    mode: 0644
+    owner: root
+    group: root
+  become: true
+  
+- name: Apply CNI manifest
+  ansible.builtin.command:
+    cmd: kubectl apply -f /etc/platform/manifests/cni_calico_manifest.yml
+    creates: /etc/iac_flags/cni_apply_cluster.flag
+  notify: apply cni manifest to cluster

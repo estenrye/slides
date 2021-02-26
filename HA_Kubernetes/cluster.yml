@@ -5,11 +5,8 @@
       ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
-      become: true
-    - name: apt upgrade
-      ansible.builtin.apt:
         upgrade: true
-      become: yes
+  become: yes
 
 - hosts: external_load_balancer
   roles:
@@ -17,7 +14,14 @@
     - keepalived
 
 - hosts:
-    - controlplane
-    - nodes
+    - initial_controlplane
   roles:
     - crio
+    - kubernetes
+
+# - hosts:
+#     - additional_controlplane
+#     - nodes
+#   roles:
+#     - crio
+#     - kubernetes

@@ -1,0 +1,87 @@
+- name: Create Configuration Directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    group: root
+    owner: root
+    state: directory
+  loop:
+    - /etc/kubelet
+    - /etc/iac_flags
+  become: true
+
+# install and configure pre-requisites
+- name: Add Kubernetes Package Signing Key
+  ansible.builtin.apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    keyring: /etc/apt/trusted.gpg.d/google_cloud_packages.gpg
+    id: "{{ kubernetes_package_signing_key_id }}"
+    state: present
+  become: true
+
+- name: Add Package Repositories
+  ansible.builtin.apt_repository:
+    repo: "deb https://apt.kubernetes.io/ kubernetes-{{ kubernetes_kubeadm_release }} main"
+    filename: /etc/apt/sources.list.d/kubernetes
+    state: present
+  become: true
+
+- name: Update apt cache if the last one is more than 3600 seconds ago
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  become: true
+
+- name: Install Kubernetes Packages
+  ansible.builtin.apt:
+    name: "{{ kubernetes_packages }}"
+  become: true
+
+- name: get apt mark holds
+  ansible.builtin.command: apt-mark showhold
+  register: holds
+  changed_when: false
+  become: true
+
+- name: apt mark packages
+  ansible.builtin.command: "apt-mark hold {{item}}"
+  loop: "{{ kubernetes_packages }}"
+  when: item not in holds.stdout
+  become: true
+
+- name: Clear default kubeadm files
+  ansible.builtin.command:
+    cmd: kubeadm reset --force
+    creates: /etc/iac_flags/kubeadm_reset.flag
+  notify: create reset flag
+  become: true
+
+- name: Create Configuration Files
+  ansible.builtin.template:
+    src: kubelet_config.yaml.j2
+    dest: /etc/kubelet/config.yaml
+    mode: "644"
+    owner: root
+    group: root
+  become: true
+
+- name: Disable Swap
+  ansible.builtin.command:
+    cmd: swapoff -a
+    creates: /etc/iac_flags/swapoff.flag
+  notify: create swapoff flag
+  become: true
+
+- name: Ensure Swap file path is removed
+  ansible.builtin.file:
+    path: /swapfile
+    state: absent
+  become: true
+
+- name: Manage swap file entry in fstab.
+  mount:
+    name: none
+    src: /swapfile
+    fstype: swap
+    opts: sw
+    state: absent
+  become: true
