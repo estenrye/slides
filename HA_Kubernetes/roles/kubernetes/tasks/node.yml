@@ -1,6 +1,6 @@
 - name: check join status
   ansible.builtin.stat:
-    path: /etc/kubernetes/manifests/kube-apiserver.yaml
+    path: /etc/kubernetes/pki/ca.crt
   register: control_plane_joined
 
 - name: Join Additional Controlplane Node
