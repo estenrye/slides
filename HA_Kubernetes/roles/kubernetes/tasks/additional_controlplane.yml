@@ -5,38 +5,45 @@
 
 # Pull kube conf to node.
 
-- name: Pull cluster certificates to Control Plane Node
-  ansible.posix.synchronize:
-    src: "rsync://{{ kubernetes_initial_controlplane }}{{ item }}"
-    dest: "{{ item }}"
-    mode: pull
-  become: true
-  loop:
-    - "/home/{{ ansible_user }}/.kube"
-    - /etc/kubernetes/pki/ca.crt
-    - /etc/kubernetes/pki/ca.key
-    - /etc/kubernetes/pki/sa.key
-    - /etc/kubernetes/pki/sa.pub
-    - /etc/kubernetes/pki/front-proxy-ca.crt
-    - /etc/kubernetes/pki/front-proxy-ca.key
-    - /etc/kubernetes/pki/etcd/ca.key
-    - /etc/kubernetes/pki/etcd/ca.crt
+# - name: Create .kube Directory
+#   ansible.builtin.file:
+#     path: "/home/{{ ansible_user }}/.kube"
+#     group: "{{ ansible_user }}"
+#     owner: "{{ ansible_user }}"
+#     state: directory
+#   when:
+#     - kubernetes_is_initial_controlplane
+#     - not control_plane_joined.stat.exists
 
-- name: Pull cluster certificates to Control Plane Node
-  ansible.posix.synchronize:
-    src: "rsync://{{ kubernetes_initial_controlplane }}{{ item }}"
-    dest: "{{ item }}"
-    mode: pull
-  become: true
-  loop:
-    - "/home/{{ ansible_user }}/.kube"
-    - /etc/kubernetes/pki/ca.crt
-    - /etc/kubernetes/pki/ca.key
-    - /etc/kubernetes/pki/sa.key
-    - /etc/kubernetes/pki/sa.pub
-    - /etc/kubernetes/pki/front-proxy-ca.crt
-    - /etc/kubernetes/pki/front-proxy-ca.key
-    - /etc/kubernetes/pki/etcd/ca.key
-    - /etc/kubernetes/pki/etcd/ca.crt
+# - name: Copy kube config
+#   ansible.builtin.copy:
+#     content: "{{ hostvars[kubernetes_initial_controlplane_hostvar_key]['kube_config'].stdout }}"
+#     dest: "/home/{{ ansible_user }}/.kube/config"
+#     remote_src: true
+#     owner: "{{ ansible_user }}"
+#     group: "{{ ansible_user }}"
+#   when:
+#     - hostvars[kubernetes_initial_controlplane_hostvar_key]['kube_config'] is defined
+#     - not control_plane_joined.stat.exists
+
+- name: Join Additional Controlplane Node
+  ansible.builtin.command:
+    argv:
+      - kubeadm
+      - join
+      - "{{ kubernetes_control_plane_endpoint_address }}:{{ kubernetes_control_plane_endpoint_port }}"
+      - --apiserver-advertise-address
+      - "{{ kubernetes_advertise_address }}"
+      - --certificate-key
+      - "{{ hostvars[kubernetes_initial_controlplane_hostvar_key]['certificate_key'].stdout }}"
+      - --control-plane
+      - --discovery-token
+      - "{{ hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token'].stdout }}"
+      - --discovery-token-ca-cert-hash
+      - "sha256:{{ hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token_ca_cert_hash'].stdout }}"
   when:
     - not control_plane_joined.stat.exists
+    - hostvars[kubernetes_initial_controlplane_hostvar_key]['certificate_key'] is defined
+    - hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token'] is defined
+    - hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token_ca_cert_hash'] is defined
+  become: true

@@ -1,12 +1,21 @@
-- name: join worker node
+- name: check join status
+  ansible.builtin.stat:
+    path: /etc/kubernetes/manifests/kube-apiserver.yaml
+  register: control_plane_joined
+
+- name: Join Additional Controlplane Node
   ansible.builtin.command:
     argv:
       - kubeadm
       - join
-      - --discovery-file
-      - "/home/{{ ansible_user }}/.kube/config"
-      - --apiserver-advertise-address
-      - "{{ kubernetes_advertise_address }}"
-    creates: /etc/iac_flags/kubeadm_node_join.flag
-    notify: create node join flag
+      - "{{ kubernetes_control_plane_endpoint_address }}:{{ kubernetes_control_plane_endpoint_port }}"
+      - --discovery-token
+      - "{{ hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token'].stdout }}"
+      - --discovery-token-ca-cert-hash
+      - "sha256:{{ hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token_ca_cert_hash'].stdout }}"
+  when:
+    - not control_plane_joined.stat.exists
+    - hostvars[kubernetes_initial_controlplane_hostvar_key]['certificate_key'] is defined
+    - hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token'] is defined
+    - hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token_ca_cert_hash'] is defined
   become: true

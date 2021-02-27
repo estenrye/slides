@@ -1,7 +1,7 @@
 ---
 - name: Install kubeadm, kublet, and kubectl
   ansible.builtin.include_tasks:
-    file: initial_controlplane.yml
+    file: install_kubernetes.yml
 
 # Initialize Initial Node
 

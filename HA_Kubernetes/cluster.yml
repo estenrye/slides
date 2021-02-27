@@ -1,13 +1,4 @@
 ---
-- hosts: all
-  tasks:
-    - name: update apt cache
-      ansible.builtin.apt:
-        update_cache: true
-        cache_valid_time: 3600
-        upgrade: true
-  become: yes
-
 - hosts: external_load_balancer
   roles:
     - haproxy
@@ -19,9 +10,10 @@
     - crio
     - kubernetes
 
-# - hosts:
-#     - additional_controlplane
-#     - nodes
-#   roles:
-#     - crio
-#     - kubernetes
+- hosts:
+    - additional_controlplane
+    - nodes
+  serial: 1
+  roles:
+    - crio
+    - kubernetes
