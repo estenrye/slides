@@ -3,11 +3,6 @@ kubernetes_cni_calico_manifest_url: https://docs.projectcalico.org/manifests/cal
 kubernetes_cni_calicoctl_version: v3.18.0
 kubernetes_cni_calicoctl_checksum: sha256:7152bdda15c9fd2c4723004931def11989e20fa0884f4fc45ae8b61cc836cd19
 
-kubernetes_packages:
-  - kubelet
-  - kubeadm
-  - kubectl
-
 kubernetes_zone: example.com
 
 kubernetes_control_plane_endpoint_address: "kube-api.{{ kubernetes_zone }}"

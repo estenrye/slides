@@ -1,0 +1,5 @@
+---
+- hosts:
+    - nodes
+  roles:
+    - kubernetes_cluster_node

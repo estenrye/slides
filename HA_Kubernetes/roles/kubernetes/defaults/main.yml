@@ -19,3 +19,10 @@ crio_sysctl_parameters:
 kubernetes_package_signing_key_id: 54A647F9048D5688D7DA2ABE6A030B21BA07F4FB
 kubernetes_kubeadm_release: xenial
 kubernetes_cgroup_driver: cgroupfs
+
+kubernetes_packages:
+  - kubelet
+  - kubeadm
+  - kubectl
+
+kubernetes_is_controlplane: false

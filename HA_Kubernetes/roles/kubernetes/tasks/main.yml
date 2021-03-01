@@ -6,3 +6,8 @@
 - name: Install kubeadm, kublet, and kubectl
   ansible.builtin.include_tasks:
     file: install_kubernetes.yml
+
+- name: Pull controlplane images
+  ansible.builtin.command: kubeadm config images pull
+  when: kubernetes_is_controlplane
+  become: true

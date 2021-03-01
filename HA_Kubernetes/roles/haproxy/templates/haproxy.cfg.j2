@@ -60,3 +60,10 @@ backend {{ backend.name }}
     server {{ server.name }} {{ server.address }}:{{ server.port }} check
 {% endfor %}
 {% endfor %}
+
+frontend stats
+    bind *:8000
+    stats enable
+    stats uri /
+    stats refresh 10s
+    stats admin if TRUE
