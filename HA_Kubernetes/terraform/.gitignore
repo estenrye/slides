@@ -1,3 +1,4 @@
 *.tfstate
+*.tfstate.info
 *.tfstate.backup
 .terraform

@@ -1,9 +1,0 @@
----
-# handlers file for crio
-
-
-- name: reload systemd
-  ansible.builtin.systemd:
-    name: crio
-    daemon_reload: true
-  become: true

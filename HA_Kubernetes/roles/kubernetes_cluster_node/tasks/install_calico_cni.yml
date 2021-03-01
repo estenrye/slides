@@ -23,3 +23,13 @@
     cmd: kubectl apply -f /etc/platform/manifests/cni_calico_manifest.yml
     creates: /etc/iac_flags/cni_apply_cluster.flag
   notify: apply cni manifest to cluster
+
+- name: Install calicoctl
+  ansible.builtin.get_url:
+    url: https://github.com/projectcalico/calicoctl/releases/download/{{ kubernetes_cni_calicoctl_version }}/calicoctl
+    checksum: "{{ kubernetes_cni_calicoctl_checksum }}"
+    dest: /usr/local/bin/kubectl-calico
+    mode: 0755
+    owner: root
+    group: root
+  become: true

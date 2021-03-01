@@ -5,6 +5,10 @@ driver:
   name: vagrant
 platforms:
   - name: instance
+    box: geerlingguy/ubuntu2004
+    box_version: 1.0.2
+    memory: 2048
+    cpu: 2
 provisioner:
   name: ansible
 verifier:

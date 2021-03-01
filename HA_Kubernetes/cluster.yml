@@ -4,16 +4,22 @@
     - haproxy
     - keepalived
 
-- hosts:
-    - initial_controlplane
+- hosts: kubernetes_cluster
   roles:
-    - crio
     - kubernetes
 
 - hosts:
+    - initial_controlplane
+  roles:
+    - kubernetes_cluster_node
+
+- hosts:
     - additional_controlplane
-    - nodes
   serial: 1
   roles:
-    - crio
-    - kubernetes
+    - kubernetes_cluster_node
+
+- hosts:
+    - nodes
+  roles:
+    - kubernetes_cluster_node

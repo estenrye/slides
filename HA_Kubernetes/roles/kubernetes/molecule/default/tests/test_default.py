@@ -1,5 +1,7 @@
 """Role testing files using testinfra."""
 
+from utils import assert_directory
+from utils import assert_file
 
 def test_hosts_file(host):
     """Validate /etc/hosts file."""
