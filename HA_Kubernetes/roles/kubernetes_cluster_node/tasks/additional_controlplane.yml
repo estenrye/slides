@@ -9,7 +9,7 @@
     dest: /home/{{ ansible_user }}/kubeadm.join.controlplane.yml
 
 - name: set ca certificate hash
-  ansible.builitn.set_fact:
+  ansible.builtin.set_fact:
     discovery_token_ca_cert_hash: "{{ hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token_ca_cert_hash'].stdout }}"
   when:
     - hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token_ca_cert_hash'] is defined
