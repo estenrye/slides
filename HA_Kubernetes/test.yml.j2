@@ -1,0 +1,7 @@
+{% for node in lookup('inventory_hostnames', 'controlplane:*').split(',') %}
+{% set node_fqdn = node + ".dev.ryezone.com" -%}
+{% set node_ip = lookup('dig', node_fqdn, 'qtype=A')%}
+- {{ node }}
+- {{ node_fqdn }}
+- {{ node_ip }}
+{% endfor%}

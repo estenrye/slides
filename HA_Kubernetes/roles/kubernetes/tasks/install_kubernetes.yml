@@ -48,29 +48,36 @@
   when: item not in holds.stdout
   become: true
 
-- name: Clear default kubeadm files
-  ansible.builtin.command:
-    cmd: kubeadm reset --force
-    creates: /etc/iac_flags/kubeadm_reset.flag
-  notify: create reset flag
-  register: clear_kubeadm
-  become: true
+# - name: Clear default kubeadm files
+#   ansible.builtin.command:
+#     cmd: kubeadm reset --force
+#     creates: /etc/iac_flags/kubeadm_reset.flag
+#   notify: create reset flag
+#   register: clear_kubeadm
+#   become: true
 
-- name: Delete /var/lib/etcd
-  ansible.builtin.file:
-    state: absent
-    path: /var/lib/etcd
-  when: clear_kubeadm.changed
-  become: true
+# - name: Delete /var/lib/etcd
+#   ansible.builtin.file:
+#     state: absent
+#     path: /var/lib/etcd
+#   when: clear_kubeadm.changed
+#   become: true
 
-- name: Create Configuration Files
-  ansible.builtin.template:
-    src: kubelet_config.yaml.j2
-    dest: /etc/kubelet/config.yaml
-    mode: "644"
-    owner: root
-    group: root
-  become: true
+# - name: Enable CRI-O Daemon
+#   ansible.builtin.systemd:
+#     name: kubelet
+#     state: restarted
+#   become: true
+#   when: clear_kubeadm.changed
+
+# - name: Create Configuration Files
+#   ansible.builtin.template:
+#     src: kubelet_config.yaml.j2
+#     dest: /etc/kubelet/config.yaml
+#     mode: "644"
+#     owner: root
+#     group: root
+#   become: true
 
 - name: Disable Swap
   ansible.builtin.command:

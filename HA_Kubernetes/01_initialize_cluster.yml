@@ -19,7 +19,7 @@
   roles:
     - kubernetes_cluster_node
 
-# - hosts:
-#     - nodes
-#   roles:
-#     - kubernetes_cluster_node
+- hosts:
+    - nodes
+  roles:
+    - kubernetes_cluster_node

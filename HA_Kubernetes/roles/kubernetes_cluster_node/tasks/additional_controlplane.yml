@@ -5,27 +5,6 @@
 
 # Pull kube conf to node.
 
-# - name: Create .kube Directory
-#   ansible.builtin.file:
-#     path: "/home/{{ ansible_user }}/.kube"
-#     group: "{{ ansible_user }}"
-#     owner: "{{ ansible_user }}"
-#     state: directory
-#   when:
-#     - kubernetes_is_initial_controlplane
-#     - not control_plane_joined.stat.exists
-
-# - name: Copy kube config
-#   ansible.builtin.copy:
-#     content: "{{ hostvars[kubernetes_initial_controlplane_hostvar_key]['kube_config'].stdout }}"
-#     dest: "/home/{{ ansible_user }}/.kube/config"
-#     remote_src: true
-#     owner: "{{ ansible_user }}"
-#     group: "{{ ansible_user }}"
-#   when:
-#     - hostvars[kubernetes_initial_controlplane_hostvar_key]['kube_config'] is defined
-#     - not control_plane_joined.stat.exists
-
 - name: Join Additional Controlplane Node
   ansible.builtin.command:
     argv:
@@ -47,3 +26,22 @@
     - hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token'] is defined
     - hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token_ca_cert_hash'] is defined
   become: true
+
+- name: Create .kube Directory
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    group: "{{ ansible_user }}"
+    owner: "{{ ansible_user }}"
+    state: directory
+  when:
+    - not control_plane_joined.stat.exists
+
+- name: Copy kube config
+  ansible.builtin.copy:
+    content: "{{ hostvars[kubernetes_initial_controlplane_hostvar_key]['kube_config'].stdout }}"
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    remote_src: true
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  when:
+    - not control_plane_joined.stat.exists
