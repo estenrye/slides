@@ -26,6 +26,12 @@
 | --- | --- |
 | kube-api.dev.ryezone.com:8000 | HAProxy Stats Page |
 
+# Helm Repos:
+
+```bash
+helm repo add bitnami https://charts.bitnami.com/bitnami
+```
+
 # Decisions Open
 
 - Ubuntu Disk Encryption
