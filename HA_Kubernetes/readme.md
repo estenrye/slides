@@ -1,3 +1,31 @@
+# Setup:
+
+1. Install python packages:  `pip install -r requirements.txt`
+
+1. Install ansible galaxy roles: `ansible-galaxy install -r requirements.yml`
+
+1. Provision machines:
+
+   | machine name | IPv4 Address | Sizing |
+   | --- | --- | --- |
+   | haproxy01.dev.ryezone.com      | 10.5.99.18 | 2 cores x 2 GB memory |
+   | haproxy02.dev.ryezone.com      | 10.5.99.19 | 2 cores x 2 GB memory |
+   | kube-api.dev.ryezone.com       | 10.5.99.20 | N/A.  Virtual IP      |
+   | controlplane01.dev.ryezone.com | 10.5.99.21 | 4 cores x 4 GB memory |
+   | controlplane02.dev.ryezone.com | 10.5.99.22 | 4 cores x 4 GB memory |
+   | controlplane03.dev.ryezone.com | 10.5.99.23 | 4 cores x 4 GB memory |
+   | node01.dev.ryezone.com         | 10.5.99.31 | 8 cores x 8 GB memory |
+   | node02.dev.ryezone.com         | 10.5.99.32 | 8 cores x 8 GB memory |
+   | node03.dev.ryezone.com         | 10.5.99.33 | 8 cores x 8 GB memory |
+
+1. Run Ansible: `ansible-playbook inventory.yml 01_initialize_cluster.yml`
+
+# Useful Pages in the Lab
+
+| URL | Description |
+| --- | --- |
+| kube-api.dev.ryezone.com:8000 | HAProxy Stats Page |
+
 # Decisions Open
 
 - Ubuntu Disk Encryption
