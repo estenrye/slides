@@ -3,6 +3,11 @@
     path: /etc/kubernetes/manifests/kube-apiserver.yaml
   register: control_plane_joined
 
+- name: create kubeadm init file
+  ansible.builtin.template:
+    src: kubeadm.init.yml.j2
+    dest: /home/{{ ansible_user }}/kubeadm.init.yml
+
 - name: run kubeadm init on initial controlplane node
   ansible.builtin.command:
     argv:

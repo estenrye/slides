@@ -13,7 +13,7 @@ controlPlane:
   localAPIEndpoint:
     advertiseAddress: {{ kubernetes_advertise_address }}
     bindPort: {{ kubernetes_bind_port }}
-  certificateKey: {{ certificateKey }}
+  certificateKey: {{ certificate_key }}
 nodeRegistration:
   criSocket: /var/run/crio/crio.sock
   name: {{ kubernetes_node_name }}
