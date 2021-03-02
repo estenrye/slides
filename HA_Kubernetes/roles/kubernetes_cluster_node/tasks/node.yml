@@ -3,41 +3,18 @@
     path: /etc/kubernetes/pki/ca.crt
   register: control_plane_joined
 
-- name: create kubeadm init file
+- name: create kubeadm join file
   ansible.builtin.template:
     src: kubeadm.join.node.yml.j2
     dest: /home/{{ ansible_user }}/kubeadm.join.node.yml
-
-- name: set ca certificate hash
-  ansible.builitn.set_fact:
-    discovery_token_ca_cert_hash: "{{ hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token_ca_cert_hash'].stdout }}"
-  when:
-    - hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token_ca_cert_hash'] is defined
 
 - name: run kubeadm init on node
   ansible.builtin.command:
     argv:
       - kubeadm
-      - init
+      - join
       - --config
       - /home/{{ ansible_user }}/kubeadm.join.node.yml
   become: true
   when:
     - not control_plane_joined.stat.exists
-
-# - name: Join Additional Controlplane Node
-#   ansible.builtin.command:
-#     argv:
-#       - kubeadm
-#       - join
-#       - "{{ kubernetes_control_plane_endpoint_address }}:{{ kubernetes_control_plane_endpoint_port }}"
-#       - --discovery-token
-#       - "{{ hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token'].stdout }}"
-#       - --discovery-token-ca-cert-hash
-#       - "sha256:{{ hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token_ca_cert_hash'].stdout }}"
-#   when:
-#     - not control_plane_joined.stat.exists
-#     - hostvars[kubernetes_initial_controlplane_hostvar_key]['certificate_key'] is defined
-#     - hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token'] is defined
-#     - hostvars[kubernetes_initial_controlplane_hostvar_key]['discovery_token_ca_cert_hash'] is defined
-#   become: true

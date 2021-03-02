@@ -5,8 +5,7 @@ discovery:
   bootstrapToken:
     apiServerEndpoint: "{{ kubernetes_control_plane_endpoint_address }}:{{ kubernetes_control_plane_endpoint_port }}"
     token: {{ discovery_token }}
-    caCertHashes:
-      - sha256:{{ discovery_token_ca_cert_hash }}
+    unsafeSkipCAVerification: true
   timeout: 5m0s
   tlsBootstrapToken: {{ discovery_token }}
 controlPlane:

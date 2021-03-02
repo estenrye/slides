@@ -19,24 +19,6 @@
   when:
     - not control_plane_joined.stat.exists
 
-# - name: run kubeadm init on initial controlplane node
-#   ansible.builtin.command:
-#     argv:
-#       - kubeadm
-#       - init
-#       - --control-plane-endpoint
-#       - "{{ kubernetes_control_plane_endpoint_address }}:{{ kubernetes_control_plane_endpoint_port }}"
-#       - --apiserver-cert-extra-sans
-#       - "{{ kubernetes_node_fqdn }}"
-#       - --apiserver-cert-extra-sans
-#       - "{{ kubernetes_control_plane_endpoint_vip }}"
-#       - --apiserver-advertise-address
-#       - "{{ kubernetes_advertise_address }}"
-#     creates: /etc/kubernetes/manifests/kube-apiserver.yaml
-#   become: true
-#   when:
-#     - not control_plane_joined.stat.exists
-
 - name: Create .kube Directory
   ansible.builtin.file:
     path: "/home/{{ ansible_user }}/.kube"
@@ -58,30 +40,6 @@
   when:
     - not control_plane_joined.stat.exists
 
-# configure join data
-
-- name: Calculate discovery token ca certificate hash
-  shell: >
-    openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | 
-    openssl rsa -pubin -outform der 2>/dev/null | 
-    openssl dgst -sha256 -hex | sed 's/^.* //'
-  args:
-    warn: false
-  register: discovery_token_ca_cert_hash
+- name: upload cluster certificates
+  ansible.builtin.command: kubeadm init phase upload-certs --upload-certs --certificate-key={{ certificate_key }}
   become: true
-
-# - name: Create token
-#   command: kubeadm token create
-#   register: discovery_token
-
-# - name: Create certificate-key
-#   ansible.builtin.command: kubeadm certs certificate-key
-#   register: certificate_key
-
-# - name: register kubeconfig
-#   ansible.builtin.command: cat /home/{{ ansible_user }}/.kube/config
-#   register: kube_config
-
-# - name: upload cluster certificates
-#   ansible.builtin.command: kubeadm init phase upload-certs --upload-certs --certificate-key={{ certificate_key }}
-#   become: true

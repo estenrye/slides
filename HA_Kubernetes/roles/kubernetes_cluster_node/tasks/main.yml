@@ -7,11 +7,11 @@
   when:
     - kubernetes_is_initial_controlplane
 
-# - name: install cni plugin
-#   ansible.builtin.include_tasks:
-#     file: install_calico_cni.yml
-#   when:
-#     - kubernetes_is_initial_controlplane
+- name: install cni plugin
+  ansible.builtin.include_tasks:
+    file: install_calico_cni.yml
+  when:
+    - kubernetes_is_initial_controlplane
 
 # Join Controlplane Node
 
