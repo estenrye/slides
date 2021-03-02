@@ -18,7 +18,7 @@
    | node02.dev.ryezone.com         | 10.5.99.32 | 8 cores x 8 GB memory |
    | node03.dev.ryezone.com         | 10.5.99.33 | 8 cores x 8 GB memory |
 
-1. Run Ansible: `ansible-playbook inventory.yml 01_initialize_cluster.yml`
+1. Run Ansible: `ansible-playbook inventory.yml 02_initialize_cluster.yml`
 
 # Useful Pages in the Lab
 
@@ -30,7 +30,13 @@
 
 ```bash
 helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
 ```
+
+# Tools to Consider:
+
+- [Flux | GitOps Toolkit](https://toolkit.fluxcd.io/)
 
 # Decisions Open
 
