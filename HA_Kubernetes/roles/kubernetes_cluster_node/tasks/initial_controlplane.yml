@@ -77,6 +77,6 @@
 #   ansible.builtin.command: cat /home/{{ ansible_user }}/.kube/config
 #   register: kube_config
 
-- name: upload cluster certificates
-  ansible.builtin.command: kubeadm init phase upload-certs --upload-certs --certificate-key={{ certificate_key }}
-  become: true
+# - name: upload cluster certificates
+#   ansible.builtin.command: kubeadm init phase upload-certs --upload-certs --certificate-key={{ certificate_key }}
+#   become: true

@@ -1,4 +1,5 @@
 apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
 bootstrapTokens:
 - description: kubeadm_bootstrap_token
   groups:
@@ -8,7 +9,7 @@ bootstrapTokens:
   usages:
   - signing
   - authentication
-kind: InitConfiguration
+certificateKey: {{ certificateKey }}
 localAPIEndpoint:
   advertiseAddress: {{ kubernetes_advertise_address }}
   bindPort: {{ kubernetes_bind_port }}
@@ -21,9 +22,10 @@ nodeRegistration:
   kubeletExtraArgs:
     cgroup-driver: "cgroupfs"
 ---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
 apiServer:
   timeoutForControlPlane: 4m0s
-apiVersion: kubeadm.k8s.io/v1beta2
 certificatesDir: /etc/kubernetes/pki
 certSANs:
   - {{ kubernetes_control_plane_endpoint_vip }}
@@ -43,7 +45,6 @@ etcd:
   local:
     dataDir: /var/lib/etcd
 imageRepository: k8s.gcr.io
-kind: ClusterConfiguration
 kubernetesVersion: {{ kubernetes_version }}
 networking:
   dnsDomain: cluster.local

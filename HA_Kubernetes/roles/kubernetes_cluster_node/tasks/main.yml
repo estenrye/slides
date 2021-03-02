@@ -6,11 +6,11 @@
     src: kubeadm.init.yml.j2
     dest: /home/{{ ansible_user }}/kubeadm.init.yml
 
-# - name: run kubeadm init on initial controlplane node
-#   ansible.builtin.include_tasks:
-#     file: initial_controlplane.yml
-#   when:
-#     - kubernetes_is_initial_controlplane
+- name: run kubeadm init on initial controlplane node
+  ansible.builtin.include_tasks:
+    file: initial_controlplane.yml
+  when:
+    - kubernetes_is_initial_controlplane
 
 # - name: install cni plugin
 #   ansible.builtin.include_tasks:
