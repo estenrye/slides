@@ -51,3 +51,7 @@ networking:
   podSubnet: {{ kubernetes_pod_subnet }}
   serviceSubnet: {{ kubernetes_service_subnet }}
 scheduler: {}
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+metricsBindAddress: "0.0.0.0:10249"

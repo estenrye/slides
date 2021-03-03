@@ -26,12 +26,15 @@
 | --- | --- |
 | kube-api.dev.ryezone.com:8000 | HAProxy Stats Page |
 
-# Helm Repos:
+# Useful tips and tricks:
+
+## Connect to monitoring dashboards without an ingress controller
+
+### Connect to Grafana
 
 ```bash
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo update
+kubectl get secret -n monitoring kube-prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+kubectl port-forward deployment/kube-prometheus-grafana 20080:3000 -n monitoring
 ```
 
 # Tools to Consider:

@@ -1,0 +1,17 @@
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - group_vars/all.yml
+  tasks:
+    - name: Add prometheus-community chart repo
+      community.kubernetes.helm_repository:
+        name: prometheus-community
+        repo_url: https://prometheus-community.github.io/helm-charts
+    
+    - name: Deploy latest version of Prometheus chart inside monitoring namespace (and create it)
+      community.kubernetes.helm:
+        name: kube-prometheus
+        chart_ref: prometheus-community/kube-prometheus-stack
+        chart_version: 13.13.1
+        release_namespace: monitoring
+        create_namespace: true
