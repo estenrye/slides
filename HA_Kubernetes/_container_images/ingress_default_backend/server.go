@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -39,10 +40,10 @@ var defaultTemplateJson string = `{
 type PageData struct {
 	Title string
 	ByLine string
-	StatusCode  string
+	StatusCode  int
 }
 
-func templateHandler(w http.ResponseWriter, r *http.Request, statusCode string, templateType string) {
+func templateHandler(w http.ResponseWriter, r *http.Request, statusCode int, templateType string) {
 	data := PageData {
 		Title: title,
 		ByLine: byline,
@@ -59,6 +60,7 @@ func templateHandler(w http.ResponseWriter, r *http.Request, statusCode string, 
 		preloadedTemplate = jsonTemplate
 	}
 
+	w.WriteHeader(data.StatusCode)
 	if dynamicReload {
 		t, err := template.ParseFiles(templatePath)
 		if err != nil {
@@ -71,43 +73,53 @@ func templateHandler(w http.ResponseWriter, r *http.Request, statusCode string, 
 	}
 }
 
-func htmlTemplateHandler(w http.ResponseWriter, r *http.Request, statusCode string) {
+func htmlTemplateHandler(w http.ResponseWriter, r *http.Request, statusCode int) {
 	templateHandler(w, r, statusCode, "html")
 }
 
-func jsonTemplateHandler(w http.ResponseWriter, r *http.Request, statusCode string) {
+func jsonTemplateHandler(w http.ResponseWriter, r *http.Request, statusCode int) {
 	templateHandler(w, r, statusCode, "json")
 }
 
 // IngressDefaultBackendHtmlHandler handles requests
 func IngressDefaultBackendHtmlHandler(w http.ResponseWriter, r *http.Request) {
-	htmlTemplateHandler(w, r, "404")
+	htmlTemplateHandler(w, r, 404)
 }
 
 // IngressDefaultBackendJsonHandler handles requests
 func IngressDefaultBackendJsonHandler(w http.ResponseWriter, r *http.Request) {
-	jsonTemplateHandler(w, r, "404")
+	jsonTemplateHandler(w, r, 404)
 }
 
 // CustomErrorPageBackendHtmlHandler handles requests
 func CustomErrorPageBackendHtmlHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	htmlTemplateHandler(w, r, vars["statusCode"])
+	statusCode, err := strconv.Atoi(vars["statusCode"])
+	if err != nil {
+		statusCode = 2500
+		log.WithError(err).Warning("Invalid Route, status code could not be converted.")
+	}
+	htmlTemplateHandler(w, r, statusCode)
 }
 
 // CustomErrorPageBackendJsonHandler handles requests
 func CustomErrorPageBackendJsonHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	jsonTemplateHandler(w, r, vars["statusCode"])
+	statusCode, err := strconv.Atoi(vars["statusCode"])
+	if err != nil {
+		statusCode = 2500
+		log.WithError(err).Warning("Invalid Route, status code could not be converted.")
+	}
+	jsonTemplateHandler(w, r, statusCode)
 }
 
 // HealthCheckHtmlHandler returns healthcheck
 func HealthCheckHtmlHandler(w http.ResponseWriter, r *http.Request) {
-	htmlTemplateHandler(w, r, "200")
+	htmlTemplateHandler(w, r, 200)
 }
 // HealthCheckJsonHandler returns healthcheck
 func HealthCheckJsonHandler(w http.ResponseWriter, r *http.Request) {
-	jsonTemplateHandler(w, r, "200")
+	jsonTemplateHandler(w, r, 200)
 }
 
 func main() {

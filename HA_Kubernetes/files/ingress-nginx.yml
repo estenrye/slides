@@ -7,6 +7,13 @@ controller:
   config: 
     loadbalance: ewma
   kind: DaemonSet
+  service:
+    type: NodePort
+    nodePorts:
+      http: "32080"
+      https: "32443"
+      tcp: {}
+      udp: {}
 
   metrics:
     enabled: true
@@ -31,3 +38,70 @@ controller:
           annotations:
             description: ssl certificate(s) will expire in less then a week
             summary: renew expiring certificates to avoid downtime
+
+
+## Default 404 backend
+##
+defaultBackend:
+  ##
+  enabled: true
+
+  name: defaultbackend
+  image:
+    repository: docker.io/estenrye/ingress_default_backend
+    tag: "1.0.1"
+    pullPolicy: IfNotPresent
+    # nobody user -> uid 65534
+    runAsUser: 65534
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+
+  serviceAccount:
+    create: true
+
+  port: 8080
+
+  ## Readiness and liveness probes for default backend
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
+  ##
+  livenessProbe:
+    failureThreshold: 3
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 5
+    httpGet:
+      path: /liveness
+      port: 8080
+  readinessProbe:
+    failureThreshold: 6
+    initialDelaySeconds: 0
+    periodSeconds: 5
+    successThreshold: 1
+    timeoutSeconds: 5
+    httpGet:
+      path: /readiness
+      port: 8080
+
+  replicaCount: 1
+  minAvailable: 1
+
+  resources:
+    limits:
+      cpu: 30m
+      memory: 40Mi
+    requests:
+      cpu: 10m
+      memory: 20Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
+    targetCPUUtilizationPercentage: 50
+    targetMemoryUtilizationPercentage: 50
+
+  service:
+    servicePort: 80
+    type: ClusterIP
