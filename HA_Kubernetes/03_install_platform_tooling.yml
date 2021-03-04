@@ -3,15 +3,40 @@
   vars_files:
     - group_vars/all.yml
   tasks:
-    - name: Add prometheus-community chart repo
+    - name: Add chart repos
       community.kubernetes.helm_repository:
-        name: prometheus-community
-        repo_url: https://prometheus-community.github.io/helm-charts
-    
-    - name: Deploy latest version of Prometheus chart inside monitoring namespace (and create it)
+        name: "{{ item.name }}"
+        repo_url: "{{ item.repo_url }}"
+      loop:
+        - name: prometheus-community
+          repo_url: https://prometheus-community.github.io/helm-charts
+        - name: ingress-nginx
+          repo_url: https://kubernetes.github.io/ingress-nginx
+        # - name: linkerd-stable
+        #   repo_url: https://helm.linkerd.io/stable
+
+    - name: Deploy Prometheus chart inside monitoring namespace (and create it)
       community.kubernetes.helm:
         name: kube-prometheus
         chart_ref: prometheus-community/kube-prometheus-stack
-        chart_version: 13.13.1
+        chart_version: "{{ helm_chart_version_prometheus }}"
         release_namespace: monitoring
         create_namespace: true
+    
+    - name: Deploy NGINX Ingress Controller chart inside monitoring namespace (and create it)
+      community.kubernetes.helm:
+        name: ingress-nginx
+        chart_ref: ingress-nginx/ingress-nginx
+        chart_version: "{{ helm_chart_version_ingress_nginx }}"
+        release_namespace: ingress
+        create_namespace: true
+        values_files:
+         - files/ingress-nginx.yml
+
+    # - name: Deploy Linkerd chart inside linkerd namespace (and create it)
+    #   community.kubernetes.helm:
+    #     name: linkerd
+    #     chart_ref: linkerd-stable/linkerd2
+    #     chart_version: "{{ helm_chart_version_linkerd }}"
+    #     release_namespace: linkerd
+    #     create_namespace: true

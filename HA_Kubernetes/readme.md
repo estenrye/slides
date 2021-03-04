@@ -55,6 +55,7 @@ kubectl port-forward deployment/kube-prometheus-grafana 20080:3000 -n monitoring
 - should we put files in /etc/skel to build a consitent terminal experience on servers.
   - include read only kube config?
   - install zsh?
+- What service mesh should we do?
 
 # Decisions Made
 
@@ -125,6 +126,17 @@ fatal: [controlplane01]: FAILED! => {
 }
 ```
 
+# What is Kubernetes
+
+## Videos
+
+- [Kubernetes Deconstructed: Undedrstanding Kubernetes by Breaking it Down (abridged)](https://www.youtube.com/watch?v=90kZRyPcRZw), Carson Anderson, DOMO, Dec 15, 2017
+- [Kubernetes Deconstructed: Undedrstanding Kubernetes by Breaking it Down (full)](https://vimeo.com/245778144/4d1d597c5e)
+
+## Blog Posts
+
+- [Your instant Kubernetes cluster](https://blog.alexellis.io/your-instant-kubernetes-cluster/), Alex Ellis, Jan 27, 2018
+
 # Operating System
 
 - Ubuntu 20.04
@@ -152,16 +164,15 @@ fatal: [controlplane01]: FAILED! => {
 | controlplane02.dev.ryezone.com | 10.5.50.2 | 6443, 64443 |
 | controlplane03.dev.ryezone.com | 10.5.50.3 | 6443, 64443 |
 
-# Provision Machines
+# Service Mesh/Ingress
 
-## HAProxy Load Balancers
+## Videos
 
-###
+- [Intro to Linkerd](https://youtu.be/guHZ7U7ZoWc), William Morgan, Buoyant, KubeCon North America, Nov 22, 2019
+- [Deep Dive: Linkerd](https://www.youtube.com/watch?v=E-zuggDfv0A), Oliver Gould, Buoyant, May 24, 2019
+- [Deep Dive: Linkerd](https://www.youtube.com/watch?v=NqjRqe0J98U), Oliver Gould, Buoyant, KubeCon North America, Nov 21, 2019
+- [Enforcing Automatic mTLS With Linkerd and OPA Gatekeeper](https://www.youtube.com/watch?v=gMaGVHnvNfs), Ivan Sim, Buoyant & Rita Zhang, Microsoft, KubeCon North America, Nov 22, 2019
 
-### Configuration
-- frontendName: kube-api.dev.ryezone.com
-- port: 6443
-- backendServers:
-  - controlplane01.dev.ryezone.com
-  - controlplane02.dev.ryezone.com
-  - controlplane03.dev.ryezone.com
+## Blog Posts
+
+- [Buoyant’s Linkerd Production Runbook](https://buoyant.io/linkerd-runbook#a-guide-to-running-a-service-mesh-in-production)
