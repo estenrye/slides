@@ -12,6 +12,8 @@
           repo_url: https://prometheus-community.github.io/helm-charts
         - name: ingress-nginx
           repo_url: https://kubernetes.github.io/ingress-nginx
+        - name: jetstack
+          repo_url: https://charts.jetstack.io
         # - name: linkerd-stable
         #   repo_url: https://helm.linkerd.io/stable
 
@@ -32,6 +34,62 @@
         create_namespace: true
         values_files:
          - files/ingress-nginx.yml
+
+    - name: Deploy cert-manager chart inside cert-manager namespace (and create it)
+      community.kubernetes.helm:
+        name: cert-manager
+        chart_ref: jetstack/cert-manager
+        chart_version: "{{ helm_chart_version_cert_manager }}"
+        release_namespace: cert-manager
+        create_namespace: true
+        values_files:
+         - files/cert-manager.yml
+
+    - name: Configure Cloudflare API Key for cert-manager
+      community.kubernetes.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: cloudflare-api-token-secret
+            namespace: cert-manager
+          type: Opaque
+          stringData:
+            api-token: "{{ cert_manager_cloudflare_api_key }}"
+
+    - name: Configure LetsEncrypt Staging Issuer for cert-manager
+      community.kubernetes.k8s:
+        state: present
+        definition:
+          apiVersion: cert-manager.io/v1
+          kind: ClusterIssuer
+          metadata:
+            name: letsencrypt-staging
+            namespace: cert-manager
+          spec:
+            acme:
+              email: "{{ cert_manager_cloudflare_account_email }}"
+              server: https://acme-staging-v02.api.letsencrypt.org/directory
+              preferredChain: "ISRG Root X1"
+              privateKeySecretRef:
+                name: letsencrypt-issuer-account-key
+              solvers:
+                - dns01:
+                    cloudflare:
+                      email: "{{ cert_manager_cloudflare_account_email }}"
+                      apiKeySecretRef:
+                        name: cloudflare-apikey-secret
+                        key: apikey
+                  selector:
+                    dnsZones:
+                    - "{{ kubernetes_zone }}"
+                - http01:
+                    ingress:
+                      class: nginx
+                    selector:
+                      matchLabels:
+                        "use-http01-solver": "true"
 
     # - name: Deploy Linkerd chart inside linkerd namespace (and create it)
     #   community.kubernetes.helm:

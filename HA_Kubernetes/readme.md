@@ -63,6 +63,8 @@ kubectl port-forward deployment/kube-prometheus-grafana 20080:3000 -n monitoring
 - Operating System
 - Container Runtime
 - Topology
+- Ingress Controller
+- Certificate Manager
 
 # Note about Ansible Variables
 
@@ -164,7 +166,15 @@ fatal: [controlplane01]: FAILED! => {
 | controlplane02.dev.ryezone.com | 10.5.50.2 | 6443, 64443 |
 | controlplane03.dev.ryezone.com | 10.5.50.3 | 6443, 64443 |
 
-# Service Mesh/Ingress
+# Ingress Controller
+
+- Selected the Kubernetes ingress-nginx project as the ingress controller.
+- Created a custom ingress default backend container.
+- Configured Node Ports 32080 for HTTP and 32443 for HTTPS
+
+# Certificate Manager
+
+# Service Mesh
 
 ## Videos
 

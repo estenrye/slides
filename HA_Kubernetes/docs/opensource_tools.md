@@ -66,6 +66,16 @@
   - [Project Website](https://kubernetes.github.io/ingress-nginx/)
   - [Github](https://github.com/kubernetes/ingress-nginx)
 
+# Certificate Manager
+
+[Helm Chart](https://artifacthub.io/packages/helm/jetstack/cert-manager)
+
+- cert-manager
+  - [Documentation](https://cert-manager.io/docs/)
+  - [License](https://github.com/jetstack/cert-manager/blob/master/LICENSE)
+  - [Project Website](https://cert-manager.io)
+  - [Github](https://github.com/jetstack/cert-manager)
+
 ## TODO:
 
 - https://github.com/kubernetes-sigs/external-dns

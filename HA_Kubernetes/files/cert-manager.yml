@@ -1,0 +1,76 @@
+# Default values for cert-manager.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  # Set the verbosity of cert-manager. Range of 0 - 6 with 6 being the most verbose.
+  logLevel: 2
+installCRDs: true
+replicaCount: 1
+
+# Comma separated list of feature gates that should be enabled on the
+# controller pod.
+featureGates: ""
+
+extraArgs: []
+  # Use this flag to set a namespace that cert-manager will use to store
+  # supporting resources required for each ClusterIssuer (default is kube-system)
+  # - --cluster-resource-namespace=kube-system
+  # When this flag is enabled, secrets will be automatically removed when the certificate resource is deleted
+  # - --enable-certificate-owner-ref=true
+
+extraEnv: []
+# - name: SOME_VAR
+#   value: 'some value'
+
+resources: {}
+  # requests:
+  #   cpu: 10m
+  #   memory: 32Mi
+
+# Pod Security Context
+# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+securityContext: {}
+# legacy securityContext parameter format: if enabled is set to true, only fsGroup and runAsUser are supported
+# securityContext:
+#   enabled: false
+#   fsGroup: 1001
+#   runAsUser: 1001
+# to support additional securityContext parameters, omit the `enabled` parameter and simply specify the parameters
+# you want to set, e.g.
+# securityContext:
+#   fsGroup: 1000
+#   runAsUser: 1000
+#   runAsNonRoot: true
+
+# Container Security Context to be set on the controller component container
+# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+containerSecurityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+
+
+volumes: []
+
+volumeMounts: []
+
+# Optional additional annotations to add to the controller Deployment
+# deploymentAnnotations: {}
+
+# Optional additional annotations to add to the controller Pods
+# podAnnotations: {}
+
+podLabels: {}
+
+ingressShim: {}
+  # defaultIssuerName: ""
+  # defaultIssuerKind: ""
+  # defaultIssuerGroup: ""
+
+prometheus:
+  enabled: true
+  servicemonitor:
+    enabled: true
+

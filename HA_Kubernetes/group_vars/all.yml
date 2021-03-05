@@ -17,6 +17,10 @@ kubernetes_cni_calicoctl_checksum: sha256:7152bdda15c9fd2c4723004931def11989e20f
 kubernetes_package_signing_key_id: 54A647F9048D5688D7DA2ABE6A030B21BA07F4FB
 kubernetes_kubeadm_release: xenial
 
+helm_chart_version_cert_manager: 1.2.0
 helm_chart_version_ingress_nginx: 3.23.0
 helm_chart_version_linkerd: 2.9.4
 helm_chart_version_prometheus: 13.13.1
+
+cert_manager_cloudflare_account_email: "{{ lookup('env', 'CLOUDFLARE_ACCOUNT_EMAIL') }}"
+cert_manager_cloudflare_api_key: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"
