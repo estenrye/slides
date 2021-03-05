@@ -3,6 +3,17 @@
   vars_files:
     - group_vars/all.yml
   tasks:
+    - name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
+      community.crypto.openssl_privatekey:
+        path: files/secrets/acme_issuer_key.pem
+        state: present
+        return_content: true
+      register: acme_issuer_key
+    - name: generate value file for acmeCloudflareIssuer Helm Chart
+      ansible.builtin.template:
+        src: templates/acme_issuer_key.yml.j2
+        dest: files/secrets/acme_issuer_key.yml
+
     - name: Add chart repos
       community.kubernetes.helm_repository:
         name: "{{ item.name }}"
