@@ -19,6 +19,8 @@
         value: 10.5.99.19
       - record: kube-api
         value: 10.5.99.20
+      - record: "*"
+        value: 10.5.99.20
       - record: controlplane01
         value: 10.5.99.21
       - record: controlplane02

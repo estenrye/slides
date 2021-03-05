@@ -1,0 +1,4 @@
+acmeDisableAccountKeyGeneration: true
+acmePrivateKeySecret: |-
+  {{ acme_issuer_key.privatekey | indent(2) }}
+cloudflareApiToken: {{ cloudflare.api_token }}

@@ -1,0 +1,23 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ .Release.Name }}-acme-cloudflare-issuer
+  labels:
+    {{- include "acmeCloudflareIssuer.labels" . | nindent 4 }}
+spec:
+  acme:
+    email: {{ .Values.acmeEmail }}
+    server: {{ include "acmeCloudflareIssuer.server" . }}
+    disableAccountKeyGeneration: {{ .Values.acmeDisableAccountKeyGeneration }}
+    privateKeySecretRef:
+      name: {{ .Release.Name }}-acme-issuer-account-key
+      key: tls-key
+    solvers:
+    - dns01:
+        cloudflare:
+          apiTokenSecretRef:
+            name: {{ .Release.Name }}-cloudflare-api-secret
+            key: api-token
+      selector:
+        dnsNames: {{ .Values.dnsNames }}
+        dnsZones: {{ .Values.dnsZones }}

@@ -1,0 +1,32 @@
+# Default values for acmeCloudflareIssuer.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+nameOverride: ""
+fullnameOverride: ""
+
+# email used to register with ACME LetsEncrypt
+acmeEmail: "your-email@example.com"
+
+# acmeDisableAccountKeyGeneration disables automated generation of the privateKeySecretRef value when true.  Set to true to specify the value in privateKeySecret.
+acmeDisableAccountKeyGeneration: false
+
+# acmePrivateKeySecret is the OpenSSL private key string to store in the privateKeySecretRef.  
+acmePrivateKeySecret: |-
+  private key text
+  here.  multiline
+  strings are cool
+
+# acmeUseProductionServer enables the production ACME LetsEncrypt server when set to true, otherwise, the staging server is used.
+acmeUseProductionServer: false
+
+# acmeServer overrides default Staging/Production ACME LetsEncrypt Server.  Leave as "" unless you know what you are doing.
+acmeServer: ""
+
+# cloudflareApiToken used for authorizing DNS01 challenges.  See https://cert-manager.io/docs/configuration/acme/dns01/cloudflare/
+cloudflareApiToken: "your-api-token-here"
+
+# dnsNames the issuer should generate certificates for.  See https://cert-manager.io/docs/configuration/acme/#dns-names
+dnsNames: []
+
+# dnsZones the issuer should generate certificates for.  See https://cert-manager.io/docs/configuration/acme/#dns-zones
+dnsZones: []

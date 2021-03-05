@@ -33,7 +33,7 @@
         release_namespace: ingress
         create_namespace: true
         values_files:
-         - files/ingress-nginx.yml
+         - files/helm_values/ingress-nginx.yml
 
     - name: Deploy cert-manager chart inside cert-manager namespace (and create it)
       community.kubernetes.helm:
@@ -43,7 +43,7 @@
         release_namespace: cert-manager
         create_namespace: true
         values_files:
-         - files/cert-manager.yml
+         - files/helm_values/cert-manager.yml
 
     - name: Configure Cloudflare API Key for cert-manager
       community.kubernetes.k8s:
