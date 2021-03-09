@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-kube-dashboard
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingressClassName }}
+    cert-manager.io/issuer: {{ .Values.certManagerIssuer }}
+
+spec:
+  tls:
+  - hosts:
+    - kubernetes.{{ .Values.zone }}
+    secretName: {{ .Release.Name }}-kubernetes-tls
+  rules:
+  - host: kubernetes.{{ .Values.zone }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.kubeDashboardReleaseName }}-kubernetes-dashboard
+            port:
+              number: 443

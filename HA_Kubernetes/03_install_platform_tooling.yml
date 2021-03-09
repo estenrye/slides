@@ -90,6 +90,15 @@
         release_namespace: kube-dashboard
         create_namespace: true
 
+    - name: Deploy ingress manifests in kube-dashboard namespace (and create it)
+      community.kubernetes.helm:
+        name: ingress
+        chart_ref: files/helm_charts/kubeDashboardIngress
+        release_namespace: kube-dashboard
+        create_namespace: true
+        values:
+          zone: "{{ kubernetes_zone }}"
+
     # - name: Configure Cloudflare API Key for cert-manager
     #   community.kubernetes.k8s:
     #     state: present
