@@ -114,13 +114,3 @@ kubectl port-forward deployment/kube-prometheus-grafana 20080:3000 -n monitoring
 
 # Service Mesh
 
-## Videos
-
-- [Intro to Linkerd](https://youtu.be/guHZ7U7ZoWc), William Morgan, Buoyant, KubeCon North America, Nov 22, 2019
-- [Deep Dive: Linkerd](https://www.youtube.com/watch?v=E-zuggDfv0A), Oliver Gould, Buoyant, May 24, 2019
-- [Deep Dive: Linkerd](https://www.youtube.com/watch?v=NqjRqe0J98U), Oliver Gould, Buoyant, KubeCon North America, Nov 21, 2019
-- [Enforcing Automatic mTLS With Linkerd and OPA Gatekeeper](https://www.youtube.com/watch?v=gMaGVHnvNfs), Ivan Sim, Buoyant & Rita Zhang, Microsoft, KubeCon North America, Nov 22, 2019
-
-## Blog Posts
-
-- [Buoyant’s Linkerd Production Runbook](https://buoyant.io/linkerd-runbook#a-guide-to-running-a-service-mesh-in-production)
