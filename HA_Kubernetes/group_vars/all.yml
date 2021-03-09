@@ -19,6 +19,7 @@ kubernetes_kubeadm_release: xenial
 
 helm_chart_version_cert_manager: 1.2.0
 helm_chart_version_ingress_nginx: 3.23.0
+helm_chart_version_kubernetes_dashboard: 4.0.2
 helm_chart_version_linkerd: 2.9.4
 helm_chart_version_prometheus: 13.13.1
 
