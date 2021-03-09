@@ -45,6 +45,10 @@ controller:
 defaultBackend:
   ##
   enabled: true
+  
+  ## Annotations to be added to default backend pods
+  podAnnotations: {}
+
 
   name: defaultbackend
   image:

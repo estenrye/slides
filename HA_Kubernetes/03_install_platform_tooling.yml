@@ -44,7 +44,7 @@
         release_namespace: ingress
         create_namespace: true
         values_files:
-         - files/helm_values/ingress-nginx.yml
+          - files/helm_values/ingress-nginx.yml
 
     - name: Deploy cert-manager chart inside cert-manager namespace (and create it)
       community.kubernetes.helm:
@@ -54,16 +54,27 @@
         release_namespace: cert-manager
         create_namespace: true
         values_files:
-         - files/helm_values/cert-manager.yml
+          - files/helm_values/cert-manager.yml
 
     - name: Deploy cert-manager configuration chart inside ingress namespace (and create it)
       community.kubernetes.helm:
-        name: cert-manager
+        name: staging
         chart_ref: files/helm_charts/acmeCloudflareIssuer
         release_namespace: ingress
         create_namespace: true
         values_files:
-         - files/secrets/acme_issuer_key.yml
+          - files/secrets/acme_issuer_key.yml
+
+    - name: Deploy cert-manager configuration chart inside ingress namespace (and create it)
+      community.kubernetes.helm:
+        name: prod
+        chart_ref: files/helm_charts/acmeCloudflareIssuer
+        release_namespace: ingress
+        create_namespace: true
+        values_files:
+          - files/secrets/acme_issuer_key.yml
+        values:
+          acmeUseProductionServer: true
 
     # - name: Configure Cloudflare API Key for cert-manager
     #   community.kubernetes.k8s:
