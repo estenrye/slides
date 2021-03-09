@@ -1,0 +1,5 @@
+# To Cleanup and Uninstall
+
+kubectl delete secret -n {{ .Release.Namespace }} ingress-grafana-tls
+kubectl delete secret -n {{ .Release.Namespace }} ingress-kube-prome-alertmanager-tls
+kubectl delete secret -n {{ .Release.Namespace }} ingress-kube-prome-prometheus-tls

@@ -60,21 +60,36 @@
       community.kubernetes.helm:
         name: staging
         chart_ref: files/helm_charts/acmeCloudflareIssuer
-        release_namespace: ingress
+        release_namespace: "{{ item }}"
         create_namespace: true
         values_files:
           - files/secrets/acme_issuer_key.yml
+      loop:
+        - ingress
+        - monitoring
 
     - name: Deploy cert-manager configuration chart inside ingress namespace (and create it)
       community.kubernetes.helm:
         name: prod
         chart_ref: files/helm_charts/acmeCloudflareIssuer
-        release_namespace: ingress
+        release_namespace: "{{ item }}"
         create_namespace: true
         values_files:
           - files/secrets/acme_issuer_key.yml
         values:
           acmeUseProductionServer: true
+      loop:
+        - ingress
+        - monitoring
+
+    - name: Deploy ingress manifests in monitoring namespace (and create it)
+      community.kubernetes.helm:
+        name: ingress
+        chart_ref: files/helm_charts/kubePrometheusStackIngress
+        release_namespace: monitoring
+        create_namespace: true
+        values:
+          zone: "{{ kubernetes_zone }}"
 
     # - name: Configure Cloudflare API Key for cert-manager
     #   community.kubernetes.k8s:

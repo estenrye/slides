@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "kubePrometheusStackIngress.fullname" . }}-test-grafana-connection"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kubePrometheusStackIngress.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['https://grafana.{{ .Values.zone }}']
+  restartPolicy: Never

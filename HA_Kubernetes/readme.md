@@ -22,9 +22,12 @@
 
 # Useful Pages in the Lab
 
-| URL | Description |
-| --- | --- |
-| kube-api.dev.ryezone.com:8000 | HAProxy Stats Page |
+| URL | Description | Username | Password |
+| --- | --- | --- | --- |
+| https://alertmanager.dev.ryezone.com | Alertmanager Dashboard | | |
+| https://grafana.dev.ryezone.com | Grafana Dashboard | admin | `kubectl get secret -n monitoring kube-prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo` |
+| http://kube-api.dev.ryezone.com:8000 | HAProxy Stats Page | | |
+| https://prometheus.dev.ryezone.com | Prometheus Dashboard | | |
 
 # Useful tips and tricks:
 
