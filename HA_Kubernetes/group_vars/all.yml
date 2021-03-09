@@ -24,3 +24,4 @@ helm_chart_version_prometheus: 13.13.1
 
 cert_manager_cloudflare_account_email: "{{ lookup('env', 'CLOUDFLARE_ACCOUNT_EMAIL') }}"
 cert_manager_cloudflare_api_key: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"
+cert_manager_acme_email: esten.rye+acme@ryezone.com
