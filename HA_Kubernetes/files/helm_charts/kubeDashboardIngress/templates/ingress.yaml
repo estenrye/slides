@@ -5,6 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     kubernetes.io/ingress.class: {{ .Values.ingressClassName }}
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     cert-manager.io/issuer: {{ .Values.certManagerIssuer }}
 
 spec:
