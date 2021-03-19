@@ -1,0 +1,72 @@
+network:
+  openunison_host: "k8s-ou.dev.ryezone.com"
+  dashboard_host: "k8s-dashboard.dev.ryezone.com"
+  api_server_host: "k8s-api.dev.ryezone.com"
+  session_inactivity_timeout_seconds: 900
+  k8s_url: https://kube-api.dev.ryezone.com:6443
+  createIngressCertificate: true
+  ingress_type: nginx
+  ingress_annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/issuer: prod-acme-cloudflare-issuer
+
+image: "docker.io/tremolosecurity/openunison-k8s-login-oidc:latest"
+myvd_config_path: "WEB-INF/myvd.conf"
+k8s_cluster_name: kubernetes
+enable_impersonation: false
+
+dashboard:
+  namespace: "kube-dashboard"
+  cert_name: "kube-dashboard-kubernetes-dashboard-certs"
+  label: "app.kubernetes.io/name=kubernetes-dashboard"
+  service_name: kube-dashboard-kubernetes-dashboard
+certs:
+  use_k8s_cm: false
+
+trusted_certs: []
+
+monitoring:
+  prometheus_service_account: system:serviceaccount:monitoring:prometheus-k8s
+
+oidc:
+  client_id: 0oac69m1fvcezK6Ix5d6
+  auth_url: https://dev-81734418.okta.com/oauth2/v1/authorize
+  token_url: https://dev-81734418.okta.com/oauth2/v1/token
+  user_in_idtoken: false
+  userinfo_url: https://dev-81734418.okta.com/oauth2/v1/userinfo
+  domain: "dev-81734418.okta.com"
+  scopes: openid email profile groups
+  claims:
+    sub: sub
+    email: email
+    given_name: given_name
+    family_name: family_name
+    display_name: name
+    groups: groups
+       
+network_policies:
+  enabled: false
+  ingress:
+    enabled: true
+    labels:
+      app.kubernetes.io/name: ingress-nginx
+  monitoring:
+    enabled: true
+    labels:
+      app.kubernetes.io/name: monitoring
+  apiserver:
+    enabled: false
+    labels:
+      app.kubernetes.io/name: kube-system
+
+services:
+  enable_tokenrequest: false
+  token_request_audience: api
+  token_request_expiration_seconds: 600
+  node_selectors: []
+  pullSecret: ""
+
+openunison:
+  replicas: 1
+  non_secret_data: {}
+  secrets: []

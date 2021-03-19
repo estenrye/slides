@@ -27,6 +27,8 @@
           repo_url: https://charts.jetstack.io
         - name: kubernetes-dashboard
           repo_url: https://kubernetes.github.io/dashboard/
+        - name: tremolo
+          repo_url: https://nexus.tremolo.io/repository/helm/
         # - name: linkerd-stable
         #   repo_url: https://helm.linkerd.io/stable
 
@@ -62,6 +64,7 @@
       community.kubernetes.helm:
         name: prod
         chart_ref: files/helm_charts/acmeCloudflareIssuer
+        chart_version: 0.1.0
         release_namespace: "{{ item }}"
         create_namespace: true
         values_files:
@@ -72,6 +75,7 @@
         - ingress
         - monitoring
         - kube-dashboard
+        - openunison
 
     - name: Deploy ingress manifests in monitoring namespace (and create it)
       community.kubernetes.helm:
@@ -84,20 +88,99 @@
 
     - name: Deploy kube-dashboard chart in kube-dashboard namespace (and create it)
       community.kubernetes.helm:
-        name: kube-dashboard
+        name: "{{ kubernetes_dashboard_release }}"
         chart_ref: kubernetes-dashboard/kubernetes-dashboard
         chart_version: "{{ helm_chart_version_kubernetes_dashboard }}"
-        release_namespace: kube-dashboard
+        release_namespace: "{{ kubernetes_dashboard_namespace }}"
         create_namespace: true
 
     - name: Deploy ingress manifests in kube-dashboard namespace (and create it)
       community.kubernetes.helm:
         name: ingress
         chart_ref: files/helm_charts/kubeDashboardIngress
-        release_namespace: kube-dashboard
+        release_namespace: "{{ kubernetes_dashboard_namespace }}"
         create_namespace: true
         values:
           zone: "{{ kubernetes_zone }}"
+
+    - name: Deploy OpenUnison Operator chart inside openunison namespace (and create it)
+      community.kubernetes.helm:
+        name: openunison
+        chart_ref: tremolo/openunison-operator
+        chart_version: "{{ helm_chart_version_openunison }}"
+        release_namespace: openunison
+        create_namespace: true
+
+    - name: Create OpenUnison secret
+      community.kubernetes.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          type: Opaque
+          metadata:
+            name: orchestra-secrets-source
+            namespace: openunison
+          data:
+            K8S_DB_SECRET: "{{ lookup('password', 'files/secrets/k8s_db_secret chars=ascii_letters,digits length=64') | b64encode }}"
+            unisonKeystorePassword: "{{ lookup('password', 'files/secrets/unisonKeystorePassword chars=ascii_letters,digits length=256') | b64encode }}"
+            OIDC_CLIENT_SECRET: "{{ lookup('password', 'files/secrets/oidc_client_secret chars=ascii_letters,digits length=8') | b64encode }}"
+          kind: Secret
+
+    - name: Deploy OpenUnison Operator chart inside openunison namespace (and create it)
+      community.kubernetes.helm:
+        name: orchestra
+        chart_ref: tremolo/openunison-k8s-login-oidc
+        chart_version: "{{ helm_chart_version_orchestra }}"
+        release_namespace: openunison
+        create_namespace: true
+        values_files:
+          - files/helm_values/orchestra.yml
+
+    - name: Get a list of all service objects
+      community.kubernetes.k8s_info:
+        api_version: v1
+        kind: Secret
+        namespace: openunison
+        name: ou-tls-certificate
+      register: ou_ca
+    - name: Get the api server config for oidc authentication
+      community.kubernetes.k8s_info:
+        api_version: v1
+        kind: ConfigMap
+        namespace: openunison
+        name: api-server-config
+      register: ou_api_config 
+    - name: Write ou ca to localhost
+      ansible.builtin.copy:
+        content: '{{ ou_ca.resources[0].data["tls.crt"] | b64decode }}'
+        dest: files/secrets/ou-ca.pem
+    - name: Write config to localhost
+      ansible.builtin.copy:
+        content: "{{ ('- ' + ou_api_config.resources[0].data['oidc-api-server-flags']) | replace('\n', '\n- ') | indent(width=4, first=true)}}"
+        dest: files/secrets/ou-config.yml
+    - name: apply role bindings
+      community.kubernetes.k8s:
+        state: present
+        src: "files/kubernetes_manifests/role_based_access_control/{{ item }}.yml"
+      loop:
+        - acl_okta_k8s_cluster_admin_dev
+
+- hosts: controlplane
+  vars_files:
+    - group_vars/all.yml
+  tasks:
+    - name: copy ou ca to controlplane
+      ansible.builtin.copy:
+        src: files/secrets/ou-ca.pem
+        dest: /etc/kubernetes/pki/ou-ca.pem
+      become: true
+    - name: add oidc config to kube-apiserver manifest
+      ansible.builtin.blockinfile:
+        insertafter: "    - kube-apiserver"
+        marker: "    # {mark}: ANSIBLE MANAGED BLOCK - OIDC FLAGS"
+        path: /etc/kubernetes/manifests/kube-apiserver.yaml
+        block: "{{ lookup('file', 'files/secrets/ou-config.yml') }}"
+      become: true
 
     # - name: Configure Cloudflare API Key for cert-manager
     #   community.kubernetes.k8s:
