@@ -28,6 +28,7 @@
 | https://grafana.dev.ryezone.com | Grafana Dashboard | admin | `kubectl get secret -n monitoring kube-prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo` |
 | http://kube-api.dev.ryezone.com:8000 | HAProxy Stats Page | | |
 | https://prometheus.dev.ryezone.com | Prometheus Dashboard | | |
+| https://k8s-ou.dev.ryezone.com/auth/idp/k8sIdp/.well-known/openid-configuration | openid configuration | | | 
 
 # Useful tips and tricks:
 
