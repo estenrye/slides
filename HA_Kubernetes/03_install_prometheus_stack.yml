@@ -1,0 +1,49 @@
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - group_vars/all.yml
+  tasks:
+    - name: Add chart repos
+      community.kubernetes.helm_repository:
+        name: "{{ item.name }}"
+        repo_url: "{{ item.repo_url }}"
+      loop:
+        - name: prometheus-community
+          repo_url: https://prometheus-community.github.io/helm-charts
+
+    # Next we deploy the Kube Prometheus Stack chart.
+    - name: Deploy Prometheus chart inside monitoring namespace (and create it)
+      community.kubernetes.helm:
+        name: kube-prometheus
+        chart_ref: prometheus-community/kube-prometheus-stack
+        chart_version: "{{ helm_chart_version_prometheus }}"
+        release_namespace: monitoring
+        create_namespace: true
+        values_files:
+          - files/helm_values/kube_prometheus_stack.yml
+
+    # We need to create a secret for Grafana to access the
+    # openunison client secret we created earlier for it to trust
+    # openunison as an authentication provider.
+    - name: Create OpenUnison OIDC secret for Grafana
+      community.kubernetes.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          type: Opaque
+          metadata:
+            name: grafana-oidc-client-secret
+            namespace: monitoring
+          data:
+            oidc_client_secret: "{{ lookup('password', 'files/secrets/grafana_oidc_client_secret chars=ascii_letters,digits length=256') | b64encode }}"
+          kind: Secret
+
+    # Ingress rules that expose dashboards in the monitoring namespace.
+    - name: Deploy ingress manifests in monitoring namespace (and create it)
+      community.kubernetes.helm:
+        name: ingress
+        chart_ref: files/helm_charts/kubePrometheusStackIngress
+        release_namespace: monitoring
+        create_namespace: true
+        values:
+          zone: "{{ kubernetes_zone }}"

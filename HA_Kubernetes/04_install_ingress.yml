@@ -1,0 +1,25 @@
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - group_vars/all.yml
+  tasks:
+    - name: Add chart repos
+      community.kubernetes.helm_repository:
+        name: "{{ item.name }}"
+        repo_url: "{{ item.repo_url }}"
+      loop:
+        - name: ingress-nginx
+          repo_url: https://kubernetes.github.io/ingress-nginx
+
+    # Deploying a ingress controller is the first chart we deploy
+    # on the cluster.  All services will be exposed through the
+    # ingress controller.
+    - name: Deploy the NGINX Ingress Controller chart
+      community.kubernetes.helm:
+        name: ingress-nginx
+        chart_ref: ingress-nginx/ingress-nginx
+        chart_version: "{{ helm_chart_version_ingress_nginx }}"
+        release_namespace: ingress
+        create_namespace: true
+        values_files:
+          - files/helm_values/ingress-nginx.yml

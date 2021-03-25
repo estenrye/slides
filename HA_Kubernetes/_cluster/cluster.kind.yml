@@ -18,5 +18,20 @@ nodes:
   - role: control-plane
   - role: control-plane
   - role: worker
+    extraPortMappings:
+    - containerPort: 32080
+      hostPort: 10080
+    - containerPort: 32443
+      hostPort: 10443
   - role: worker
+    extraPortMappings:
+    - containerPort: 32080
+      hostPort: 20080
+    - containerPort: 32443
+      hostPort: 20443
   - role: worker
+    extraPortMappings:
+    - containerPort: 32080
+      hostPort: 30080
+    - containerPort: 32443
+      hostPort: 30443
