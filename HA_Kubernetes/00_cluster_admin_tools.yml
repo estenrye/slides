@@ -18,9 +18,11 @@
         state: present
       become: true
     
-    - name: Install Kubernetes Packages
+    - name: Install Packages
       ansible.builtin.apt:
-        name: kubectl
+        name:
+          - graphviz
+          - kubectl
       become: true
 
     - name: Install calicoctl
