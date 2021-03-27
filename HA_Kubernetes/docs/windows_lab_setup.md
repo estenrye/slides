@@ -66,3 +66,5 @@
 ## Configure Ubuntu for WSL 2
 
 TODO: Work in Progress.
+  - Confirm proxmox nested virtualization is enabled.
+  - Install lab software
