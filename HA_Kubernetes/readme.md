@@ -18,7 +18,7 @@
    | node02.dev.ryezone.com         | 10.5.99.32 | 8 cores x 8 GB memory |
    | node03.dev.ryezone.com         | 10.5.99.33 | 8 cores x 8 GB memory |
 
-1. Run Ansible: `ansible-playbook inventory.yml 02_initialize_cluster.yml`
+1. Run Ansible: `ansible-playbook -i inventory.yml 02_initialize_cluster.yml`
 
 # Useful Pages in the Lab
 
@@ -28,7 +28,7 @@
 | https://grafana.dev.ryezone.com | Grafana Dashboard | admin | `kubectl get secret -n monitoring kube-prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo` |
 | http://kube-api.dev.ryezone.com:8000 | HAProxy Stats Page | | |
 | https://prometheus.dev.ryezone.com | Prometheus Dashboard | | |
-| https://k8s-ou.dev.ryezone.com/auth/idp/k8sIdp/.well-known/openid-configuration | openid configuration | | | 
+| https://k8s-ou.dev.ryezone.com/auth/idp/k8sIdp/.well-known/openid-configuration | openid configuration | | |
 
 # Useful tips and tricks:
 

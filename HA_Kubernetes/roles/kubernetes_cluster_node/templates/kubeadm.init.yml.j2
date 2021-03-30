@@ -25,6 +25,13 @@ nodeRegistration:
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 apiServer:
+  extraArgs:
+    audit-log-path: /var/log/k8s-apiServer-audit.log
+    audit-log-maxage: "30"
+    audit-log-maxbackup: "10"
+    audit-log-maxsize: "100"
+    profiling: "false"
+    repair-malformed-updates: "false"
   timeoutForControlPlane: 4m0s
 certificatesDir: /etc/kubernetes/pki
 certSANs:
