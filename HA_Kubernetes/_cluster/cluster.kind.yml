@@ -20,7 +20,7 @@ kubeadmConfigPatches:
       audit-log-maxage: "30"
       audit-log-maxbackup: "10"
       audit-log-maxsize: "100"
-      enable-admission-plugins: "AlwaysPullImages,EventRateLimit"
+      enable-admission-plugins: "AlwaysPullImages"
       kubelet-preferred-address-types: Hostname,InternalDNS,InternalIP,ExternalDNS,ExternalIP
       kubelet-certificate-authority: /etc/kubernetes/pki/ca.crt
       profiling: "false"
@@ -29,14 +29,18 @@ kubeadmConfigPatches:
     extraArgs:
       profiling: "false"
       terminated-pod-gc-threshold: "100"
+      tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
   scheduler:
     extraArgs:
       profiling: "false"
+      tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
   ---
   apiVersion: kubelet.config.k8s.io/v1beta1
   kind: KubeletConfiguration
   rotateCertificates: true
   serverTLSBootstrap: true
+  tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+
 nodes:
   - role: control-plane
   # - role: control-plane
