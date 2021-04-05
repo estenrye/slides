@@ -27,20 +27,22 @@
         mode: tcp
         balance_method: roundrobin
         options:
-          - httpchk GET /healthz
-          - ssl-hello-chk
+          - httpchk GET /ping
         http_checks:
           - expect status 200
         servers:
           - name: controlplane01
             address: "controlplane01.{{ kubernetes_zone }}"
             port: 9345
+            check_options: check-ssl verify none
           - name: controlplane02
             address: "controlplane02.{{ kubernetes_zone }}"
             port: 9345
+            check_options: check-ssl verify none
           - name: controlplane03
             address: "controlplane03.{{ kubernetes_zone }}"
             port: 9345
+            check_options: check-ssl verify none
       - name: http-ingress
         mode: tcp
         balance_method: roundrobin

@@ -5,6 +5,9 @@ global
   user {{ haproxy_user }}
   group {{ haproxy_group }}
   daemon
+  {# ssl-server-verify none
+  ssl-default-server-ciphers TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+  ssl-default-server-ciphersuites TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 #}
 {% for global_var in haproxy_global_vars %}
   {{ global_var }}
 {% endfor %}
@@ -57,7 +60,8 @@ backend {{ backend.name }}
     http-check {{ check }}
 {% endfor %}
 {% for server in backend.servers %}
-    server {{ server.name }} {{ server.address }}:{{ server.port }} check
+    server {{ server.name }} {{ server.address }}:{{ server.port }} check {% if server.check_options is defined %}{{ server.check_options }}{% endif %}
+
 {% endfor %}
 {% endfor %}
 
