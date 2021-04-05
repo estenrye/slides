@@ -37,6 +37,12 @@
     enabled: yes
     daemon-reload: yes
 
+- name: restart rke2-{{ node_type }}
+  ansible.builtin.systemd:
+    name: rke2-{{ node_type }}
+    state: restarted
+  when: not is_initial_node
+
 # put auto-deploying manifests in /var/lib/rancher/rke2/server/manifests (i.e. kube-karp)
 - name: deploy kube-karp manifest
   template:

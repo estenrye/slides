@@ -1,0 +1,21 @@
+- hosts: external_load_balancer
+  vars:
+    backends:
+      - controlplane02
+      - controlplane03
+  tasks:
+    - name: Enable api-server backend nodes.
+      community.general.haproxy:
+        state: enabled
+        host: "{{ item }}"
+        backend: api-server
+        socket: /var/run/haproxy.sock
+      loop: "{{ backends }}"
+    - name: Enable node-join backend nodes.
+      community.general.haproxy:
+        state: enabled
+        host: "{{ item }}"
+        backend: node-join
+        socket: /var/run/haproxy.sock
+      loop: "{{ backends }}"
+  become: true
