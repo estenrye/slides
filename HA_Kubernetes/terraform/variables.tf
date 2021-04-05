@@ -30,7 +30,7 @@ variable "nameserver_secondary" {
 
 variable "use_full_clones" {
   type = bool
-  default = false
+  default = true
 }
 
 variable machines {
@@ -38,48 +38,91 @@ variable machines {
     "haproxy01.dev.ryezone.com" = {
       id = 2001
       ip_addr = "10.5.99.18"
+      macaddr = "D6:9E:E6:33:27:4A"
       cores = 2
       memory = 2048
     },
     "haproxy02.dev.ryezone.com" = {
       id = 2002
       ip_addr = "10.5.99.19"
+      macaddr = "CE:82:45:FF:0E:64"
+      cores = 2
+      memory = 2048
+    },
+    "haproxy01.rancher.ryezone.com" = {
+      id = 2003
+      ip_addr = "10.5.99.15"
+      macaddr = "86:CA:1C:ED:0D:D4"
+      cores = 2
+      memory = 2048
+    },
+    "haproxy02.rancher.ryezone.com" = {
+      id = 2004
+      ip_addr = "10.5.99.16"
+      macaddr = "BE:57:17:29:4C:10"
       cores = 2
       memory = 2048
     },
     "controlplane01.dev.ryezone.com" = {
       id = 2101
       ip_addr = "10.5.99.21"
+      macaddr = "3E:24:9D:03:78:BD"
       cores = 4
       memory = 4096
     },
     "controlplane02.dev.ryezone.com" = {
       id = 2102
       ip_addr = "10.5.99.22"
+      macaddr = "DE:F7:43:49:35:56"
       cores = 4
       memory = 4096
     },
     "controlplane03.dev.ryezone.com" = {
       id = 2103
       ip_addr = "10.5.99.23"
+      macaddr = "C6:EC:56:25:60:3F"
       cores = 4
       memory = 4096
+    },
+    "controlplane01.rancher.ryezone.com" = {
+      id = 2104
+      ip_addr = "10.5.99.24"
+      macaddr = ""
+      cores = 4
+      memory = 8192
+    },
+    "controlplane02.rancher.ryezone.com" = {
+      id = 2105
+      ip_addr = "10.5.99.25"
+      macaddr = ""
+      cores = 4
+      memory = 8192
+    },
+    "controlplane03.rancher.ryezone.com" = {
+      id = 2106
+      ip_addr = "10.5.99.26"
+      macaddr = "26:5D:E8:78:11:2F"
+      cores = 4
+      memory = 8192
     },
     "node01.dev.ryezone.com" = {
       id = 2111
       ip_addr = "10.5.99.31"
+      macaddr = "AE:82:C7:6F:99:D9"
       cores = 8
       memory = 8192
     },
     "node02.dev.ryezone.com" = {
       id = 2112
       ip_addr = "10.5.99.32"
+      macaddr = "7A:3B:60:4C:29:45"
       cores = 8
       memory = 8192
     },
     "node03.dev.ryezone.com" = {
       id = 2113
       ip_addr = "10.5.99.33"
+      macaddr = "32:38:D2:7C:E5:C4"
       cores = 8
       memory = 8192
     }
@@ -97,13 +140,13 @@ variable "ssh_keys" {
 variable "target_node" {
   description = "This declares which proxmox node to place the VM on."
   type        = string
-  default     = "proxmox01"
+  default     = "proxmox02"
 }
 
 variable "template_name" {
   description = "This is the proxmox template to use when provisioning servers."
   type        = string
-  default     = "ubuntu2004-tmpl-507"
+  default     = "ubuntu2004-tmpl-509"
 }
 
 variable "ciuser" {

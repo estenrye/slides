@@ -1,0 +1,18 @@
+{% if not is_initial_node or is_agent_node %}
+server: https://{{ mgmt_fqdn }}:9345
+{% endif %}
+token: {{ join_token }}
+
+{% if not is_agent_node %}
+tls-san:
+  - {{ lookup('community.general.dig', mgmt_fqdn) }}
+  - {{ mgmt_fqdn }}
+
+{% if taint_server_nodes %}
+node-taint:
+  - "CriticalAddonsOnly=true:NoExecute"
+{% endif %}
+
+# replace canal with calio
+#rke2-canal: disable
+{% endif %}

@@ -1,11 +1,8 @@
 ---
-platform_environment: dev
 cloudflare:
   api_token: "{{ lookup ('env', 'CLOUDFLARE_API_TOKEN') }}"
   zone: ryezone.com
 
-
-kubernetes_api_server_vip: 10.5.99.20
 kubernetes_api_server_port: 6443
 kubernetes_zone: "{{ platform_environment }}.{{ cloudflare.zone }}"
 kubernetes_advertise_address: "{{ ansible_all_ipv4_addresses[0] }}"

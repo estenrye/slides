@@ -1,0 +1,45 @@
+---
+- name: download rke2 installer
+  ansible.builtin.get_url:
+    url: https://get.rke2.io
+    dest: /tmp/install.sh
+    mode: 750
+- name: run rke2 installer
+  ansible.builtin.command: "/tmp/install.sh"
+  args:
+    creates: /usr/local/bin/rke2
+- name: copy systemd service to /etc/systemd
+  ansible.builtin.copy:
+    remote_src: yes
+    src: /usr/local/lib/systemd/system/rke2-{{ node_type }}.service
+    dest: /etc/systemd/system/rke2-{{ node_type }}.service
+  # notify: reload systemd
+
+- name: create rke2 config dir
+  ansible.builtin.file:
+    path: /etc/rancher/rke2
+    state: directory
+
+- name: deploy rke2 config
+  ansible.builtin.template:
+    src: rke2_config.yaml.j2
+    dest: /etc/rancher/rke2/config.yaml
+
+- name: create manifest dir
+  ansible.builtin.file:
+    path: /var/lib/rancher/rke2/server/manifests/
+    state: directory
+
+- name: enable rke2-{{ node_type }}
+  ansible.builtin.systemd:
+    name: rke2-{{ node_type }}
+    state: started
+    enabled: yes
+    daemon-reload: yes
+
+# put auto-deploying manifests in /var/lib/rancher/rke2/server/manifests (i.e. kube-karp)
+- name: deploy kube-karp manifest
+  template:
+    src: karp.yaml.j2
+    dest: /var/lib/rancher/rke2/server/manifests/karp.yaml
+  when: enable_kube_karp

@@ -1,0 +1,29 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - group_vars/all.yml
+  tasks:
+  - name: Set A Records
+    community.general.cloudflare_dns:
+      zone: "{{ cloudflare.zone }}"
+      api_token: "{{ cloudflare.api_token }}"
+      type: A
+      value: "{{ item.value }}"
+      record: "{{ item.record }}.rancher"
+      state: present
+    loop:
+      - record: haproxy01
+        value: 10.5.99.15
+      - record: haproxy02
+        value: 10.5.99.16
+      - record: kube-api
+        value: 10.5.99.17
+      - record: "*"
+        value: 10.5.99.17
+      - record: controlplane01
+        value: 10.5.99.24
+      - record: controlplane02
+        value: 10.5.99.25
+      - record: controlplane03
+        value: 10.5.99.26

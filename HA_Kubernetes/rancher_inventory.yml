@@ -1,0 +1,28 @@
+all:
+  children:
+    external_load_balancer:
+      hosts:
+        haproxy01:
+          ansible_host: haproxy01.rancher.ryezone.com
+        haproxy02:
+          ansible_host: haproxy02.rancher.ryezone.com
+    kubernetes_cluster:
+      children:
+        controlplane:
+          children:
+            initial_controlplane:
+              hosts:
+                controlplane01:
+                  ansible_host: controlplane01.rancher.ryezone.com
+            additional_controlplane:
+              hosts:
+                controlplane02:
+                  ansible_host: controlplane02.rancher.ryezone.com
+                controlplane03:
+                  ansible_host: controlplane03.rancher.ryezone.com
+  vars:
+    ansible_user: automation-user
+    platform_environment: rancher
+    kubernetes_api_server_vip: 10.5.99.17
+    virtual_router_id: 51
+    virtual_router_auth_pass: 79

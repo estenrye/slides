@@ -1,0 +1,107 @@
+---
+- hosts: external_load_balancer
+  roles:
+    - haproxy
+    - keepalived
+  vars:
+    haproxy_backends:
+      - name: api-server
+        mode: tcp
+        balance_method: roundrobin
+        options:
+          - httpchk GET /healthz
+          - ssl-hello-chk
+        http_checks:
+          - expect status 200
+        servers:
+          - name: controlplane01
+            address: "controlplane01.{{ kubernetes_zone }}"
+            port: 6443
+          - name: controlplane02
+            address: "controlplane02.{{ kubernetes_zone }}"
+            port: 6443
+          - name: controlplane03
+            address: "controlplane03.{{ kubernetes_zone }}"
+            port: 6443
+      - name: node-join
+        mode: tcp
+        balance_method: roundrobin
+        options:
+          - httpchk GET /healthz
+          - ssl-hello-chk
+        http_checks:
+          - expect status 200
+        servers:
+          - name: controlplane01
+            address: "controlplane01.{{ kubernetes_zone }}"
+            port: 9345
+          - name: controlplane02
+            address: "controlplane02.{{ kubernetes_zone }}"
+            port: 9345
+          - name: controlplane03
+            address: "controlplane03.{{ kubernetes_zone }}"
+            port: 9345
+      - name: http-ingress
+        mode: tcp
+        balance_method: roundrobin
+        options:
+          - httpchk GET /healthz
+        http_checks:
+          - expect status 200
+        servers:
+          - name: controlplane01
+            address: "controlplane01.{{ kubernetes_zone }}"
+            port: 80
+          - name: controlplane02
+            address: "controlplane02.{{ kubernetes_zone }}"
+            port: 80
+          - name: controlplane03
+            address: "controlplane03.{{ kubernetes_zone }}"
+            port: 80
+      - name: https-ingress
+        mode: tcp
+        balance_method: roundrobin
+        options:
+          - httpchk GET /healthz
+          - ssl-hello-chk
+        http_checks:
+          - expect status 200
+        servers:
+          - name: controlplane01
+            address: "controlplane01.{{ kubernetes_zone }}"
+            port: 443
+          - name: controlplane02
+            address: "controlplane02.{{ kubernetes_zone }}"
+            port: 443
+          - name: controlplane03
+            address: "controlplane03.{{ kubernetes_zone }}"
+            port: 443
+    haproxy_frontends:
+      - name: api-server
+        bind_address: "*"
+        bind_port: 6443
+        mode: tcp
+        default_backend: api-server
+        options:
+          - tcplog
+      - name: node-join
+        bind_address: "*"
+        bind_port: 9345
+        mode: tcp
+        default_backend: node-join
+        options:
+          - tcplog
+      - name: http-ingress
+        bind_address: "*"
+        bind_port: 80
+        mode: tcp
+        default_backend: http-ingress
+        options:
+          - tcplog
+      - name: https-ingress
+        bind_address: "*"
+        bind_port: 443
+        mode: tcp
+        default_backend: https-ingress
+        options:
+          - tcplog

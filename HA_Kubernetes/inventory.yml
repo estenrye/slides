@@ -30,3 +30,7 @@ all:
               ansible_host: node03.dev.ryezone.com
   vars:
     ansible_user: automation-user
+    platform_environment: dev
+    kubernetes_api_server_vip: 10.5.99.20
+    virtual_router_id: 50
+    virtual_router_auth_pass: 42
