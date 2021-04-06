@@ -56,19 +56,14 @@
     state: restarted
   when: not is_initial_node
 
-- name: add a link to kubectl binary
-  ansible.builtin.file:
-    state: link
-    path: /usr/local/bin/kubectl
-    src: /var/lib/rancher/rke2/bin/kubectl
 
 - name: pause for {{ node_ready_timeout }} minutes for node to initialize.
   ansible.builtin.pause:
     minutes: "{{ node_ready_timeout }}"
 
-# put auto-deploying manifests in /var/lib/rancher/rke2/server/manifests (i.e. kube-karp)
-- name: deploy kube-karp manifest
-  template:
-    src: karp.yaml.j2
-    dest: /var/lib/rancher/rke2/server/manifests/karp.yaml
-  when: enable_kube_karp
+
+- name: add a link to kubectl binary
+  ansible.builtin.file:
+    state: link
+    path: /usr/local/bin/kubectl
+    src: /var/lib/rancher/rke2/bin/kubectl

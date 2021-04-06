@@ -1,7 +1,6 @@
 mgmt_fqdn: rke2.lab.bradlab.tech
 mgmt_vip: 192.168.30.200
 join_token: totallynotmytoken
-enable_kube_karp: false
 is_initial_node: false
 is_agent_node: false
 taint_server_nodes: false
