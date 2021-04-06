@@ -4,10 +4,28 @@
     url: https://get.rke2.io
     dest: /tmp/install.sh
     mode: 750
+
+- name: create manifest dir
+  ansible.builtin.file:
+    path: /var/lib/rancher/rke2/server/manifests/
+    state: directory
+
+- name: deploy rke2-ingress-nginx manifest
+  template:
+    src: rke2-ingress-nginx.yaml.j2
+    dest: /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml
+
 - name: run rke2 installer
-  ansible.builtin.command: "/tmp/install.sh"
+  ansible.builtin.command:
+    argv:
+      - /tmp/install.sh
+  environment:
+    INSTALL_RKE2_CHANNEL: "{{install_rke2_channel}}"
+    INSTALL_RKE2_TYPE: "{{install_rke2_type}}"
+    INSTALL_RKE2_VERSION: "{{install_rke2_version}}"
   args:
     creates: /usr/local/bin/rke2
+
 - name: copy systemd service to /etc/systemd
   ansible.builtin.copy:
     remote_src: yes
@@ -25,11 +43,6 @@
     src: rke2_config.yaml.j2
     dest: /etc/rancher/rke2/config.yaml
 
-- name: create manifest dir
-  ansible.builtin.file:
-    path: /var/lib/rancher/rke2/server/manifests/
-    state: directory
-
 - name: enable rke2-{{ node_type }}
   ansible.builtin.systemd:
     name: rke2-{{ node_type }}
@@ -42,6 +55,10 @@
     name: rke2-{{ node_type }}
     state: restarted
   when: not is_initial_node
+
+- name: pause for {{ node_ready_timeout }} minutes for node to initialize.
+  ansible.builtin.pause:
+    minutes: "{{ node_ready_timeout }}"
 
 # put auto-deploying manifests in /var/lib/rancher/rke2/server/manifests (i.e. kube-karp)
 - name: deploy kube-karp manifest
