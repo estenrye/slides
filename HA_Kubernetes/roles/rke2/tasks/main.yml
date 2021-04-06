@@ -67,3 +67,19 @@
     state: link
     path: /usr/local/bin/kubectl
     src: /var/lib/rancher/rke2/bin/kubectl
+
+- name: create .kube directory
+  ansible.builtin.file:
+    state: directory
+    path: /home/automation-user/.kube
+    owner: automation-user
+    group: automation-user
+
+- name: copy kubeconfig to ansible user directory
+  ansible.builtin.copy:
+    dest: /home/automation-user/.kube/config
+    remote_src: true
+    src: /etc/rancher/rke2/rke2.yaml
+    owner: automation-user
+    group: automation-user
+    mode: 0600
