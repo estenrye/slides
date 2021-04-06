@@ -10,7 +10,7 @@ node_ready_timeout: 5
 
 install_rke2_channel: latest
 install_rke2_type: "{% if is_agent_node %}agent{% else %}server{% endif %}"
-install_rke2_version: v1.20.5+rke2r1
+install_rke2_version: v1.19.9+rke2r1
 
 rke2_ingress_nginx_controller_metrics_enabled: false
 rke2_ingress_nginx_controller_metrics_serviceMonitor_enabled: false
