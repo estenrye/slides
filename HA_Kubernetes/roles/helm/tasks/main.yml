@@ -1,0 +1,25 @@
+- name: Download local binaries
+  ansible.builtin.get_url:
+    checksum: "{{ helm_checksum }}"
+    url: "{{ helm_url }}"
+    dest: "{{ helm_dest }}"
+
+- name: add a helm bin directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ helm_bin_dir }}/helm-{{ helm_arch }}"
+  become: true
+
+- name: Unzip zipped files
+  ansible.builtin.unarchive:
+    src: "{{ helm_dest }}"
+    remote_src: true
+    dest: "{{ helm_bin_dir }}/helm-{{ helm_arch }}"
+  become: true
+
+- name: add a link to helm binary
+  ansible.builtin.file:
+    state: link
+    path: "{{ helm_bin_dir }}/helm"
+    src: "{{ helm_bin_dir }}/helm-{{ helm_arch }}/linux-{{ helm_arch }}/helm"
+  become: true
