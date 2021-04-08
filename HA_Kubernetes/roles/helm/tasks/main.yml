@@ -23,3 +23,13 @@
     path: "{{ helm_bin_dir }}/helm"
     src: "{{ helm_bin_dir }}/helm-{{ helm_arch }}/linux-{{ helm_arch }}/helm"
   become: true
+
+- name: install required packages
+  ansible.builtin.package:
+    name: python3-pip
+  become: true
+
+- name: install required python modules
+  ansible.builtin.pip:
+    name: openshift
+    version: "{{ helm_openshift_pypi_version }}"

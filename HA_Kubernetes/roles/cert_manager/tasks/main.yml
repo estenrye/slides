@@ -1,0 +1,87 @@
+- name: Ensure manifests directory exists
+  ansible.builtin.file:
+    state: directory
+    dest: "{{ ansible_k8s_manifests_directory }}"
+    owner: "{{ ansible_k8s_manifests_owner }}"
+    group: "{{ ansible_k8s_manifests_group }}"
+  become: true
+
+- name: Get cert-manager CRDs
+  ansible.builtin.get_url:
+    url: "{{ cert_manager_crd_uri }}"
+    dest: "{{ ansible_k8s_manifests_directory }}/cert-manager_crds.yml"
+    owner: "{{ ansible_k8s_manifests_owner }}"
+    group: "{{ ansible_k8s_manifests_group }}"
+  become: true
+
+- name: Install CRDs for cert-manager
+  community.kubernetes.k8s:
+    state: present
+    src: "{{ ansible_k8s_manifests_directory }}/cert-manager_crds.yml"
+
+- name: Add chart repo for cert-manager
+  community.kubernetes.helm_repository:
+    name: "{{ cert_manager_helm_chart_repo_name }}"
+    repo_url: "{{ cert_manager_helm_chart_repo_uri }}"
+
+- name: Deploy cert-manager chart
+  community.kubernetes.helm:
+    name: cert-manager
+    chart_ref: "{{ cert_manager_helm_chart_repo_name }}/cert-manager"
+    chart_version: "{{ cert_manager_helm_chart_version }}"
+    release_namespace: "{{ cert_manager_namespace }}"
+    create_namespace: true
+    values:
+      prometheus:
+        enabled: "{{ cert_manager_enable_prometheus }}"
+        servicemonitor:
+          enabled: true
+
+- name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
+  community.crypto.openssl_privatekey:
+    path: "{{ kubernetes_pki_directory }}/acme_issuer_key.key"
+    state: present
+    return_content: true
+  register: acme_issuer_key
+  become: true
+
+- name: Configure Cloudflare API Key for cert-manager
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: cert-manager-issuer-secret
+        namespace: cert-manager
+      type: Opaque
+      stringData:
+        api-token: "{{ cert_manager_cloudflare_api_token }}"
+        tls-key: "{{ acme_issuer_key.privatekey }}"
+
+- name: Configure LetsEncrypt Cloudflare Issuer for cert-manager
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      metadata:
+        name: letsencrypt-cloudflare-dns01
+        namespace: cert-manager
+      spec:
+        acme:
+          email: "{{ cert_manager_acme_email }}"
+          server: "{{ acme_server }}"
+          preferredChain: "ISRG Root X1"
+          privateKeySecretRef:
+            name: cert-manager-issuer-secret
+            key: tls-key
+          solvers:
+            - dns01:
+                cloudflare:
+                  apiTokenSecretRef:
+                    name: cert-manager-issuer-secret
+                    key: api-token
+              selector:
+                dnsZones:
+                - "{{ kubernetes_zone }}"

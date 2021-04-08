@@ -25,6 +25,6 @@ helm_chart_version_orchestra: 1.0.7
 kubernetes_dashboard_namespace: kube-dashboard
 kubernetes_dashboard_release: kube-dashboard
 
-cert_manager_cloudflare_account_email: "{{ lookup('env', 'CLOUDFLARE_ACCOUNT_EMAIL') }}"
-cert_manager_cloudflare_api_key: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"
+cert_manager_cloudflare_api_token: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"
 cert_manager_acme_email: esten.rye+acme@ryezone.com
+cert_manager_helm_chart_version: 1.3.0

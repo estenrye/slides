@@ -11,7 +11,7 @@
     state: directory
 
 - name: deploy rke2-ingress-nginx manifest
-  template:
+  ansible.builtin.template:
     src: rke2-ingress-nginx.yaml.j2
     dest: /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml
 
