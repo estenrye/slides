@@ -1,0 +1,25 @@
+- name: Add chart repo for Rancher
+  community.kubernetes.helm_repository:
+    name: "{{ rancher_helm_chart_repo_name }}"
+    repo_url: "{{ rancher_helm_chart_repo_uri }}"
+
+- name: Deploy Rancher chart
+  community.kubernetes.helm:
+    name: rancher
+    chart_ref: "{{ rancher_helm_chart_repo_name }}/rancher"
+    chart_version: "{{ rancher_helm_chart_version }}"
+    release_namespace: "{{ rancher_namespace }}"
+    create_namespace: true
+    values:
+      replicas: 3
+      ingress:
+        tls:
+          source: secret
+        extraAnnotations:
+          nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+          nginx.ingress.kubernetes.io/proxy-read-timeout: "1800"
+          nginx.ingress.kubernetes.io/proxy-send-timeout: "1800"
+          cert-manager.io/issuer: "{{ rancher_cert_manager_issuer_name }}"
+          cert-manager.io/issuer-kind: "{{ rancher_cert_manager_issuer_kind }}"
+      hostname: management-plane.{{ kubernetes_zone }}
+

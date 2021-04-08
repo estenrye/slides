@@ -1,0 +1,8 @@
+rancher_helm_chart_repo_name: rancher-latest
+rancher_helm_chart_repo_uri: https://releases.rancher.com/server-charts/latest
+rancher_helm_chart_version: 2.5.7
+rancher_namespace: rancher
+
+rancher_cert_manager_issuer_name: letsencrypt-cloudflare-dns01
+rancher_cert_manager_issuer_kind: ClusterIssuer
+kubernetes_zone: example.com

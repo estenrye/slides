@@ -13,3 +13,4 @@ kubernetes_pki_directory: /var/lib/rancher/rke2/server/tls
 cert_manager_cloudflare_api_token: "{{ lookup ('env', 'CLOUDFLARE_API_TOKEN') }}"
 cert_manager_acme_email: no-reply@example.com
 acme_server: https://acme-v02.api.letsencrypt.org/directory
+kubernetes_zone: example.com

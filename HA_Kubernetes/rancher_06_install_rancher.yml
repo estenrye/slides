@@ -3,3 +3,4 @@
   roles:
     - helm
     - cert_manager
+    - rancher
