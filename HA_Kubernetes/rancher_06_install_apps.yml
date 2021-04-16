@@ -1,6 +1,4 @@
----
 - hosts: initial_controlplane
   roles:
-    - helm
     - cert_manager
     - rancher

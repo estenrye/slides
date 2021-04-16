@@ -3,6 +3,88 @@ haproxy_user: haproxy
 haproxy_group: haproxy
 
 haproxy_global_vars: []
+rke2_controlplane_servers:
+  - name: controlplane01
+    address: controlplane01.{{ kubernetes_zone }}
+  - name: controlplane02
+    address: controlplane02.{{ kubernetes_zone }}
+  - name: controlplane03
+    address: controlplane03.{{ kubernetes_zone }}
+rke2_ingress_servers:
+  - name: node01
+    address: node01.{{ kubernetes_zone }}
+  - name: node02
+    address: node02.{{ kubernetes_zone }}
+  - name: node03
+    address: node03.{{ kubernetes_zone }}
 
-haproxy_frontends: []
-haproxy_backends: []
+haproxy_frontends:
+  - name: api-server
+    bind_address: "*"
+    bind_port: 6443
+    mode: tcp
+    default_backend: api-server
+    options:
+      - tcplog
+  - name: node-join
+    bind_address: "*"
+    bind_port: 9345
+    mode: tcp
+    default_backend: node-join
+    options:
+      - tcplog
+  - name: http-ingress
+    bind_address: "*"
+    bind_port: 80
+    mode: tcp
+    default_backend: http-ingress
+    options:
+      - tcplog
+  - name: https-ingress
+    bind_address: "*"
+    bind_port: 443
+    mode: tcp
+    default_backend: https-ingress
+    options:
+      - tcplog
+
+haproxy_backends:
+      - name: api-server
+        mode: tcp
+        port: 6443
+        balance_method: roundrobin
+        options:
+          - httpchk GET /healthz
+          - ssl-hello-chk
+        http_checks:
+          - expect status 200
+        servers: "{{ rke2_controlplane_servers }}"
+      - name: node-join
+        mode: tcp
+        port: 9345
+        check_options: check-ssl verify none
+        balance_method: roundrobin
+        options:
+          - httpchk GET /ping
+        http_checks:
+          - expect status 200
+        servers: "{{ rke2_controlplane_servers }}"
+      - name: http-ingress
+        mode: tcp
+        port: 80
+        balance_method: roundrobin
+        options:
+          - httpchk GET /healthz
+        http_checks:
+          - expect status 200
+        servers: "{{ rke2_ingress_servers }}"
+      - name: https-ingress
+        mode: tcp
+        port: 443
+        balance_method: roundrobin
+        options:
+          - httpchk GET /healthz
+          - ssl-hello-chk
+        http_checks:
+          - expect status 200
+        servers: "{{ rke2_ingress_servers }}"

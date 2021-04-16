@@ -5,7 +5,7 @@ is_initial_node: false
 is_agent_node: false
 taint_server_nodes: false
 node_type: "{% if is_agent_node %}agent{% else %}server{% endif %}"
-node_ready_timeout: 5
+node_ready_timeout: 3
 
 install_rke2_channel: latest
 install_rke2_type: "{% if is_agent_node %}agent{% else %}server{% endif %}"

@@ -60,6 +60,7 @@
 - name: pause for {{ node_ready_timeout }} minutes for node to initialize.
   ansible.builtin.pause:
     minutes: "{{ node_ready_timeout }}"
+  when: not is_agent_node
 
 
 - name: add a link to kubectl binary
@@ -67,6 +68,7 @@
     state: link
     path: /usr/local/bin/kubectl
     src: /var/lib/rancher/rke2/bin/kubectl
+  when: not is_agent_node
 
 - name: create .kube directory
   ansible.builtin.file:
@@ -74,6 +76,7 @@
     path: /home/automation-user/.kube
     owner: automation-user
     group: automation-user
+  when: not is_agent_node
 
 - name: copy kubeconfig to ansible user directory
   ansible.builtin.copy:
@@ -83,3 +86,4 @@
     owner: automation-user
     group: automation-user
     mode: 0600
+  when: not is_agent_node

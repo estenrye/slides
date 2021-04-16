@@ -8,7 +8,7 @@ tls-san:
   - {{ lookup('community.general.dig', mgmt_fqdn) }}
   - {{ mgmt_fqdn }}
 
-{% if taint_server_nodes %}
+{% if taint_server_nodes and not is_agent_node %}
 node-taint:
   - "CriticalAddonsOnly=true:NoExecute"
 {% endif %}

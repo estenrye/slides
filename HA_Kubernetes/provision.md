@@ -13,13 +13,24 @@
     terraform apply -auto-approve terraform/
     ```
 
-1. Provision DNS Entries
+1. Provision Rancher Management Controlplane
 
     ```bash
-    ansible-playbook rancher_01_dns.yml
-    ansible-playbook rancher_02_haproxy.yml
-    ansible-playbook 01_dns.yml
+    ansible-playbook -i rancher_inventory.yml rancher_01_dns.yml
+    ansible-playbook -i rancher_inventory.yml rancher_02_haproxy.yml
+    ansible-playbook -i rancher_inventory.yml rancher_03_rke2.yml
+    ansible-playbook -i rancher_inventory.yml rancher_04_rke2_additional_nodes.yml
+    ansible-playbook -i rancher_inventory.yml rancher_05_undrain-additional-controlplane-nodes.yml
+    ansible-playbook -i rancher_inventory.yml rancher_06_install_apps.yml
     ```
 
-1. Provision Rancher RKE2 Cluster
+1. Provision Rancher Dev Cluster
 
+    ```bash
+    ansible-playbook -i dev-cluster_inventory.yml rancher_01_dns.yml
+    ansible-playbook -i dev-cluster_inventory.yml rancher_02_haproxy.yml
+    ansible-playbook -i dev-cluster_inventory.yml rancher_03_rke2.yml
+    ansible-playbook -i dev-cluster_inventory.yml rancher_04_rke2_additional_nodes.yml
+    ansible-playbook -i dev-cluster_inventory.yml rancher_05_undrain-additional-controlplane-nodes.yml
+    ansible-playbook -i dev-cluster_inventory.yml rancher_06_install_apps.yml
+    ```

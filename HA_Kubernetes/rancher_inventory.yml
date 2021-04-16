@@ -23,6 +23,30 @@ all:
   vars:
     ansible_user: automation-user
     platform_environment: rancher
+    install_rancher: true
+    taint_server_nodes: false
     kubernetes_api_server_vip: 10.5.99.17
     virtual_router_id: 51
     virtual_router_auth_pass: 79
+    dns_entries:
+      - record: haproxy01
+        value: 10.5.99.15
+      - record: haproxy02
+        value: 10.5.99.16
+      - record: kube-api
+        value: 10.5.99.17
+      - record: "*"
+        value: 10.5.99.17
+      - record: controlplane01
+        value: 10.5.99.24
+      - record: controlplane02
+        value: 10.5.99.25
+      - record: controlplane03
+        value: 10.5.99.26
+    rke2_ingress_servers:
+      - name: controlplane01
+        address: controlplane01.{{ kubernetes_zone }}
+      - name: controlplane02
+        address: controlplane02.{{ kubernetes_zone }}
+      - name: controlplane03
+        address: controlplane03.{{ kubernetes_zone }}

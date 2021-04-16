@@ -1,0 +1,60 @@
+all:
+  children:
+    external_load_balancer:
+      hosts:
+        haproxy01:
+          ansible_host: haproxy01.dev.ryezone.com
+        haproxy02:
+          ansible_host: haproxy02.dev.ryezone.com
+    kubernetes_cluster:
+      children:
+        controlplane:
+          children:
+            initial_controlplane:
+              hosts:
+                controlplane01:
+                  ansible_host: controlplane01.dev.ryezone.com
+            additional_controlplane:
+              hosts:
+                controlplane02:
+                  ansible_host: controlplane02.dev.ryezone.com
+                controlplane03:
+                  ansible_host: controlplane03.dev.ryezone.com
+        nodes:
+          hosts:
+            node01:
+              ansible_host: node01.dev.ryezone.com
+            node02:
+              ansible_host: node02.dev.ryezone.com
+            node03:
+              ansible_host: node03.dev.ryezone.com
+      
+  vars:
+    ansible_user: automation-user
+    platform_environment: dev
+    install_rancher: false
+    taint_server_nodes: true
+    kubernetes_api_server_vip: 10.5.99.20
+    virtual_router_id: 52
+    virtual_router_auth_pass: 78
+    dns_entries:
+      - record: haproxy01
+        value: 10.5.99.18
+      - record: haproxy02
+        value: 10.5.99.19
+      - record: kube-api
+        value: 10.5.99.20
+      - record: "*"
+        value: 10.5.99.20
+      - record: controlplane01
+        value: 10.5.99.21
+      - record: controlplane02
+        value: 10.5.99.22
+      - record: controlplane03
+        value: 10.5.99.23
+      - record: node01
+        value: 10.5.99.31
+      - record: node02
+        value: 10.5.99.32
+      - record: node03
+        value: 10.5.99.33

@@ -10,6 +10,6 @@
       api_token: "{{ cloudflare.api_token }}"
       type: A
       value: "{{ item.value }}"
-      record: "{{ item.record }}.{{ platform_environment }}"
-      state: present
+      record: "{{ item.record }}.rancher"
+      state: absent
     loop: "{{ dns_entries }}"

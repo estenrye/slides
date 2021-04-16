@@ -6,3 +6,4 @@ rancher_namespace: rancher
 rancher_cert_manager_issuer_name: letsencrypt-cloudflare-dns01
 rancher_cert_manager_issuer_kind: ClusterIssuer
 kubernetes_zone: example.com
+install_rancher: false
