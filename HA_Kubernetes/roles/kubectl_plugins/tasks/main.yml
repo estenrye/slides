@@ -1,0 +1,15 @@
+- name: download kubectl binary
+  get_url:
+    url: https://dl.k8s.io/release/v{{ kubectl_version }}/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/kubectl
+  when: install_kubectl
+
+- name: download kubectl-cert-manager binary
+  unarchive:
+    src: https://github.com/jetstack/cert-manager/releases/download/v{{ cert_manager_helm_chart_version }}/kubectl-cert_manager-linux-amd64.tar.gz
+    remote_src: true
+    dest: /usr/local/bin
+
+- name: install certbot
+  ansible.builtin.package:
+    name: certbot
