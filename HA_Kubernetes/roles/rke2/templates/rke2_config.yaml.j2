@@ -2,6 +2,12 @@
 server: https://{{ mgmt_fqdn }}:9345
 {% endif %}
 token: {{ join_token }}
+node-name: {{ node_name }}
+
+node-label:
+  - platform.{{ cloudflare.zone }}/node-name={{ inventory_hostname }}
+  - platform.{{ cloudflare.zone }}/cluster-name={{ kubernetes_zone }}
+  - platform.{{ cloudflare.zone }}/environment={{ platform_environment }}
 
 {% if not is_agent_node %}
 tls-san:

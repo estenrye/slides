@@ -1,17 +1,20 @@
+- name: Apply Host Entries
+  import_playbook: rancher_00_host_files.yml
+
 - name: Apply DNS
-  include: rancher_01_dns.yml
+  import_playbook: rancher_01_dns.yml
 
 - name: Provision Load Balancers
-  include: rancher_02_haproxy.yml
+  import_playbook: rancher_02_haproxy.yml
 
 - name: Provision Initial RKE2 server (controlplane) node
-  include: rancher_03_rke2.yml
+  import_playbook: rancher_03_rke2.yml
 
 - name: Provision Remaining RKE2 server (controlplane) nodes
-  include: rancher_04_rke2_additional_nodes.yml
+  import_playbook: rancher_04_rke2_additional_nodes.yml
 
 - name: Enable all backend servers.
-  include: rancher_05_undrain_additional_controlplane_nodes.yml
+  import_playbook: rancher_05_undrain_additional_controlplane_nodes.yml
 
 # - name: Install apps.
 #   include: rancher_06_install_apps.yml

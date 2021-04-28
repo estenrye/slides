@@ -1,11 +1,15 @@
-mgmt_fqdn: rke2.lab.bradlab.tech
-mgmt_vip: 192.168.30.200
+cloudflare:
+  zone: example.com
+platform_environment: "dev"
+kubernetes_zone: "{{ platform_environment }}.{{ cloudflare.zone }}"
+mgmt_fqdn: kube-api.{{ kubernetes_zone }}
 join_token: totallynotmytoken
 is_initial_node: false
 is_agent_node: false
 taint_server_nodes: false
 node_type: "{% if is_agent_node %}agent{% else %}server{% endif %}"
 node_ready_timeout: 3
+node_name: "{{ inventory_hostname }}.{{ kubernetes_zone }}"
 
 install_rke2_channel: latest
 install_rke2_type: "{% if is_agent_node %}agent{% else %}server{% endif %}"

@@ -1,0 +1,11 @@
+- hosts: 127.0.0.1
+  tasks:
+    - name: purge known ip addresses
+      command: ssh-keygen -f /home/esten/.ssh/known_hosts -R '{{ item.value }}'
+      loop: "{{ lookup('vars', 'dns_entries') }}"
+    - name: purge known short names
+      command: ssh-keygen -f /home/esten/.ssh/known_hosts -R '{{ item.record }}.{{ platform_environment }}'
+      loop: "{{ lookup('vars', 'dns_entries') }}"
+    - name: purge known fqdns
+      command: ssh-keygen -f /home/esten/.ssh/known_hosts -R '{{ item.record }}.{{ kubernetes_zone }}'
+      loop: "{{ lookup('vars', 'dns_entries') }}"
