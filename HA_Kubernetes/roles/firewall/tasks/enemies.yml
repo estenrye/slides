@@ -13,6 +13,8 @@
 #       name: psc
 #       update: true
 #       seconds: 60
+#   notify:
+#     - persist iptables
 
 - name: Drop Quarantined Hosts for Port Scanning Internal Services
   ansible.builtin.iptables:
@@ -28,6 +30,8 @@
     #   set: true
   become: true
   loop: "{{ firewall_enemies_inbound_services_not_exposed }}"
+  notify:
+    - persist iptables
 
 - name: Block packets from hostile hosts.
   ansible.builtin.iptables:
@@ -37,3 +41,5 @@
     source: "{{ item }}"
   become: true
   loop: "{{ firewall_enemies_hostile_cidr }}"
+  notify:
+    - persist iptables

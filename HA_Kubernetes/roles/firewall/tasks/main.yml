@@ -1,41 +1,56 @@
-- name: Get existing iptables rules
+# tasks file for edge_firewall
+- name: Create iptables configuration directory.
+  file:
+    path: /etc/iptables
+    state: directory
   become: true
+
+- name: Get existing iptables rules
   command: iptables -n -L
   changed_when: false
   register: iptables_rules
+  become: true
 
 - name: Create custom iptables chain
-  become: true
   command: iptables -N '{{ item }}'
   when: "'Chain {{ item }}' not in iptables_rules.stdout"
+  become: true
   loop:
     - Always
     - Allow
     - Bogus
     - Enemies
     - Friends
+  notify:
+    - persist iptables
 
 - name: INPUT chain
   ansible.builtin.iptables:
     table: filter
     chain: INPUT
     jump: "{{ item }}"
+  become: true
   loop:
     - Bogus
     - Always
     - Enemies
     - Allow
+  notify:
+    - persist iptables
 
 - name: FORWARD chain
   ansible.builtin.iptables:
     table: filter
     chain: FORWARD
     jump: "{{ item }}"
+  become: true
   loop:
     - Bogus
     - Always
     - Enemies
     - Allow
+  notify:
+    - persist iptables
 
 - name: Add Bogus Packet Rules
   include_tasks: bogus_packets.yml

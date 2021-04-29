@@ -28,6 +28,8 @@
       - ESTABLISHED
       - RELATED
   become: true
+  notify:
+    - persist iptables
 
 - name: Always accept traffic from the loopback interface
   ansible.builtin.iptables:
@@ -36,3 +38,5 @@
     jump: ACCEPT
     in_interface: lo
   become: yes
+  notify:
+    - persist iptables

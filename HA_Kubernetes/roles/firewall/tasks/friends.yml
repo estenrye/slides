@@ -7,6 +7,8 @@
     source: "{{ item }}"
   become: true
   loop: "{{ firewall_friends_known_cidr }}"
+  notify:
+    - persist iptables
 
 - name: Block packets from unknown hosts
   ansible.builtin.iptables:
@@ -14,3 +16,5 @@
     chain: Friends
     jump: DROP
   become: true
+  notify:
+    - persist iptables

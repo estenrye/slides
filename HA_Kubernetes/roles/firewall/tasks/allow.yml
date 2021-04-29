@@ -7,6 +7,8 @@
     protocol: icmp
     icmp_type: echo-request
   become: true
+  notify:
+    - persist iptables
 
 - name: Allow icmp echo-request from Friends
   ansible.builtin.iptables:
@@ -17,6 +19,8 @@
     icmp_type: any
     limit: 1/second
   become: true
+  notify:
+    - persist iptables
 
 - name: Drop icmp requests
   ansible.builtin.iptables:
@@ -26,6 +30,8 @@
     protocol: icmp
     icmp_type: any
   become: true
+  notify:
+    - persist iptables
 
 - name: Accept Packets for services exposed externally to Friends
   ansible.builtin.iptables:
@@ -37,6 +43,8 @@
     comment: "{{ item.service }}"
   become: true
   loop: "{{ firewall_allow_inbound_services_exposed_to_friends }}"
+  notify:
+    - persist iptables
 
 - name: Accept Packets for services exposed externally to Everyone
   ansible.builtin.iptables:
@@ -48,6 +56,8 @@
     comment: "{{ item.service }}"
   become: true
   loop: "{{ firewall_allow_inbound_services_exposed_to_everyone }}"
+  notify:
+    - persist iptables
 
 - name: Deny Packets for services not explicitly allowed.
   ansible.builtin.iptables:
@@ -55,3 +65,5 @@
     chain: Allow
     jump: DROP
   become: true
+  notify:
+    - persist iptables

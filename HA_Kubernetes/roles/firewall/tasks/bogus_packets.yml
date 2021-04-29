@@ -28,6 +28,8 @@
         - SYN
         - RST
   become: true
+  notify:
+    - persist iptables
 
 - name: Block packets from bogus internal subnets.
   ansible.builtin.iptables:
@@ -38,6 +40,8 @@
     source: "{{ item }}"
   loop: "{{ firewall_bogus_inbound_subnets }}"
   become: true
+  notify:
+    - persist iptables
 
 - name: Block packets from 127.0.0.0/8 not received on the loopback interface
   ansible.builtin.iptables:
@@ -48,3 +52,5 @@
     source: 127.0.0.0/8
     in_interface: "! lo"
   become: true
+  notify:
+    - persist iptables
