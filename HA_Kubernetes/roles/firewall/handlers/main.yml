@@ -1,0 +1,11 @@
+---
+# handlers file for edge_firewall
+- name: save iptables v4 rules
+  shell: iptables-save > /etc/iptables/rules.v4
+  listen: persist iptables
+  become: yes
+
+- name: save iptables v6 rules
+  shell: ip6tables-save > /etc/iptables/rules.v6
+  listen: persist iptables
+  become: yes

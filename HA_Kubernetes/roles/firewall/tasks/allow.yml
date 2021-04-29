@@ -1,0 +1,57 @@
+---
+- name: Allow icmp echo-request from Friends
+  ansible.builtin.iptables:
+    table: filter
+    chain: Allow
+    jump: Friends
+    protocol: icmp
+    icmp_type: echo-request
+  become: true
+
+- name: Allow icmp echo-request from Friends
+  ansible.builtin.iptables:
+    table: filter
+    chain: Allow
+    jump: ACCEPT
+    protocol: icmp
+    icmp_type: any
+    limit: 1/second
+  become: true
+
+- name: Drop icmp requests
+  ansible.builtin.iptables:
+    table: filter
+    chain: Allow
+    jump: DROP
+    protocol: icmp
+    icmp_type: any
+  become: true
+
+- name: Accept Packets for services exposed externally to Friends
+  ansible.builtin.iptables:
+    table: filter
+    chain: Allow
+    jump: Friends
+    destination_port: "{{ item.port }}"
+    protocol: "{{ item.protocol }}"
+    comment: "{{ item.service }}"
+  become: true
+  loop: "{{ firewall_allow_inbound_services_exposed_to_friends }}"
+
+- name: Accept Packets for services exposed externally to Everyone
+  ansible.builtin.iptables:
+    table: filter
+    chain: Allow
+    jump: ACCEPT
+    destination_port: "{{ item.port }}"
+    protocol: "{{ item.protocol }}"
+    comment: "{{ item.service }}"
+  become: true
+  loop: "{{ firewall_allow_inbound_services_exposed_to_everyone }}"
+
+- name: Deny Packets for services not explicitly allowed.
+  ansible.builtin.iptables:
+    table: filter
+    chain: Allow
+    jump: DROP
+  become: true

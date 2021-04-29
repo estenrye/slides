@@ -1,0 +1,50 @@
+---
+- name: Block packets that set both SYN and FIN tcp flags.
+  ansible.builtin.iptables:
+    table: filter
+    chain: Bogus
+    protocol: tcp
+    jump: DROP
+    tcp_flags:
+      flags:
+        - SYN
+        - FIN
+      flags_set:
+        - SYN
+        - FIN
+  become: true
+
+- name: Block packets that set both SYN and RST tcp flags.
+  ansible.builtin.iptables:
+    table: filter
+    chain: Bogus
+    protocol: tcp
+    jump: DROP
+    tcp_flags:
+      flags:
+        - SYN
+        - RST
+      flags_set:
+        - SYN
+        - RST
+  become: true
+
+- name: Block packets from bogus internal subnets.
+  ansible.builtin.iptables:
+    table: filter
+    chain: Bogus
+    protocol: tcp
+    jump: DROP
+    source: "{{ item }}"
+  loop: "{{ firewall_bogus_inbound_subnets }}"
+  become: true
+
+- name: Block packets from 127.0.0.0/8 not received on the loopback interface
+  ansible.builtin.iptables:
+    table: filter
+    chain: Bogus
+    protocol: tcp
+    jump: DROP
+    source: 127.0.0.0/8
+    in_interface: "! lo"
+  become: true

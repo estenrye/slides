@@ -1,0 +1,39 @@
+---
+# Currently not possible to manage recent matches in Ansible at this time.
+# Tracking Github Issue: https://github.com/ansible/ansible/issues/41147
+# Ansible only has limited match functionality.
+# Consider developing a PR to add recent functionality
+
+# - name: Drop Quarantined Hosts for Port Scanning for 60 seconds
+#   ansible.builtin.iptables_raw:
+#     table: filter
+#     chain: Enemies
+#     jump: DROP
+#     recent:
+#       name: psc
+#       update: true
+#       seconds: 60
+
+- name: Drop Quarantined Hosts for Port Scanning Internal Services
+  ansible.builtin.iptables:
+    table: filter
+    chain: Enemies
+    jump: DROP
+    in_interface: "! lo"
+    destination_port: "{{ item.port }}"
+    protocol: "{{ item.protocol }}"
+    comment: "{{ item.service }}"
+    # recent:
+    #   name: psc
+    #   set: true
+  become: true
+  loop: "{{ firewall_enemies_inbound_services_not_exposed }}"
+
+- name: Block packets from hostile hosts.
+  ansible.builtin.iptables:
+    table: filter
+    chain: Enemies
+    jump: DROP
+    source: "{{ item }}"
+  become: true
+  loop: "{{ firewall_enemies_hostile_cidr }}"

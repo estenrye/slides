@@ -1,0 +1,53 @@
+- name: Get existing iptables rules
+  become: true
+  command: iptables -n -L
+  changed_when: false
+  register: iptables_rules
+
+- name: Create custom iptables chain
+  become: true
+  command: iptables -N '{{ item }}'
+  when: "'Chain {{ item }}' not in iptables_rules.stdout"
+  loop:
+    - Always
+    - Allow
+    - Bogus
+    - Enemies
+    - Friends
+
+- name: INPUT chain
+  ansible.builtin.iptables:
+    table: filter
+    chain: INPUT
+    jump: "{{ item }}"
+  loop:
+    - Bogus
+    - Always
+    - Enemies
+    - Allow
+
+- name: FORWARD chain
+  ansible.builtin.iptables:
+    table: filter
+    chain: FORWARD
+    jump: "{{ item }}"
+  loop:
+    - Bogus
+    - Always
+    - Enemies
+    - Allow
+
+- name: Add Bogus Packet Rules
+  include_tasks: bogus_packets.yml
+
+- name: Add Always Packet Rules
+  include_tasks: always.yml
+
+- name: Add Friends Packet Rules
+  include_tasks: friends.yml
+
+- name: Add Enemies Packet Rules
+  include_tasks: enemies.yml
+
+- name: Add Allow Packet Rules
+  include_tasks: allow.yml

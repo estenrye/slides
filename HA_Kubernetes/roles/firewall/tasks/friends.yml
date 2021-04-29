@@ -1,0 +1,16 @@
+---
+- name: Accept packets from known hosts.
+  ansible.builtin.iptables:
+    table: filter
+    chain: Friends
+    jump: ACCEPT
+    source: "{{ item }}"
+  become: true
+  loop: "{{ firewall_friends_known_cidr }}"
+
+- name: Block packets from unknown hosts
+  ansible.builtin.iptables:
+    table: filter
+    chain: Friends
+    jump: DROP
+  become: true

@@ -1,0 +1,4 @@
+- hosts: haproxy02
+  roles:
+    - firewall
+  become: true
