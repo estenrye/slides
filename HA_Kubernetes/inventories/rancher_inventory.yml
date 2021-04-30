@@ -33,6 +33,9 @@ all:
                     - service: Kubernetes API Server
                       protocol: tcp
                       port: 6443
+                    - service: RancherD/RKE2 Flannel VXLAN
+                      protocol: udp
+                      port: 8472
                     - service: RKE2 Node Join
                       protocol: tcp
                       port: 9345
@@ -68,6 +71,9 @@ all:
                     - service: Kubernetes API Server
                       protocol: tcp
                       port: 6443
+                    - service: RancherD/RKE2 Flannel VXLAN
+                      protocol: udp
+                      port: 8472
                     - service: RKE2 Node Join
                       protocol: tcp
                       port: 9345
@@ -101,7 +107,10 @@ all:
                     - service: Kubernetes API Server
                       protocol: tcp
                       port: 6443
-                    - service: RKE2 Node Join
+                    - service: RancherD/RKE2 Flannel VXLAN
+                      protocol: udp
+                      port: 8472
+                    - service: RancherD/RKE2 Node Join
                       protocol: tcp
                       port: 9345
                     - service: Kubernetes Kubelet API

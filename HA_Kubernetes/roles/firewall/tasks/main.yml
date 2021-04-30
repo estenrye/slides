@@ -1,4 +1,13 @@
-# tasks file for edge_firewall
+- name: Install iptables
+  ansible.builtin.package:
+    name: iptables
+  become: true  
+
+- name: Install iptables-persistent
+  ansible.builtin.package:
+    name: iptables-persistent
+  become: true
+
 - name: Create iptables configuration directory.
   file:
     path: /etc/iptables

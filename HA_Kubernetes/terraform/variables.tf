@@ -125,6 +125,13 @@ variable machines {
       macaddr = "32:38:D2:7C:E5:C4"
       cores = 8
       memory = 8192
+    },
+    "base.dev.ryezone.com" = {
+      id = 5000
+      ip_addr = "10.5.99.200"
+      macaddr = "32:38:D2:7C:E5:C5"
+      cores = 2
+      memory = 2048
     }
   }
 }

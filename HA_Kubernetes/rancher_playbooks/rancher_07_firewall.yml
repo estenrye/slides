@@ -1,4 +1,10 @@
 - hosts: all
+  tasks:
+    - name: flush all rules
+      ansible.builtin.command: iptables -F
+  become: true
+
+- hosts: all
   roles:
     - firewall
   become: true

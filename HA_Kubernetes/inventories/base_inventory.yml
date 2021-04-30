@@ -1,0 +1,12 @@
+all:
+  children:
+    base:
+      hosts:
+        base:
+          ansible_host: base.dev.ryezone.com
+  vars:
+    ansible_user: automation-user
+    platform_environment: dev
+    dns_entries:
+      - record: base
+        value: 10.5.99.200
