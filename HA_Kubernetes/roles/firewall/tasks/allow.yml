@@ -6,6 +6,7 @@
     jump: Friends
     protocol: icmp
     icmp_type: echo-request
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   notify:
     - persist iptables
@@ -18,6 +19,7 @@
     protocol: icmp
     icmp_type: any
     limit: 1/second
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   notify:
     - persist iptables
@@ -29,6 +31,7 @@
     jump: DROP
     protocol: icmp
     icmp_type: any
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   notify:
     - persist iptables
@@ -41,6 +44,7 @@
     destination_port: "{{ item.port }}"
     protocol: "{{ item.protocol }}"
     comment: "{{ item.service }}"
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   loop: "{{ firewall_allow_inbound_services_exposed_to_friends }}"
   notify:
@@ -54,6 +58,7 @@
     destination_port: "{{ item.port }}"
     protocol: "{{ item.protocol }}"
     comment: "{{ item.service }}"
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   loop: "{{ firewall_allow_inbound_services_exposed_to_everyone }}"
   notify:
@@ -64,6 +69,7 @@
     table: filter
     chain: Allow
     jump: DROP
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   notify:
     - persist iptables

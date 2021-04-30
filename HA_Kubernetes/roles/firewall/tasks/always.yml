@@ -7,6 +7,7 @@
     chain: Always
     jump: ACCEPT
     source: "{{ item }}"
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   loop: "{{ firewall_always_high_priority_inbound_subnets }}"
 
@@ -20,6 +21,7 @@
     destination_port: "{{ item.port }}"
     protocol: "{{ item.protocol }}"
     comment: "{{ item.service }}"
+    wait: "{{ firewall_wait_lock_seconds }}"
   loop: "{{ firewall_always_high_priority_inbound_services }}"
   become: true
 
@@ -38,6 +40,7 @@
     ctstate:
       - ESTABLISHED
       - RELATED
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   notify:
     - persist iptables
@@ -48,6 +51,7 @@
     chain: Always
     jump: ACCEPT
     in_interface: lo
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: yes
   notify:
     - persist iptables

@@ -5,6 +5,7 @@
     chain: Friends
     jump: ACCEPT
     source: "{{ item }}"
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   loop: "{{ firewall_friends_known_cidr }}"
   notify:
@@ -15,6 +16,7 @@
     table: filter
     chain: Friends
     jump: DROP
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   notify:
     - persist iptables

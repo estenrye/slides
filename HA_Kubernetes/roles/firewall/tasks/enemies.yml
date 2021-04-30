@@ -9,6 +9,7 @@
 #     table: filter
 #     chain: Enemies
 #     jump: DROP
+#     wait: "{{ firewall_wait_lock_seconds }}"
 #     recent:
 #       name: psc
 #       update: true
@@ -25,6 +26,7 @@
     destination_port: "{{ item.port }}"
     protocol: "{{ item.protocol }}"
     comment: "{{ item.service }}"
+    wait: "{{ firewall_wait_lock_seconds }}"
     # recent:
     #   name: psc
     #   set: true
@@ -39,6 +41,7 @@
     chain: Enemies
     jump: DROP
     source: "{{ item }}"
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   loop: "{{ firewall_enemies_hostile_cidr }}"
   notify:

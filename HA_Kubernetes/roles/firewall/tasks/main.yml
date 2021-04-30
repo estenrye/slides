@@ -8,7 +8,7 @@
 - name: Create custom iptables chain
   command: iptables -N '{{ item }}'
   changed_when: "chain.stderr != 'iptables: Chain already exists.'"
-  failed_when: "chain.stderr != 'iptables: Chain already exists.'"
+  failed_when: "chain.stderr != 'iptables: Chain already exists.' and chain.stderr != ''"
   register: chain
   become: true
   loop:
@@ -25,6 +25,7 @@
     table: filter
     chain: INPUT
     jump: "{{ item }}"
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   loop: "{{ firewall_input_chain }}"
   notify:
@@ -35,6 +36,7 @@
     table: filter
     chain: FORWARD
     jump: "{{ item }}"
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   loop: "{{ firewall_forward_chain }}"
   notify:

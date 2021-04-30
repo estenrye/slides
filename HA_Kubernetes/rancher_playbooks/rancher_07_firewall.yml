@@ -1,6 +1,4 @@
-- hosts:
-    - external_load_balancer
-    - nodes
+- hosts: all
   roles:
     - firewall
   become: true

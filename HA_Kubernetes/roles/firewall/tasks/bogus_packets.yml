@@ -5,6 +5,7 @@
     chain: Bogus
     protocol: tcp
     jump: DROP
+    wait: "{{ firewall_wait_lock_seconds }}"
     tcp_flags:
       flags:
         - SYN
@@ -20,6 +21,7 @@
     chain: Bogus
     protocol: tcp
     jump: DROP
+    wait: "{{ firewall_wait_lock_seconds }}"
     tcp_flags:
       flags:
         - SYN
@@ -38,6 +40,7 @@
     protocol: tcp
     jump: DROP
     source: "{{ item }}"
+    wait: "{{ firewall_wait_lock_seconds }}"
   loop: "{{ firewall_bogus_inbound_subnets }}"
   become: true
   notify:
@@ -51,6 +54,7 @@
     jump: DROP
     source: 127.0.0.0/8
     in_interface: "! lo"
+    wait: "{{ firewall_wait_lock_seconds }}"
   become: true
   when: firewall_bogus_block_loopback_subnet
   notify:
