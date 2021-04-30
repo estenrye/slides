@@ -1,2 +1,43 @@
 kubernetes_is_controlplane: false
 kubernetes_is_initial_controlplane: false
+
+# The subnets in this list are high-priority packets from trusted sources
+# like the Kubernetes pod and service networks that are managed using separate
+# controls like Kubernetes Network Policy.
+firewall_always_high_priority_inbound_subnets:
+  - 10.42.0.0/16
+  - 10.43.0.0/16
+
+# The subnets in this are trusted and are accepted.
+firewall_friends_known_cidr:
+  - 10.0.2.0/24
+  - 10.5.0.0/16
+
+# These services should only be accessed by sources we trust.
+firewall_allow_inbound_services_exposed_to_friends:
+  - service: SSH
+    port: 22
+    protocol: tcp
+  - service: HTTP
+    protocol: tcp
+    port: 80
+  - service: HTTPS
+    protocol: tcp
+    port: 443  
+  - service: Kubernetes Kubelet API
+    protocol: tcp
+    port: 10250
+
+# These services are publicly advertised to the world.
+firewall_allow_inbound_services_exposed_to_everyone: []
+
+firewall_forward_chain: []
+
+firewall_input_chain:
+  - Bogus
+  - Always
+  - Enemies
+  - Allow
+
+firewall_bogus_block_loopback_subnet: false
+

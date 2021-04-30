@@ -1,4 +1,15 @@
 ---
+# This rule set allows us to accept high-priority packets from known subnets
+# like Kubernetes pod and service networks.
+- name: Always accept traffic from known inbound subnets
+  ansible.builtin.iptables:
+    table: filter
+    chain: Always
+    jump: ACCEPT
+    source: "{{ item }}"
+  become: true
+  loop: "{{ firewall_always_high_priority_inbound_subnets }}"
+
 # This rule set allows us to accept high-priority packets from known inbound
 # services like NTP with relatively low packet processing delay.
 - name: Always accept traffic from known inbound service ports

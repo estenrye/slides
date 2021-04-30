@@ -1,4 +1,6 @@
-- hosts: haproxy02
+- hosts:
+    - external_load_balancer
+    - nodes
   roles:
     - firewall
   become: true

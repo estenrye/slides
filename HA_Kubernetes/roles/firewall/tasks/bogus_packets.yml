@@ -52,5 +52,6 @@
     source: 127.0.0.0/8
     in_interface: "! lo"
   become: true
+  when: firewall_bogus_block_loopback_subnet
   notify:
     - persist iptables

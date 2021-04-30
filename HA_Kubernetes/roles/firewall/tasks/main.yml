@@ -5,15 +5,11 @@
     state: directory
   become: true
 
-- name: Get existing iptables rules
-  command: iptables -n -L
-  changed_when: false
-  register: iptables_rules
-  become: true
-
 - name: Create custom iptables chain
   command: iptables -N '{{ item }}'
-  when: "'Chain {{ item }}' not in iptables_rules.stdout"
+  changed_when: "chain.stderr != 'iptables: Chain already exists.'"
+  failed_when: "chain.stderr != 'iptables: Chain already exists.'"
+  register: chain
   become: true
   loop:
     - Always
@@ -30,11 +26,7 @@
     chain: INPUT
     jump: "{{ item }}"
   become: true
-  loop:
-    - Bogus
-    - Always
-    - Enemies
-    - Allow
+  loop: "{{ firewall_input_chain }}"
   notify:
     - persist iptables
 
@@ -44,11 +36,7 @@
     chain: FORWARD
     jump: "{{ item }}"
   become: true
-  loop:
-    - Bogus
-    - Always
-    - Enemies
-    - Allow
+  loop: "{{ firewall_forward_chain }}"
   notify:
     - persist iptables
 
