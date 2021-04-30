@@ -71,4 +71,4 @@ firewall_forward_chain:
 
 firewall_bogus_block_loopback_subnet: true
 
-firewall_wait_lock_seconds: 2
+firewall_wait_lock_seconds: "5"
