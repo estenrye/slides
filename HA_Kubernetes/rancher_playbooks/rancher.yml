@@ -10,11 +10,5 @@
 - name: Provision Initial RKE2 server (controlplane) node
   import_playbook: rancher_03_rke2.yml
 
-- name: Provision Remaining RKE2 server (controlplane) nodes
-  import_playbook: rancher_04_rke2_additional_nodes.yml
-
-- name: Enable all backend servers.
-  import_playbook: rancher_05_undrain_additional_controlplane_nodes.yml
-
 # - name: Install apps.
 #   include: rancher_06_install_apps.yml

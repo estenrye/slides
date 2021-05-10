@@ -24,6 +24,10 @@
     name: "{{ cert_manager_helm_chart_repo_name }}"
     repo_url: "{{ cert_manager_helm_chart_repo_uri }}"
 
+- name: pause for 2 minutes for node to initialize.
+  ansible.builtin.pause:
+    minutes: 2
+
 - name: Deploy cert-manager chart
   community.kubernetes.helm:
     name: cert-manager

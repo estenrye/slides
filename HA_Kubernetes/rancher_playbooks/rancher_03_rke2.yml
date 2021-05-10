@@ -1,4 +1,26 @@
 ---
+- hosts: external_load_balancer
+  tasks:
+    - name: Drain api-server backend nodes.
+      community.general.haproxy:
+        state: drain
+        host: "{{ item }}"
+        backend: api-server
+        socket: /var/run/haproxy.sock
+      loop:
+        - controlplane02
+        - controlplane03
+    - name: Drain node-join backend nodes.
+      community.general.haproxy:
+        state: drain
+        host: "{{ item }}"
+        backend: node-join
+        socket: /var/run/haproxy.sock
+      loop:
+        - controlplane02
+        - controlplane03
+  become: true
+
 - hosts: initial_controlplane
   roles:
     - rke2
@@ -9,4 +31,47 @@
     mgmt_vip: "{{ kubernetes_api_server_vip }}"
     mgmt_fqdn: "rke2.{{ kubernetes_zone }}"
     is_initial_node: true
+  become: true
+
+- hosts: additional_controlplane
+  roles:
+    - rke2
+    - helm
+  serial: 1
+  vars:
+    join_token: "{{ lookup('password', 'files/secrets/k8s_db_secret chars=ascii_letters,digits length=64') | b64encode }}"
+    mgmt_vip: "{{ kubernetes_api_server_vip }}"
+    mgmt_fqdn: "rke2.{{ kubernetes_zone }}"
+  become: true
+
+- hosts: nodes
+  roles:
+    - rke2
+  vars:
+    join_token: "{{ lookup('password', 'files/secrets/k8s_db_secret chars=ascii_letters,digits length=64') | b64encode }}"
+    mgmt_vip: "{{ kubernetes_api_server_vip }}"
+    mgmt_fqdn: "rke2.{{ kubernetes_zone }}"
+    is_agent_node: true
+  become: true
+
+- hosts: external_load_balancer
+  vars:
+    backends:
+      - controlplane02
+      - controlplane03
+  tasks:
+    - name: Enable api-server backend nodes.
+      community.general.haproxy:
+        state: enabled
+        host: "{{ item }}"
+        backend: api-server
+        socket: /var/run/haproxy.sock
+      loop: "{{ backends }}"
+    - name: Enable node-join backend nodes.
+      community.general.haproxy:
+        state: enabled
+        host: "{{ item }}"
+        backend: node-join
+        socket: /var/run/haproxy.sock
+      loop: "{{ backends }}"
   become: true
