@@ -3,9 +3,9 @@ all:
     external_load_balancer:
       hosts:
         haproxy01:
-          ansible_host: haproxy01.dev.ryezone.com
+          ansible_host: haproxy01.prod.ryezone.com
         haproxy02:
-          ansible_host: haproxy02.dev.ryezone.com
+          ansible_host: haproxy02.prod.ryezone.com
     kubernetes_cluster:
       children:
         controlplane:
@@ -13,54 +13,54 @@ all:
             initial_controlplane:
               hosts:
                 controlplane01:
-                  ansible_host: controlplane01.dev.ryezone.com
+                  ansible_host: controlplane01.prod.ryezone.com
             additional_controlplane:
               hosts:
                 controlplane02:
-                  ansible_host: controlplane02.dev.ryezone.com
+                  ansible_host: controlplane02.prod.ryezone.com
                 controlplane03:
-                  ansible_host: controlplane03.dev.ryezone.com
+                  ansible_host: controlplane03.prod.ryezone.com
         nodes:
           hosts:
             node01:
-              ansible_host: node01.dev.ryezone.com
+              ansible_host: node01.prod.ryezone.com
             node02:
-              ansible_host: node02.dev.ryezone.com
+              ansible_host: node02.prod.ryezone.com
             node03:
-              ansible_host: node03.dev.ryezone.com
+              ansible_host: node03.prod.ryezone.com
       
   vars:
     ansible_user: automation-user
-    platform_environment: dev
+    platform_environment: prod
     install_rancher: false
     taint_server_nodes: true
-    kubernetes_api_server_vip: 10.5.99.3
-    virtual_router_id: 52
-    virtual_router_auth_pass: 78
+    kubernetes_api_server_vip: 10.5.100.3
+    virtual_router_id: 53
+    virtual_router_auth_pass: 79
     dns_entries:
       - record: haproxy01
-        value: 10.5.99.1
+        value: 10.5.100.1
       - record: haproxy02
-        value: 10.5.99.2
+        value: 10.5.100.2
       - record: kube-api
-        value: 10.5.99.3
+        value: 10.5.100.3
       - record: "*"
-        value: 10.5.99.3
+        value: 10.5.100.3
       - record: controlplane01
-        value: 10.5.99.11
+        value: 10.5.100.11
       - record: controlplane02
-        value: 10.5.99.12
+        value: 10.5.100.12
       - record: controlplane03
-        value: 10.5.99.13
+        value: 10.5.100.13
       - record: node01
-        value: 10.5.99.31
+        value: 10.5.100.31
       - record: node02
-        value: 10.5.99.32
+        value: 10.5.100.32
       - record: node03
-        value: 10.5.99.33
+        value: 10.5.100.33
 
     # The subnets in this are trusted and are accepted.
     firewall_friends_known_cidr:
       - 10.0.2.0/24
       - 10.5.0.0/24
-      - 10.5.99.0/24
+      - 10.5.10.0/24

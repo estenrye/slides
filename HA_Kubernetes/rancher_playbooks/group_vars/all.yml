@@ -54,12 +54,6 @@ firewall_always_high_priority_inbound_services:
     protocol: udp
     port: 123
 
-# The subnets in this are trusted and are accepted.
-firewall_friends_known_cidr:
-  - 10.0.2.0/24
-  - 10.5.0.0/24
-  - 10.5.99.0/24
-
 # These services should only be accessed by sources we trust.
 firewall_allow_inbound_services_exposed_to_friends:
   - service: SSH

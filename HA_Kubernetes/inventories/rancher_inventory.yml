@@ -127,24 +127,24 @@ all:
     platform_environment: rancher
     install_rancher: true
     taint_server_nodes: false
-    kubernetes_api_server_vip: 10.5.99.17
+    kubernetes_api_server_vip: 10.5.98.3
     virtual_router_id: 51
-    virtual_router_auth_pass: 79
+    virtual_router_auth_pass: 77
     dns_entries:
       - record: haproxy01
-        value: 10.5.99.15
+        value: 10.5.98.1
       - record: haproxy02
-        value: 10.5.99.16
+        value: 10.5.98.2
       - record: kube-api
-        value: 10.5.99.17
+        value: 10.5.98.3
       - record: "*"
-        value: 10.5.99.17
+        value: 10.5.98.3
       - record: controlplane01
-        value: 10.5.99.24
+        value: 10.5.98.11
       - record: controlplane02
-        value: 10.5.99.25
+        value: 10.5.98.12
       - record: controlplane03
-        value: 10.5.99.26
+        value: 10.5.98.13
     rke2_ingress_servers:
       - name: controlplane01
         address: controlplane01.{{ kubernetes_zone }}
@@ -152,3 +152,9 @@ all:
         address: controlplane02.{{ kubernetes_zone }}
       - name: controlplane03
         address: controlplane03.{{ kubernetes_zone }}
+
+    # The subnets in this are trusted and are accepted.
+    firewall_friends_known_cidr:
+      - 10.0.2.0/24
+      - 10.5.0.0/24
+      - 10.5.98.0/24

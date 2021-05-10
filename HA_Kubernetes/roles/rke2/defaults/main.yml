@@ -20,3 +20,5 @@ rke2_ingress_nginx_controller_metrics_serviceMonitor_enabled: false
 rke2_ingress_nginx_service_external_dns_hostname: "{{ kubernetes_zone }}"
 rke2_ingress_nginx_service_external_dns_ttl: "120"
 rke2_ingress_nginx_service_external_dns_cloudflare_proxied: false
+rke2_enable_nfs_csi: true
+rke2_enable_iscsi_csi: true
