@@ -13,3 +13,7 @@
       record: "{{ item.record }}.{{ platform_environment }}"
       state: present
     loop: "{{ dns_entries }}"
+
+  - name: pause for 1 minutes for dns to propagate.
+    ansible.builtin.pause:
+      minutes: 1

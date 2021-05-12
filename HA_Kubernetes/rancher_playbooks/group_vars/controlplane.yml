@@ -25,6 +25,9 @@ firewall_allow_inbound_services_exposed_to_friends:
   - service: RancherD/RKE2 Node Join
     protocol: tcp
     port: 9345
+  - service: Rancher Monitoring Node Exporter
+    protocol: tcp
+    port: 9796
   - service: Kubernetes Kubelet API
     protocol: tcp
     port: 10250

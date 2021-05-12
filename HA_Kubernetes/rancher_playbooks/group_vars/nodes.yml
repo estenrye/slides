@@ -8,11 +8,6 @@ firewall_always_high_priority_inbound_subnets:
   - 10.42.0.0/16
   - 10.43.0.0/16
 
-# The subnets in this are trusted and are accepted.
-firewall_friends_known_cidr:
-  - 10.0.2.0/24
-  - 10.5.0.0/16
-
 # These services should only be accessed by sources we trust.
 firewall_allow_inbound_services_exposed_to_friends:
   - service: SSH
@@ -27,6 +22,9 @@ firewall_allow_inbound_services_exposed_to_friends:
   - service: RancherD/RKE2 Flannel VXLAN
     protocol: udp
     port: 8472
+  - service: Rancher Monitoring Node Exporter
+    protocol: tcp
+    port: 9796
   - service: Kubernetes Kubelet API
     protocol: tcp
     port: 10250
