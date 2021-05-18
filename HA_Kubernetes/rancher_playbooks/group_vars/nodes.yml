@@ -28,6 +28,9 @@ firewall_allow_inbound_services_exposed_to_friends:
   - service: Kubernetes Kubelet API
     protocol: tcp
     port: 10250
+  - service: Step Certificates Certificate Authority
+    protocol: tcp
+    port: 32400
 
 # These services are publicly advertised to the world.
 firewall_allow_inbound_services_exposed_to_everyone: []
