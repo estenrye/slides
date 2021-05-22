@@ -92,7 +92,7 @@ all:
               - expect status 200
             options:
               - httpchk GET /health
-              - ssl-hello-chk
+            check_options: ssl verify none
             servers: "{{ rke2_ingress_servers }}"
 
     kubernetes_cluster:
