@@ -88,11 +88,9 @@ all:
             mode: tcp
             port: 32400
             balance_method: roundrobin
-            http_checks:
-              - expect status 200
-            options:
-              - httpchk GET /health HTTP/1.1\r\nHost:ca\r\nUser-Agent:\ haproxy_check\r\nReferer:\ {{ inventory_hostname }}.{{ kubernetes_zone }}
-            check_options: ssl verify none
+            options: []
+            http_checks: []
+            check_options: inter 2m downinter 2m observe layer4 error-limit 10 on-error mark-down
             servers: "{{ rke2_ingress_servers }}"
 
     kubernetes_cluster:
