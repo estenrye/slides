@@ -91,7 +91,7 @@ all:
             http_checks:
               - expect status 200
             options:
-              - httpchk GET /health
+              - httpchk GET /health HTTP/1.1\r\nHost:ca\r\nUser-Agent:\ haproxy_check\r\nReferer:\ {{ inventory_hostname }}.{{ kubernetes_zone }}
             check_options: ssl verify none
             servers: "{{ rke2_ingress_servers }}"
 
