@@ -1,0 +1,174 @@
+---
+- name: download step cli dev package
+  ansible.builtin.get_url:
+    url: https://github.com/smallstep/cli/releases/download/v{{ step_cli_version }}/step-cli_{{ step_cli_version }}_amd64.deb
+    dest: /tmp/step-cli_{{ step_cli_version }}_amd64.deb
+
+- name: install step cli
+  ansible.builtin.apt:
+    deb: /tmp/step-cli_{{ step_cli_version }}_amd64.deb
+  become: true
+
+- name: install user certificate CA certificate
+  ansible.builtin.copy:
+    content: "{{ ssh_user_key_pub }}"
+    dest: /etc/ssh/ssh_user_key.pub
+  become: true
+
+- name: bootstrap step ca
+  ansible.builtin.command:
+    argv:
+      - step
+      - ca
+      - bootstrap
+      - --ca-url
+      - "{{ step_ca_url }}"
+      - --fingerprint
+      - "{{ step_ca_fingerprint }}"
+      - --force
+      - --install
+    creates: /root/.step/config/defaults.json
+  become: true
+    
+- name: generate host ssh certificate
+  block:
+    - name: check if cert exists
+      ansible.builtin.stat:
+        path: /etc/ssh/ssh_host_ecdsa_key-cert.pub
+      register: stat_result
+    - name: create password file
+      ansible.builtin.copy:
+        content: "{{ step_token_jwk_provisioner_password }}"
+        dest: /etc/ssh/step-pp
+      when: not stat_result.stat.exists
+    - name: create step token
+      ansible.builtin.command:
+        argv:
+          - step
+          - ca
+          - token
+          - "{{ inventory_hostname }}.{{ kubernetes_zone }}"
+          - --ssh
+          - --host
+          - --not-after=5m
+          - --provisioner
+          - "{{ step_token_jwk_provisioner_name }}"
+          - --password-file
+          - /etc/ssh/step-pp
+      register: step_token
+      when: not stat_result.stat.exists
+    - name: generate host ssh certificate
+      ansible.builtin.command:
+        argv:
+          - step
+          - ssh
+          - certificate
+          - "{{ inventory_hostname }}.{{ kubernetes_zone }}"
+          - /etc/ssh/ssh_host_ecdsa_key.pub
+          - --host
+          - --sign
+          - --provisioner
+          - "{{ step_token_jwk_provisioner_name }}"
+          - --token
+          - "{{ step_token.stdout }}"
+        creates: /etc/ssh/ssh_host_ecdsa_key-cert.pub
+      when: not stat_result.stat.exists
+  always:
+    - name: ensure provisioner password file is removed
+      ansible.builtin.file:
+        path: /etc/ssh/step-pp
+        state: absent
+  become: true
+
+- name: Configure SSH Host Key
+  block:
+    - name: Deduplicate values from /etc/ssh/sshd_config
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        create: false
+        regexp: (?i)^\s*HostKey\s+
+        state: absent
+    - name: Insert correct line to /etc/ssh/sshd_config
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        create: true
+        line: HostKey /etc/ssh/ssh_host_ecdsa_key
+        state: present
+        insertbefore: ^[#\s]*Match
+        validate: /usr/sbin/sshd -t -f %s
+      notify: restart_sshd
+  become: true
+
+- name: Configure SSH Host Certificate
+  block:
+    - name: Deduplicate values from /etc/ssh/sshd_config
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        create: false
+        regexp: (?i)^\s*HostCertificate\s+
+        state: absent
+    - name: Insert correct line to /etc/ssh/sshd_config
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        create: true
+        line: HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub
+        state: present
+        insertbefore: ^[#\s]*Match
+        validate: /usr/sbin/sshd -t -f %s
+      notify: restart_sshd
+  become: true
+
+- name: Configure SSH Trusted User CA Keys
+  block:
+    - name: Deduplicate values from /etc/ssh/sshd_config
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        create: false
+        regexp: (?i)^\s*TrustedUserCAKeys\s+
+        state: absent
+    - name: Insert correct line to /etc/ssh/sshd_config
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        create: true
+        line: TrustedUserCAKeys /etc/ssh/ssh_user_key.pub
+        state: present
+        insertbefore: ^[#\s]*Match
+        validate: /usr/sbin/sshd -t -f %s
+      notify: restart_sshd
+  become: true
+
+- name: add authorized users
+  ansible.builtin.user:
+    create_home: true
+    home: /home/{{ item.principal }}
+    name: "{{ item.principal }}"
+    uid: "{{ item.uid }}"
+    state: present
+    password_lock: true
+    shell: /bin/bash
+    groups:
+      - sudo
+  become: true
+  loop: "{{ authorized_users }}"
+
+- name: add passwordless sudo
+  ansible.builtin.copy:
+    content: "{{ item.principal }} ALL=(ALL) NOPASSWD: ALL"
+    dest: /etc/sudoers.d/{{ item.principal | replace('.', '-') }}
+  become: true
+  loop: "{{ authorized_users }}"
+
+- name: remove revoked users
+  ansible.builtin.user:
+    state: absent
+    name: "{{ item.principal }}"
+    uid: "{{ item.uid }}"
+
+  loop: "{{ revoked_users }}"
+
+- name: remove passwordless sudo
+  ansible.builtin.file:
+    path: /etc/sudoers.d/{{ item.principal | replace('.', '-') }}
+    state: absent
+  become: true
+  loop: "{{ revoked_users }}"

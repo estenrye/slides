@@ -123,6 +123,10 @@ all:
                       protocol: tcp
                       port: 10252
   vars:
+    authorized_users:
+      - principal: esten.rye
+        uid: 10000
+    revoked_users: []
     ansible_user: automation-user
     platform_environment: rancher
     install_rancher: true

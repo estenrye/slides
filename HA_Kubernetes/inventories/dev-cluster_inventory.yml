@@ -30,6 +30,10 @@ all:
               ansible_host: node03.dev.ryezone.com
       
   vars:
+    authorized_users:
+      - principal: esten.rye
+        uid: 10000
+    revoked_users: []
     ansible_user: automation-user
     platform_environment: dev
     install_rancher: false

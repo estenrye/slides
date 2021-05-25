@@ -1,0 +1,11 @@
+step_cli_version: 0.15.16
+ssh_user_key_pub: ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBCzj6yz1888zEKbWIwEkQCbtQBML/IoME+pBGsROId7mt2M9G0GrIG1d4hrGIGFOFHArAiUc+tLuKTil7kE/lkQT2YwpDQoJSONQ87s+o/i+ejz4QQa/HWTe2xcH0usDUw==
+step_ca_url: https://ca.prod.ryezone.com:32400
+step_ca_fingerprint: 75f6f06638e57290aeff9ef08202b914efe904889a4648c868bd91fcd9ea98c5
+kubernetes_zone: prod.ryezone.com
+
+step_token_jwk_provisioner_name: ansible_automation_token
+step_token_jwk_provisioner_password: "{{ step_password }}"
+
+authorized_users: []
+revoked_users: []
