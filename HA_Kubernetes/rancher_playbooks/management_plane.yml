@@ -2,3 +2,5 @@
   roles:
     - cert_manager
     - rancher
+    - truenas_container_storage_interface
+    - step_certificates

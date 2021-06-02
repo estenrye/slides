@@ -66,4 +66,5 @@ firewall_allow_inbound_services_exposed_to_everyone: []
   #   protocol: tcp
   #   port: 80
 
+kubernetes_pki_directory: /var/lib/rancher/rke2/server/tls
 step_password: "{{ lookup('password', 'files/secrets/step-ca_token_password chars=ascii_letters,digits length=64') }}"

@@ -126,9 +126,15 @@ all:
     authorized_users:
       - principal: esten.rye
         uid: 10000
+    step_certificates_oidc_admins:
+      - esten.rye@ryezone.com
+    step_certificates_oidc_domains:
+      - ryezone.com
+
     revoked_users: []
     ansible_user: automation-user
     platform_environment: rancher
+    truenas_dataset_root: main/k8s/mgmt
     install_rancher: true
     taint_server_nodes: false
     kubernetes_api_server_vip: 10.5.98.3
