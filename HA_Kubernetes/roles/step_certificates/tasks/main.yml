@@ -1,0 +1,409 @@
+- name: Add chart repos.
+  community.kubernetes.helm_repository:
+    name: "{{ item.name }}"
+    repo_url: "{{ item.repo_url }}"
+  loop:
+    - name: smallstep_mariadb
+      repo_url: "{{ step_mariadb.helm.repo }}"
+    - name: smallstep
+      repo_url: "{{ step_certificates.helm.repo }}"
+  tags:
+    - smallstep
+
+- name: Update Helm Repositories
+  ansible.builtin.command: helm repo update
+  changed_when: false
+  tags:
+    - smallstep
+
+- name: Install step cli client
+  ansible.builtin.apt:
+    deb: https://github.com/smallstep/cli/releases/download/v{{ step_cli_version }}/step-cli_{{ step_cli_version }}_{{ step_cli_arch }}.deb
+    state: present
+  tags:
+    - smallstep
+
+- name: Create CA PKI directory
+  ansible.builtin.file:
+    state: directory
+    mode: 0600
+    owner: root
+    path: "{{ pki_directory }}"
+  become: true
+  tags:
+    - smallstep
+
+- name: Create Certificate Templates
+  ansible.builtin.template:
+    src: csr.tpl.j2
+    dest: "{{ pki_directory }}/{{ item.key }}.tpl"
+    mode: 0600
+    owner: root
+  become: true
+  loop: "{{ certificate_templates }}"
+  tags:
+    - smallstep
+
+- name: Generate Root CA Keypair
+  block:
+    - name: check for Root CA Keypair
+      ansible.builtin.stat:
+        path: "{{ pki_directory }}/root_ca.crt"
+      register: stat_result
+      become: true
+
+    - name: write Root CA Keypair Password to file.
+      ansible.builtin.copy:
+        content: "{{ certificate_root_ca.password }}"
+        dest: "{{ pki_directory }}/root_ca_password"
+        mode: 0600
+        owner: root
+      when: |-
+        not stat_result.stat.exists or 
+        certificate_root_ca.force_regenerate
+      become: true
+
+    - name: Generate Root CA Keypair
+      ansible.builtin.command:
+        argv:
+          - step
+          - certificate
+          - create
+          - "{{ certificate_root_ca.commonName | default('Smallstep Root CA') }}"
+          - "{{ pki_directory }}/root_ca.crt"
+          - "{{ pki_directory }}/root_ca.key"
+          - --template={{ pki_directory }}/root.tpl
+          - --kty=EC
+          - --curve={{ certificate_root_ca.key_curve | default('P-384') }}
+          - --password-file={{ pki_directory }}/root_ca_password
+          - --not-before={{ certificate_root_ca.not_before | default('0s') }}
+          - --not-after={{ certificate_root_ca.not_after | default('43824h') }}
+          - --force
+      when: |-
+        not stat_result.stat.exists or 
+        certificate_root_ca.force_regenerate
+      become: true
+  always:
+    - name: Delete Root CA Keypair Password file.
+      ansible.builtin.file:
+        path: "{{ pki_directory }}/root_ca_password"
+        state: absent
+      become: true
+    - name: Fingerprint Root CA Certificate
+      ansible.builtin.command:
+        argv:
+          - step
+          - certificate
+          - fingerprint
+          - "{{ pki_directory }}/root_ca.crt"
+      become: true
+      changed_when: false
+      register: root_ca_fingerprint
+    - name: Slurp root cert
+      ansible.builtin.slurp:
+        src: "{{ pki_directory }}/root_ca.crt"
+      register: root_ca_certificate
+      become: true
+    - name: Slurp root key
+      ansible.builtin.slurp:
+        src: "{{ pki_directory }}/root_ca.key"
+      register: root_ca_key
+      become: true
+  tags:
+    - smallstep
+
+- name: Generate Intermediate CA Keypair
+  block:
+    - name: check for Intermediate CA Keypair
+      ansible.builtin.stat:
+        path: "{{ pki_directory }}/intermediate_ca.crt"
+      register: stat_result
+      become: true
+
+    - name: write Root CA Keypair Password to file.
+      ansible.builtin.copy:
+        content: "{{ certificate_root_ca.password }}"
+        dest: "{{ pki_directory }}/root_ca_password"
+        mode: 0600
+        owner: root
+      when: |-
+        not stat_result.stat.exists or 
+        certificate_root_ca.force_regenerate or
+        certificate_intermediate_ca.force_regenerate
+      become: true
+
+    - name: write Intermediate CA Keypair Password to file.
+      ansible.builtin.copy:
+        content: "{{ certificate_intermediate_ca.password }}"
+        dest: "{{ pki_directory }}/intermediate_ca_password"
+        mode: 0600
+        owner: root
+      when: |-
+        not stat_result.stat.exists or 
+        certificate_root_ca.force_regenerate or
+        certificate_intermediate_ca.force_regenerate
+      become: true
+
+    - name: Generate Intermediate CA Keypair
+      ansible.builtin.command:
+        argv:
+          - step
+          - certificate
+          - create
+          - "{{ certificate_intermediate_ca.commonName | default('Smallstep Intermediate CA') }}"
+          - "{{ pki_directory }}/intermediate_ca.crt"
+          - "{{ pki_directory }}/intermediate_ca.key"
+          - --template={{ pki_directory }}/intermediate.tpl
+          - --kty=EC
+          - --curve={{ certificate_intermediate_ca.key_curve | default('P-384') }}
+          - --password-file={{ pki_directory }}/intermediate_ca_password
+          - --not-before={{ certificate_intermediate_ca.not_before | default('0s') }}
+          - --not-after={{ certificate_intermediate_ca.not_after | default('21924h') }}
+          - --ca={{ pki_directory }}/root_ca.crt
+          - --ca-key={{ pki_directory }}/root_ca.key
+          - --ca-password-file={{ pki_directory }}/root_ca_password
+          - --force
+      when: |-
+        not stat_result.stat.exists or 
+        certificate_root_ca.force_regenerate or
+        certificate_intermediate_ca.force_regenerate
+      become: true
+  always:
+    - name: Delete Root CA Keypair Password file.
+      ansible.builtin.file:
+        path: "{{ pki_directory }}/root_ca_password"
+        state: absent
+      become: true
+    - name: Delete Intermediate CA Keypair Password file.
+      ansible.builtin.file:
+        path: "{{ pki_directory }}/intermediate_ca_password"
+        state: absent
+      become: true
+    - name: Slurp intermediate cert
+      ansible.builtin.slurp:
+        src: "{{ pki_directory }}/intermediate_ca.crt"
+      register: intermediate_ca_certificate
+      become: true
+    - name: Slurp intermediate key
+      ansible.builtin.slurp:
+        src: "{{ pki_directory }}/intermediate_ca.key"
+      register: intermediate_ca_key
+      become: true
+  tags:
+    - smallstep
+
+- name: Generate SSH Host CA Key
+  block:
+    - name: check for SSH Host CA Keypair
+      ansible.builtin.stat:
+        path: "{{ pki_directory }}/ssh_host_ca_ecdsa"
+      register: stat_result
+      become: true
+
+    - name: remove SSH Host CA Keypair for regeneration
+      ansible.builtin.file:
+        path: "{{ pki_directory }}/ssh_host_ca_ecdsa"
+        state: absent
+      become: true
+      when: ssh_host_ca_key.force_regenerate
+
+    - name: Create SSH Host CA Keypair
+      ansible.builtin.command:
+        argv:
+          - ssh-keygen
+          - -q
+          - -t
+          - ecdsa
+          - -b
+          - "{{ ssh_host_ca_key.bits }}"
+          - -f
+          - "{{ pki_directory }}/ssh_host_ca_ecdsa"
+          - -C
+          - ""
+          - -N
+          - "{{ ssh_host_ca_key.password }}"
+      when: not stat_result.stat.exists or ssh_host_ca_key.force_regenerate
+      become: true
+  always:
+    - name: Slurp ssh host cert
+      ansible.builtin.slurp:
+        src: "{{ pki_directory }}/ssh_host_ca_ecdsa.pub"
+      register: ssh_host_ca_certificate
+      become: true
+    - name: Slurp ssh host key
+      ansible.builtin.slurp:
+        src: "{{ pki_directory }}/ssh_host_ca_ecdsa"
+      register: ssh_host_ca_key
+      become: true
+  tags:
+    - smallstep
+
+- name: Generate SSH User CA Key
+  block:
+    - name: check for SSH User CA Keypair
+      ansible.builtin.stat:
+        path: "{{ pki_directory }}/ssh_user_ca_ecdsa"
+      register: stat_result
+      become: true
+
+    - name: remove SSH User CA Keypair for regeneration
+      ansible.builtin.file:
+        path: "{{ pki_directory }}/ssh_user_ca_ecdsa"
+        state: absent
+      become: true
+      when: ssh_user_ca_key.force_regenerate
+
+    - name: Create SSH User CA Keypair
+      ansible.builtin.command:
+        argv:
+          - ssh-keygen
+          - -q
+          - -t
+          - ecdsa
+          - -b
+          - "{{ ssh_user_ca_key.bits }}"
+          - -f
+          - "{{ pki_directory }}/ssh_user_ca_ecdsa"
+          - -C
+          - ""
+          - -N
+          - "{{ ssh_user_ca_key.password }}"
+      when: not stat_result.stat.exists or ssh_user_ca_key.force_regenerate
+      become: true
+  always:
+    - name: Slurp ssh user cert
+      ansible.builtin.slurp:
+        src: "{{ pki_directory }}/ssh_user_ca_ecdsa.pub"
+      register: ssh_user_ca_certificate
+      become: true
+    - name: Slurp ssh user key
+      ansible.builtin.slurp:
+        src: "{{ pki_directory }}/ssh_user_ca_ecdsa"
+      register: ssh_user_ca_key
+      become: true
+  tags:
+    - smallstep
+
+- name: Generate JWK Provisioner Keypair
+  block:
+    - name: check for JWK Provisioner Keypair
+      ansible.builtin.stat:
+        path: "{{ pki_directory }}/jwk_provisioner.pub"
+      register: stat_result
+      become: true
+
+    - name: write JWK Provisioner Keypair Password to file.
+      ansible.builtin.copy:
+        content: "{{ certificate_root_ca.password }}"
+        dest: "{{ pki_directory }}/jwk_provisioner_password"
+        mode: 0600
+        owner: root
+      when: not stat_result.stat.exists or jwk_provisioner.force_regenerate
+      become: true
+
+    - name: create JWK Provisionser Keypair
+      ansible.builtin.command:
+        argv:
+          - step
+          - crypto
+          - jwk
+          - create
+          - "{{ pki_directory }}/jwk_provisioner.pub"
+          - "{{ pki_directory }}/jwk_provisioner.priv"
+          - --kty=EC
+          - --curve={{ jwk_provisioner.key_curve }}
+          - --use=sig
+          - --password-file={{ pki_directory }}/jwk_provisioner_password
+          - --force
+      when: not stat_result.stat.exists or jwk_provisioner.force_regenerate
+      become: true
+    
+    - name: Convert JWK Provisioner Key to compact key format.
+      ansible.builtin.shell:
+        cmd: cat {{ pki_directory }}/jwk_provisioner.priv | step crypto jose format > {{ pki_directory }}/jwk_provisioner.key
+        warn: false
+      when: not stat_result.stat.exists or jwk_provisioner.force_regenerate
+      become: true
+  always:
+    - name: Delete JWK Provisioner Keypair Password file.
+      ansible.builtin.file:
+        path: "{{ pki_directory }}/jwk_provisioner_password"
+        state: absent
+      become: true
+    - name: Slurp jwk provisioner cert
+      ansible.builtin.slurp:
+        src: "{{ pki_directory }}/jwk_provisioner.pub"
+      register: jwk_provisioner_certificate
+      become: true
+    - name: Slurp jwk provisioner key
+      ansible.builtin.slurp:
+        src: "{{ pki_directory }}/jwk_provisioner.key"
+      register: jwk_provisioner_key
+      become: true
+    - name: set fact
+      ansible.builtin.set_fact:
+        jwk_provisioner_pub: "{{ jwk_provisioner_certificate.content | b64decode | from_json }}"
+  tags:
+    - smallstep
+
+- name: Install MariaDB Chart
+  community.kubernetes.helm:
+    name: "{{ step_mariadb.helm.name }}"
+    chart_ref: "smallstep_mariadb/{{ step_mariadb.helm.chart }}"
+    chart_version: "{{ step_mariadb.helm.version }}"
+    release_namespace: "{{ step_k8s_namespace }}"
+    create_namespace: true
+    values: "{{ step_mariadb.helm_values }}"
+  tags:
+    - smallstep
+    - smallstep_mariadb
+
+- name: Install Step Certificates Chart
+  block:
+    - name: create helm values folder
+      ansible.builtin.file:
+        path: /home/{{ ansible_user }}/.helm_values
+        state: directory
+        mode: 0700
+        owner: "{{ ansible_user }}"
+    - name: write values.yml to disk
+      ansible.builtin.template:
+        src: step.values.yml.j2
+        dest: "/home/{{ ansible_user }}/.helm_values/step.values.yml"
+        mode: 0600
+        owner: "{{ ansible_user }}"
+    - name: deploy step helm chart
+      community.kubernetes.helm:
+        name: "{{ step_certificates.helm.name }}"
+        chart_ref: "smallstep/{{ step_certificates.helm.chart }}"
+        chart_version: "{{ step_certificates.helm.version }}"
+        release_namespace: "{{ step_k8s_namespace }}"
+        create_namespace: true
+        values_files:
+          - "/home/{{ ansible_user }}/.helm_values/step.values.yml"
+      register: step_helm
+    - name: list smallstep certificates pods
+      community.kubernetes.k8s_info:
+        api_version: v1
+        kind: Pod
+        namespace: smallstep-ca
+        label_selectors:
+          - app.kubernetes.io/name=step-certificates
+      register: step_ca_pods
+      when: step_helm.changed
+    - name: delete smallstep certificates pods
+      community.kubernetes.k8s:
+        state: absent
+        api_version: "{{ item.apiVersion }}"
+        kind: "{{ item.kind }}"
+        name: "{{ item.metadata.name }}"
+        namespace: "{{ item.metadata.namespace }}"
+      loop: "{{ step_ca_pods.resources }}"
+      when: step_helm.changed
+  always:
+    - name: delete values.yml
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/.helm_values/step.values.yml"
+        state: absent
+  tags:
+    - smallstep

@@ -1,0 +1,152 @@
+autocert:
+  enabled: false
+ca:
+  db:
+    enabled: false
+    persistent: false
+bootstrap:
+  enabled: false
+inject:
+  enabled: true
+  config:
+    files:
+      ca.json:
+        root: /home/step/certs/root_ca.crt
+        federateRoots: []
+        crt: /home/step/certs/intermediate_ca.crt
+        key: /home/step/secrets/intermediate_ca_key
+        ssh:
+          hostKey: /home/step/secrets/ssh_host_ca_key
+          userKey: /home/step/secrets/ssh_user_ca_key
+        address: 0.0.0.0:9000
+        dnsNames:
+          - "{{ step_certificates.helm_values.certificate_authority_url }}"
+          - "{{ step_certificates.helm.name }}-step-certificates.{{ step_k8s_namespace }}.svc.cluster.local"
+          - 127.0.0.1
+        db:
+          type: mysql
+          datasource: "{{ step_mariadb.helm_values.auth.username }}:{{ step_mariadb.helm_values.auth.password }}@tcp({{ step_mariadb.helm.name }}:3306)/"
+          database: "{{ step_mariadb.helm_values.auth.database }}"
+        logger:
+          format: json
+        authority:
+          claims:
+            {{ step_certificates.helm_values.claims | to_nice_yaml | indent(12) }}
+          provisioners:
+            - type: ACME
+              name: acme
+              forceCN: true
+              claims: {}
+            - type: SSHPOP
+              name: sshpop
+              claims:
+                enableSSHCA: true
+            - type: JWK
+              name: ansible_automation_token
+              key: 
+                alg: "{{ jwk_provisioner_pub.alg }}"
+                crv: "{{ jwk_provisioner_pub.crv }}"
+                kid: "{{ jwk_provisioner_pub.kid }}"
+                kty: "{{ jwk_provisioner_pub.kty }}"
+                use: "{{ jwk_provisioner_pub.use }}"
+                x: "{{ jwk_provisioner_pub.x }}"
+                'y': "{{ jwk_provisioner_pub.y }}"
+              encryptedKey: "{{ jwk_provisioner_key.content | b64decode }}"
+              claims:
+                enableSSHCA: true
+            - type: OIDC
+              name: oidc
+              clientID: "{{ step_certificates.helm_values.oidc.clientid }}"
+              clientSecret: "{{ step_certificates.helm_values.oidc.clientsecret }}"
+              configurationEndpoint: "{{ step_certificates.helm_values.oidc.configuration_endpoint }}"
+              admins: {{ step_certificates.helm_values.oidc.admins | to_yaml }}
+              domains: {{ step_certificates.helm_values.oidc.domains | to_yaml }}
+              listenAddress: 127.0.0.1:{{ step_certificates.helm_values.oidc.ssh_client_listen_port }}
+              ssh: true
+              claims:
+                enableSSHCA: true
+        tls:
+          cipherSuites:
+            - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+            - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+            - TLS_AES_128_GCM_SHA256
+          minVersion: 1.2
+          maxVersion: 1.3
+          renegotiation: false
+        templates:
+          ssh:
+            user:
+              - name: include.tpl
+                type: snippet
+                template: /home/step/config/ssh_user_include.tpl
+                path: ~/.ssh/config
+                comment: "#"
+              - name: config.tpl
+                type: file
+                template: /home/step/config/ssh_user_config.tpl
+                path: ssh/config
+                comment: "#"
+              - name: known_hosts.tpl
+                type: file
+                template: /home/step/config/ssh_user_known_hosts.tpl
+                path: ssh/known_hosts
+                comment: "#"
+            host:
+              - name: sshd_config.tpl
+                type: snippet
+                template: /home/step/config/ssh_host_sshd_config.tpl
+                path: /etc/ssh/sshd_config
+                comment: "#"
+                requires:
+                  - Certificate
+                  - Key
+              - name: ca.tpl
+                type: snippet
+                template: /home/step/config/ssh_host_sshd_ca.tpl
+                path: /etc/ssh/ca.pub
+                comment: "#"
+      defaults.json:
+        ca-url: https://{{ step_certificates.helm.name }}-step-certificates.{{ step_k8s_namespace }}.svc.cluster.local
+        ca-config: /home/step/config/ca.json
+        fingerprint: "{{ root_ca_fingerprint.stdout }}"
+        root: /home/step/certs/root_ca.crt
+    templates:
+      ssh_user_include.tpl: |-
+        {{ lookup('file', 'ssh_user_include.tpl') | indent(8) }}
+      ssh_user_config.tpl: |-
+        {{ lookup('file', 'ssh_user_config.tpl') | indent(8) }}
+      ssh_user_known_hosts.tpl: |-
+        {{ lookup('file', 'ssh_user_known_hosts.tpl') | indent(8) }}
+      ssh_host_sshd_config.tpl: |-
+        {{ lookup('file', 'ssh_host_sshd_config.tpl') | indent(8) }}
+      ssh_host_sshd_ca.tpl: |-
+        {{ lookup('file', 'ssh_host_sshd_ca.tpl') | indent(8) }}
+  secrets:
+    enabled: true
+    ca_password: "{{ certificate_intermediate_ca.password | b64encode }}"
+    provisioner_password: "{{ jwk_provisioner.password | b64encode }}"
+    x509:
+      intermediate_ca_key: |-
+        {{ intermediate_ca_key.content | b64decode | indent(8) }}
+      root_ca_key: |-
+        {{ root_ca_key.content | b64decode | indent(8) }}
+    ssh:
+      host_ca_key: |-
+        {{ ssh_host_ca_key.content | b64decode | indent(8) }}
+      user_ca_key: |-
+        {{ ssh_user_ca_key.content | b64decode | indent(8) }}
+  certificates:
+    enabled: true
+    intermediate_ca: |-
+      {{ intermediate_ca_certificate.content | b64decode | indent(6) }}
+    root_ca: |-
+      {{ root_ca_certificate.content | b64decode | indent(6) }}
+    ssh_host_ca: |-
+      {{ ssh_host_ca_certificate.content | b64decode | indent(6) }}
+    ssh_user_ca: |-
+      {{ ssh_user_ca_certificate.content | b64decode | indent(6) }}
+service:
+  type: NodePort
+  port: 443
+  targetPort: 9000
+  nodePort: 32400

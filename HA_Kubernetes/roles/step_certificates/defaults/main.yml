@@ -1,0 +1,145 @@
+
+
+step_cli_version: 0.15.16
+step_cli_arch: amd64
+
+pki_directory: "{{ kubernetes_pki_directory | default('/etc') }}/smallstep-ca"
+
+
+certificate_root_ca:
+  commonName: Ryezone Labs Root CA
+  force_regenerate: false
+  key_curve: P-384
+  password: "{{ lookup('password', 'files/secrets/smallstep_root_ca_password chars=ascii_leters,digits length=256') }}"
+  not_before: 0s
+  not_after: 43824h # (365*5+1)*24
+
+certificate_intermediate_ca:
+  commonName: Ryezone Labs Intermediate ACME CA
+  force_regenerate: false
+  key_curve: P-384
+  password: "{{ lookup('password', 'files/secrets/smallstep_intermediate_ca_password chars=ascii_leters,digits length=256') }}"
+  not_before: 0s
+  not_after: 21924h # (365*2.5+1)*24
+
+ssh_host_ca_key:
+  bits: 384
+  force_regenerate: false
+  password: "{{ certificate_intermediate_ca.password }}"
+
+ssh_user_ca_key:
+  bits: 384
+  force_regenerate: false
+  password: "{{ certificate_intermediate_ca.password }}"
+
+jwk_provisioner:
+  force_regenerate: false
+  key_curve: P-384
+  password: "{{ lookup('password', 'files/secrets/smallstep_provisioner_jwk_password chars=ascii_letters,digits length=256') }}"
+
+certificate_templates:
+  - key: root
+    value:
+      subject:
+        commonName: "{{ certificate_root_ca.commonName }}"
+        organizationName: Ryezone Labs
+        countryName: US
+        localityName: Minnesota
+      issuer:
+        commonName: "{{ certificate_root_ca.commonName }}"
+        organizationName: Ryezone Labs
+        countryName: US
+        localityName: Minnesota
+      keyUsage:
+        - certSign
+        - crlSign
+      basicConstraints:
+        isCA: true
+        maxPathLen: 2
+  - key: intermediate
+    value:
+      subject:
+        commonName: "{{ certificate_intermediate_ca.commonName }}"
+        organizationName: Ryezone Labs
+        countryName: US
+        localityName: Minnesota
+      keyUsage:
+        - certSign
+        - crlSign
+      basicConstraints:
+        isCA: true
+        maxPathLen: 0
+
+step_k8s_namespace: step-ca
+step_mariadb:
+  helm:
+    repo: https://charts.bitnami.com/bitnami
+    chart: mariadb
+    version: 9.3.1
+    name: mariadb
+  helm_values:
+    architecture: standalone
+    auth:
+      database: stepcertificates
+      username: stepca
+      password: "{{ lookup('password', 'files/secrets/smallstep_mariadb_user_password chars=ascii_leters,digits length=64') }}"
+      replicationUser: replication
+      replicationPassword: "{{ lookup('password', 'files/secrets/smallstep_mariadb_replication_password chars=ascii_leters,digits length=64') }}"
+      rootPassword: "{{ lookup('password', 'files/secrets/smallstep_mariadb_root_password chars=ascii_leters,digits length=64') }}"
+    primary:
+      persistence:
+        enabled: true
+        storageClass: truenas-iscsi-csi
+        accessModes:
+          - ReadWriteOnce
+        size: 10Gi
+      resources:
+        limits:
+          memory: 300Mi
+          cpu: 300m
+        requests:
+          memory: 100Mi
+          cpu: 100m
+    metrics:
+      enabled: true
+      resources:
+        limits:
+          memory: 200Mi
+          cpu: 300m
+        requests:
+          memory: 100Mi
+          cpu: 100m
+      serviceMonitor:
+        enabled: true
+
+step_certificates_oidc_admins: []
+step_certificates_oidc_domains: []
+
+step_certificates:
+  helm:
+    repo: https://smallstep.github.io/helm-charts
+    chart: step-certificates
+    version: 1.15.16
+    name: step
+  helm_values:
+    certificate_authority_url: ca.{{ kubernetes_zone }}
+    claims:
+      minTLSCertDuration: 5m
+      maxTLSCertDuration: 24h
+      defaultTLSCertDuration: 24h
+      disableRenewal: false
+      minHostSSHCertDuration: 5m
+      maxHostSSHCertDuration: 1680h
+      defaultHostSSHCertDuration: 720h
+      minUserSSHCertDuration: 5m
+      maxUserSSHCertDuration: 24h
+      defaultUserSSHCertDuration: 24h
+    oidc:
+      clientid: "{{ lookup('file', 'files/secrets/smallstep_oidc_clientid') }}"
+      clientsecret: "{{ lookup('file', 'files/secrets/smallstep_oidc_clientsecret') }}"
+      configuration_endpoint: "{{ lookup('file', 'files/secrets/smallstep_oidc_url') }}"
+      admins: "{{ step_certificates_oidc_admins }}"
+      domains: "{{ step_certificates_oidc_domains }}"
+      ssh_client_listen_port: 10000
+    nodePort: 32400
+

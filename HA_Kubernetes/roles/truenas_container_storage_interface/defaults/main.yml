@@ -1,0 +1,12 @@
+truenas_backend: nas.{{ cloudflare.zone }}
+truenas_api_key: "{{ lookup('file', 'files/secrets/truenas_api_key') }}"
+truenas_ssh_key: "{{ lookup('file', 'files/secrets/truenas_ssh_key') }}"
+truenas_dataset_root: main/k8s
+
+democratic_csi:
+  helm:
+    repo: https://democratic-csi.github.io/charts/
+    chart: democratic-csi
+    version: 0.8.1
+    name: democratic-csi
+    namespace: democratic-csi
