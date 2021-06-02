@@ -2,5 +2,10 @@
     "editor.rulers": [
         80
     ],
-    "json.maxItemsComputed": 10000
+    "json.maxItemsComputed": 10000,
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
 }
