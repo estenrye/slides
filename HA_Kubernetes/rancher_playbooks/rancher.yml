@@ -7,7 +7,7 @@
 - name: Provision Load Balancers
   import_playbook: rancher_02_haproxy.yml
 
-- name: Provision Initial RKE2 server (controlplane) node
+- name: Provision RKE2 server nodes
   import_playbook: rancher_03_rke2.yml
 
 # - name: Install apps.

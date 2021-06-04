@@ -1,0 +1,9 @@
+---
+- hosts: all
+  tasks:
+    - name: Download isos.
+      get_url:
+        checksum: "{{ item.checksum }}"
+        dest: /var/lib/vz/template/iso
+        url: "{{ item.url }}"
+      loop: "{{ isos }}"

@@ -1,0 +1,182 @@
+#cloud-config
+autoinstall:
+  refresh-installer:
+    update: true
+  apt:
+    geoip: true
+    preserve_sources_list: false
+    primary:
+      - arches: [amd64, i386]
+        uri: http://us.archive.ubuntu.com/ubuntu
+      - arches: [default]
+        uri: http://ports.ubuntu.com/ubuntu-ports
+  identity:
+    hostname: ubuntu_2004_tmpl
+    password: $6$packerautomation$PzucfEdatgpl1YmyH6vfEqFqKURhtMVq5Dqa6hunUcH7qqyHUqM8PceyUgI5WMi6glMbdJOoKSbrvSK9omUiz/
+    realname: Automation User
+    username: automation-user
+  keyboard:
+    layout: us
+    toggle: alt_caps_toggle
+    variant: ''
+  locale: en_US.UTF8
+  network:
+    ethernets:
+      ens18:
+        dhcp4: true
+        dhcp-identifier: mac
+    version: 2
+  packages:
+    - qemu-guest-agent
+    - auditd
+    - cloud-init
+  late-commands:
+    - echo 'automation-user ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/automation-user
+  ssh:
+    allow-pw: true
+    authorized-keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDN+pva6hiM1bTWkzG6QQL51v83hnyNqDGzG/G/zqFSxygJg/yvFHbRF0rs1h+kmh5LkBrulH3BEXOgvB9a8ASUPxZBsg2E0ql20f3ke3HR7PRZN/qyDFSRWVN42prkf7qsJlfWxVQgg03/LI+ngYJv2B78wyBsal4c7EmELtMCn+Rxl9bM9a/N+4STyZzcmsI9vAHiHmbTLjRlZ5WGT4utVRgmeiuMl86oYZG7UoBWndNrbz56P0R3VtIRZKEk0OsHyj810Yv82epJzabIimXB97XPkPxejEwbf1DwCgYIynfXMURo4OJUvOREqequTE1P2LLVJDJHKTSG66d5ZmKmJdLz6Fvo9cC0TMePfEiMUlXxbIvo6jdFsaFOkds2rfjUJ5EUCYwDezNVbybxV0KTSnylzAc02JoH5Mf6gO7VQLLoD3MnGkKxOdMUWjTtJb+H2RvtFSZOHGDBkoGAoRLAuuGiB/QxDLr5zmpHV1kBQ9N/cdCMA2K+uYodCUxHBZM= esten@jumpbox
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDZfs8GnWnZwfPbBeNf0K0D2fAYnwk3Xs4rlv5o5BXIc1zhIfuxH8mu114DQ4aNT+AyWffdR7MdyKamv3uDt6Al95AP6bV4sAjd9jEpVsfqLmkYIV8wujC6S6WLIbn2QDDhyY9a1qUz/Dedt6FeBVxRIo85P47A29JiJyNR1nYg6D0iL/PSolDApxoSqTW04mNgCaCpyhz6ds1KFba3MnGjw4LrWS0KlmbvxwgY6li1lzrn0csxShkSLLo2sdO6CSqLM9Op+zXJg3O0kKlDOn2YwDqL4e5OesXbgy4AwUtkyHumizKIkrpjGySYKO4sTa/Ia2i9MHbkj6dygSeu4GZ94a65hKFBYguYek3uC8wr/c7Lp4qCbJ2s30yAnoZ9ANSRDykiUqRKjhgzhq4A8MlyiIJi6OHvJnjzSskJQjcCcwkNwfRwe0X3/eE5EZko+eSWzodKEJP+/B0daiTonlStq5B5oV6amRo4uhnUTX6mVWNF66W6CKEGPAIa7ogGQM= esten@laptop
+    install-server: true
+  storage:
+    config:
+      # Identify boot disk.
+      - id: disk0
+        type: disk
+        ptable: msdos
+        path: /dev/vda
+        name: disk0
+        grub_device: true
+
+      # bios_grub partition
+      - id: disk0p1
+        type: partition
+        device: disk0
+        size: 100%
+        flag: bios_grub
+        number: 1
+
+      - id: disk0p1-boot
+        type: format
+        fstype: ext4
+        volume: disk0p1
+
+      - id: boot
+        type: mount
+        device: disk0p1-boot
+        path: /boot
+
+      # format and mount root disk
+      - id: disk1
+        type: disk
+        path: /dev/vdb
+        name: disk1
+
+      - id: disk1-root
+        type: format
+        fstype: ext4
+        volume: disk1
+
+      - id: root
+        type: mount
+        device: disk1-root
+        path: /
+
+      # format and mount /var/lib disk
+      - id: disk2
+        type: disk
+        path: /dev/vdc
+        name: disk2
+
+      - id: disk2-var-lib
+        type: format
+        fstype: ext4
+        volume: disk2
+
+      - id: var-lib
+        type: mount
+        device: disk2-var-lib
+        path: /var/lib
+
+      # format and mount /var/log disk
+      - id: disk3
+        type: disk
+        path: /dev/vdd
+        name: disk3
+
+      - id: disk3-var-log
+        type: format
+        fstype: ext4
+        volume: disk3
+
+      - id: var-log
+        type: mount
+        device: disk3-var-log
+        path: /var/log
+
+      # format and mount /var/log/audit disk
+      - id: disk4
+        type: disk
+        path: /dev/vde
+        name: disk4
+
+      - id: disk4-var-log-audit
+        type: format
+        fstype: ext4
+        volume: disk4
+
+      - id: var-log-audit
+        type: mount
+        device: disk4-var-log-audit
+        path: /var/log/audit
+
+      # format and mount /var disk
+      - id: disk5
+        type: disk
+        path: /dev/vdf
+        name: disk5
+
+      - id: disk5-var
+        type: format
+        fstype: ext4
+        volume: disk5
+
+      - id: var
+        type: mount
+        device: disk5-var
+        path: /var
+
+      # format and mount /tmp disk
+      - id: disk6
+        type: disk
+        path: /dev/vdg
+        name: disk6
+
+      - id: disk6-tmp
+        type: format
+        fstype: ext4
+        volume: disk6
+
+      - id: tmp
+        type: mount
+        device: disk6-tmp
+        path: /tmp
+
+      # format and mount /home disk
+      - id: disk7
+        type: disk
+        path: /dev/vdh
+        name: disk7
+
+      - id: disk7-home
+        type: format
+        fstype: ext4
+        volume: disk7
+
+      - id: home
+        type: mount
+        device: disk7-home
+        path: /home
+    swap:
+      swap: 0
+  version: 1

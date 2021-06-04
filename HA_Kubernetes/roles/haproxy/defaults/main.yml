@@ -3,6 +3,9 @@ haproxy_user: haproxy
 haproxy_group: haproxy
 
 haproxy_global_vars: []
+
+# TODO: Leverage the inventory more for defining this.
+# Needs to be overridable.  Example: rancher cluster has only controlplane nodes
 rke2_controlplane_servers:
   - name: controlplane01
     address: controlplane01.{{ kubernetes_zone }}
@@ -10,6 +13,9 @@ rke2_controlplane_servers:
     address: controlplane02.{{ kubernetes_zone }}
   - name: controlplane03
     address: controlplane03.{{ kubernetes_zone }}
+
+# TODO: Leverage the inventory more for defining this.
+# Needs to be overridable.  Example: rancher cluster has only controlplane nodes
 rke2_ingress_servers:
   - name: node01
     address: node01.{{ kubernetes_zone }}

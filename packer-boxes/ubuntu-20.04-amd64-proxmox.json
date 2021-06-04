@@ -1,0 +1,131 @@
+{
+  "description": "Build Ubuntu 18.04 (bionic) x86_64 Proxmox template",
+  "variables": {
+      "proxmox_url": "{{env `PROXMOX_URL`}}",
+      "proxmox_username": "{{env `PROXMOX_USERNAME`}}",
+      "proxmox_password": "{{env `PROXMOX_PASSWORD`}}",
+      "proxmox_host": "{{env `PROXMOX_HOST`}}",
+      "insecure_skip_tls_verify": "true",
+      "vm_id": "{{env `VM_ID`}}",
+      "vm_name": "ubuntu2004-tmpl-{{user `vm_id`}}",
+      "iso_file": "local:iso/ubuntu-20.04.2-live-server-amd64.iso",
+      "template_description": "Ubuntu 20.04 x86_64 template built with packer.  Username: {{user `ssh_username`}}",
+      "vm_memory": "{{env `VM_MEMORY`}}",
+      "ssh_username": "automation-user",
+      "ssh_password": "automation-user",
+      "ssh_certifiate_file": "~/.ssh/id_rsa",
+      "network_bridge": "{{env `NETWORK_BRIDGE`}}"
+  },
+  "sensitive-variables": ["proxmox_password", "ssh_password" ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for cloud-init...'; sleep 1; done"
+      ]
+    },
+    {
+      "type": "ansible",
+      "playbook_file": "./ubuntu/ansible/20.04/provision.yml"
+    }
+  ],
+  "builders": [
+    {
+      "type": "proxmox",
+      "proxmox_url":  "{{user `proxmox_url`}}",
+      "insecure_skip_tls_verify": "{{user `insecure_skip_tls_verify`}}",
+      "username": "{{user `proxmox_username`}}",
+      "password": "{{user `proxmox_password`}}",
+      "vm_id": "{{user `vm_id`}}",
+      "vm_name": "{{user `vm_name`}}",
+      "qemu_agent": true,
+      "template_name": "{{user `vm_name`}}",
+      "template_description":"{{user `template_description`}}",
+      "memory": "{{user `vm_memory`}}",
+      "cores": "2",
+      "os": "l26",
+      "node": "{{user `proxmox_host`}}",
+      "network_adapters": [
+        {
+          "model": "virtio",
+          "bridge": "{{user `network_bridge`}}"
+        }
+      ],
+      "disks": [
+        {
+          "type": "virtio",
+          "disk_size": "1G",
+          "storage_pool": "local-lvm",
+          "storage_pool_type": "lvm-thin",
+          "format": "qcow2"
+        },
+        {
+          "type": "virtio",
+          "disk_size": "6G",
+          "storage_pool": "local-lvm",
+          "storage_pool_type": "lvm-thin",
+          "format": "qcow2"
+        },
+        {
+          "type": "virtio",
+          "disk_size": "20G",
+          "storage_pool": "local-lvm",
+          "storage_pool_type": "lvm-thin",
+          "format": "qcow2"
+        },
+        {
+          "type": "virtio",
+          "disk_size": "20G",
+          "storage_pool": "local-lvm",
+          "storage_pool_type": "lvm-thin",
+          "format": "qcow2"
+        },
+        {
+          "type": "virtio",
+          "disk_size": "4G",
+          "storage_pool": "local-lvm",
+          "storage_pool_type": "lvm-thin",
+          "format": "qcow2"
+        },
+        {
+          "type": "virtio",
+          "disk_size": "2G",
+          "storage_pool": "local-lvm",
+          "storage_pool_type": "lvm-thin",
+          "format": "qcow2"
+        },
+        {
+          "type": "virtio",
+          "disk_size": "2G",
+          "storage_pool": "local-lvm",
+          "storage_pool_type": "lvm-thin",
+          "format": "qcow2"
+        },
+        {
+          "type": "virtio",
+          "disk_size": "2G",
+          "storage_pool": "local-lvm",
+          "storage_pool_type": "lvm-thin",
+          "format": "qcow2"
+        }
+      ],
+      "ssh_username": "{{user `ssh_username`}}",
+      "ssh_password": "{{user `ssh_password`}}",
+      "ssh_certificate_file": "{{user `ssh_certifiate_file`}}",
+      "ssh_timeout": "60m",
+      "iso_file": "{{user `iso_file`}}",
+      "unmount_iso": true,
+      "cloud_init": false,
+      "cloud_init_storage_pool": "local-lvm",
+      "boot":"order=virtio0;ide2;net0",
+      "boot_wait": "5s",
+      "http_directory": "ubuntu/http/20.04",
+      "boot_command": [
+        "<enter><enter><f6><esc><wait> ",
+        "autoinstall ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/",
+        "<enter>"
+      ]
+    }
+  ],
+  "post-processors": []
+}

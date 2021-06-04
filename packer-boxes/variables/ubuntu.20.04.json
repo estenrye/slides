@@ -1,0 +1,6 @@
+{
+  "vm_id": "512",
+  "vm_memory": "2048",
+  "network_bridge": "vmbr0",
+  "proxmox_host": "proxmox02"
+}

@@ -7,6 +7,7 @@
         host: "{{ item }}"
         backend: api-server
         socket: /var/run/haproxy.sock
+      # TODO: Use lookup rather than hard coded names.
       loop:
         - controlplane02
         - controlplane03
@@ -16,6 +17,7 @@
         host: "{{ item }}"
         backend: node-join
         socket: /var/run/haproxy.sock
+      # TODO: Use lookup rather than hard coded names.
       loop:
         - controlplane02
         - controlplane03
@@ -37,6 +39,7 @@
   roles:
     - rke2
     - helm
+    - kubectl_plugins
   serial: 1
   vars:
     join_token: "{{ lookup('password', 'files/secrets/k8s_db_secret chars=ascii_letters,digits length=64') | b64encode }}"
@@ -56,6 +59,7 @@
 
 - hosts: external_load_balancer
   vars:
+    # TODO: Use lookup rather than hard coded names.
     backends:
       - controlplane02
       - controlplane03

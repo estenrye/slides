@@ -1,0 +1,139 @@
+{
+  "builders":
+  [
+    {
+      "vm_name": "{{ user `name` }}",
+      "type": "hyperv-iso",
+      "iso_urls": [
+        "{{ user `ubuntu_mirror` }}/{{ user `ubuntu_codename` }}{{ user `ubuntu_iso_path` }}"
+      ],
+      "iso_checksum_type": "{{ user `iso_checksum_type` }}",
+      "iso_checksum": "{{ user `iso_checksum` }}",
+      "ssh_username": "{{ user `ssh_username` }}",
+      "ssh_password": "{{ user `ssh_password` }}",
+      "headless": "{{ user `headless` }}",
+      "output_directory": "{{ user `name` }}-hyperv",
+      "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
+      
+      "cpu":"{{ user `cpus` }}",
+      "disk_size":"{{ user `disk_size` }}",
+      "enable_dynamic_memory":true,
+      "generation":2,
+      "guest_additions_mode":"none",
+      "ram_size":"{{ user `memory` }}",
+      "switch_name": "{{ user `hyperv_switch_name` }}",
+      "ssh_timeout": "1h",
+      "boot_wait":"5s",
+      "boot_command": [
+        "<esc><wait>",
+        "set gfxpayload=1024x768<enter>",
+        "linux {{ user `boot_command_kernel_location` }} ",
+        "preseed/url=http://{{.HTTPIP}}:{{.HTTPPort}}/{{ user `hyperv_preseed_file_name` }} ",
+        "debian-installer=en_US.UTF-8 auto locale=en_US.UTF-8 kbd-chooser/method=us ",
+        "hostname={{.Name}} ",
+        "fb=false debconf/frontend=noninteractive ",
+        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
+        "keyboard-configuration/variant=USA console-setup/ask_detect=false <enter>",
+        "initrd {{ user `boot_command_initrd_location` }}<enter>",
+        "boot<enter>"
+      ],
+      "http_directory": "http"
+    },
+    {
+      "vm_name": "{{ user `name` }}",
+      "type": "virtualbox-iso",
+      "guest_os_type": "Ubuntu_64",
+      "iso_checksum_type": "{{ user `iso_checksum_type` }}",
+      "iso_checksum": "{{ user `iso_checksum` }}",
+      "iso_urls": [
+        "{{ user `ubuntu_mirror` }}/{{ user `ubuntu_codename` }}{{ user `ubuntu_iso_path` }}"
+      ],
+      "ssh_username": "{{ user `ssh_username` }}",
+      "ssh_password": "{{ user `ssh_password` }}",
+      "ssh_wait_timeout": "60m",
+      "headless": "{{ user `headless` }}",
+      "output_directory": "{{ user `name` }}-virtualbox-iso",
+      "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
+
+      "hard_drive_interface": "sata",
+      "disk_size": "{{ user `disk_size` }}",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{ .Name }}",
+          "--cpus",
+          "{{ user `cpus` }}"
+        ],
+        [
+          "modifyvm",
+          "{{ .Name }}",
+          "--memory",
+          "{{ user `memory` }}"
+        ],
+        [
+          "modifyvm",
+          "{{ .Name }}",
+          "--audiocontroller",
+          "hda"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--nat-network1", 
+          "natnet1"]
+      ],
+      "boot_wait": "5s",
+      "boot_command":
+      [
+        "<esc><wait>",
+        "linux vga=788 initrd={{ user `boot_command_initrd_location` }} ",
+        "preseed/url=http://{{.HTTPIP}}:{{.HTTPPort}}/{{ user `preseed_file_name` }} ",
+        "debian-installer=en_US.UTF-8 auto locale=en_US.UTF-8 kbd-chooser/method=us ",
+        "hostname={{.Name}} ",
+        "fb=false debconf/frontend=noninteractive ",
+        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
+        "keyboard-configuration/variant=USA console-setup/ask_detect=false <enter>",
+        "boot<enter>"
+      ],
+      "http_directory": "http"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -S -E bash -x '{{ .Path }}'",
+      "scripts": [
+        "scripts/setup.sh",
+        "scripts/ansible.sh"
+      ]
+    },
+    {
+      "type":"ansible-local",
+      "playbook_files":[
+        "scripts/vagrant-playbook.yml"
+      ]
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -S -E bash -x '{{ .Path }}'",
+      "scripts": [
+        "scripts/cleanup.sh"
+      ]
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "vagrant",
+        "compression_level": 9,
+        "vagrantfile_template": "Vagrantfile-linux.template",
+        "output": "{{ user `packer_images_output_dir` }}/{{ user `name` }}_{{ .Provider }}.box"
+      },
+      {
+        "type": "manifest",
+        "output": "manifest.json",
+        "strip_path": true
+      }
+    ]
+  ]
+}

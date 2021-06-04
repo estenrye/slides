@@ -1,0 +1,38 @@
+{
+  "builders": [
+    {
+      "type": "proxmox",
+      "insecure_skip_tls_verify": false,
+
+      "node": "proxmox01",
+      "network_adapters": [
+        {
+          "bridge": "vmbr0"
+        }
+      ],
+      "disks": [
+        {
+          "type": "sata",
+          "disk_size": "10G",
+          "storage_pool": "local-lvm",
+          "storage_pool_type": "lvm"
+        }
+      ],
+
+      "iso_file": "local:iso/Fedora-Server-dvd-x86_64-33-1.2.iso",
+      "http_directory": "config",
+      "boot_wait": "10s",
+      "boot_command": [
+        "<up><tab> ip=dhcp inst.cmdline inst.ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks.cfg<enter>"
+      ],
+
+      "ssh_username": "root",
+      "ssh_timeout": "15m",
+      "ssh_password": "packer",
+
+      "unmount_iso": true,
+      "template_name": "fedora-33",
+      "template_description": "Fedora 33-1.2, generated on {{ isotime \"2006-01-02T15:04:05Z\" }}"
+    }
+  ]
+}
