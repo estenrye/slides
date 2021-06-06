@@ -234,6 +234,11 @@
       - restrict_strategy
       - sshd_set_keepalive
 
+  - name: check for existence of /etc/rsyslog.conf
+    ansible.builtin.stat:
+      path: /etc/rsyslog.conf
+    register: rsyslog_conf_stat_result
+
   - name: Ensure System Log Files Have Correct Permissions - set umask
     block:
       - name: Deduplicate values from /etc/rsyslog.conf
@@ -250,7 +255,9 @@
           state: present
           insertafter: ^\$DirCreateMode
           validate: /sbin/rsyslogd -N1 -f %s
-    when: ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+    when:
+      - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+      - rsyslog_conf_stat_result.stat.exists
 
   - name: Ensure System Log Files Have Correct Permissions
     block:
@@ -268,7 +275,9 @@
           state: present
           insertbefore: ^\$DirCreateMode
           validate: /sbin/rsyslogd -N1 -f %s
-    when: ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+    when:
+     - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+     - rsyslog_conf_stat_result.stat.exists
 
   - name: remove files
     ansible.builtin.file:
