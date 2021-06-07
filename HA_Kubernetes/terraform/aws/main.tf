@@ -149,29 +149,81 @@ resource "aws_route_table_association" "prod_subnet_routes" {
   route_table_id = aws_route_table.private_subnet_table.id
 }
 
-# resource "aws_security_group" "allow_tls" {
-#   name        = "allow_tls"
-#   description = "Allow TLS inbound traffic"
-#   vpc_id      = aws_vpc.main.id
+resource "aws_security_group" "public_subnet_sg" {
+  name        = "public_subnet_sg"
+  description = "Allow Rules for Public Subnet"
+  vpc_id      = aws_vpc.main.id
 
-#   ingress {
-#     description      = "TLS from VPC"
-#     from_port        = 443
-#     to_port          = 443
-#     protocol         = "tcp"
-#     cidr_blocks      = [aws_vpc.main.cidr_block]
-#     ipv6_cidr_blocks = [aws_vpc.main.ipv6_cidr_block]
+  ingress {
+    description      = "SSH from Anywhere"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "public_subnet_sg",
+    environment = var.environment,
+    vpc = "main"
+  }
+}
+
+resource "aws_security_group" "private_subnet_sg" {
+  name        = "private_subnet_sg"
+  description = "Allow Rules for Private Subnet"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description      = "SSH from Public Subnet"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = [aws_vpc.main.cidr_block]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "private_subnet_sg",
+    environment = var.environment,
+    vpc = "main"
+  }
+}
+
+# data "aws_ami" "example" {
+#   executable_users = ["self"]
+#   most_recent      = true
+#   name_regex       = "^packer-ubuntu-2004-minimal-base-\\d{3}"
+#   owners           = ["self"]
+
+#   filter {
+#     name   = "name"
+#     values = ["packer-ubuntu-2004-minimal-base-*"]
 #   }
 
-#   egress {
-#     from_port        = 0
-#     to_port          = 0
-#     protocol         = "-1"
-#     cidr_blocks      = ["0.0.0.0/0"]
-#     ipv6_cidr_blocks = ["::/0"]
+#   filter {
+#     name   = "root-device-type"
+#     values = ["ebs"]
 #   }
 
-#   tags = {
-#     Name = "allow_tls"
+#   filter {
+#     name   = "virtualization-type"
+#     values = ["hvm"]
 #   }
 # }
