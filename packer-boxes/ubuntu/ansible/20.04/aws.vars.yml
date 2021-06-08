@@ -1,0 +1,2 @@
+ubuntu_2004_cis_require_ssh_allowusers: ubuntu
+ubuntu_2004_cis_require_ssh_denyusers: bogus
