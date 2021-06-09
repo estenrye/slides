@@ -115,7 +115,7 @@ all:
               ansible_host: node02.prod.ryezone.com
             node03:
               ansible_host: node03.prod.ryezone.com
-      
+
   vars:
     authorized_users:
       - principal: esten.rye
@@ -126,6 +126,8 @@ all:
     install_rancher: false
     taint_server_nodes: true
     kubernetes_api_server_vip: 10.5.100.3
+    metallb_address_pool_starting_ip: 10.5.10.3
+    metallb_address_pool_ending_ip: 10.5.10.10
     virtual_router_id: 53
     virtual_router_auth_pass: 79
     dns_entries:
