@@ -1,0 +1,29 @@
+metallb:
+  helm:
+    repo_name:  bitnami
+    chart_name: metallb
+    repo_url: https://charts.bitnami.com/bitnami
+    chart_version: 2.4.0
+    namespace: metallb
+
+metallb_address_pool_starting_ip: 10.35.0.110
+metallb_address_pool_ending_ip: 10.35.0.150
+
+metallb_values:
+  configInline:
+    address-pools:
+      - name: generic-cluster-pool
+        protocol: layer2
+        addresses:
+          - "{{ metallb_address_pool_starting_ip }}-{{ metallb_address_pool_ending_ip }}"
+  controller:
+    prometheus:
+      serviceMonitor:
+        enabled: true
+    tolerations: []
+  speaker:
+    prometheus:
+      serviceMonitor:
+        enabled: true
+    tolerations: []
+  prometheusRule.enabled: true
