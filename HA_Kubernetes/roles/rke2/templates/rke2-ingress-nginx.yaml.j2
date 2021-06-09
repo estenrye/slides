@@ -9,11 +9,8 @@ spec:
   valuesContent: |-
     controller:
       kind: DaemonSet
-      image:
-        repository: us.gcr.io/k8s-artifacts-prod/ingress-nginx/controller
-        tag: "v0.41.2"
       daemonset:
-        useHostPort: true
+        useHostPort: false
       config:
         use-forwarded-headers: "true"
       metrics:
@@ -21,6 +18,7 @@ spec:
         serviceMonitor:
           enabled: {{ rke2_ingress_nginx_controller_metrics_serviceMonitor_enabled }}
       service:
+        loadBalancerIP: {{ rke2_ingres_nginx_controller_load_balancer_ip }}
         annotations:
           external-dns.alpha.kubernetes.io/cloudflare-proxied: "{{ rke2_ingress_nginx_service_external_dns_cloudflare_proxied }}"
           external-dns.alpha.kubernetes.io/hostname: {{ rke2_ingress_nginx_service_external_dns_hostname }}
