@@ -3,6 +3,8 @@
   ansible.builtin.package:
     name: nfs-common
   when: rke2_enable_nfs_csi
+  tags:
+    - rke2
 
 - name: Install isci client tools.
   ansible.builtin.package:
@@ -13,6 +15,8 @@
       - multipath-tools
       - scsitools
   when: rke2_enable_iscsi_csi
+  tags:
+    - rke2
 
 - name: Configure multipath.
   ansible.builtin.template:
@@ -21,6 +25,8 @@
     mode: 644
   when: rke2_enable_iscsi_csi
   notify: restart multipath-tools
+  tags:
+    - rke2
 
 - name: Enable and Start multipath.service
   ansible.builtin.service:
@@ -28,6 +34,8 @@
     state: started
     enabled: true
   when: rke2_enable_iscsi_csi
+  tags:
+    - rke2
 
 - name: Enable and Start open-iscsi.service
   ansible.builtin.service:
@@ -35,22 +43,37 @@
     state: started
     enabled: true
   when: rke2_enable_iscsi_csi
+  tags:
+    - rke2
 
 - name: download rke2 installer
   ansible.builtin.get_url:
     url: https://get.rke2.io
     dest: /tmp/install.sh
     mode: 750
+  tags:
+    - rke2
 
 - name: create manifest dir
   ansible.builtin.file:
     path: /var/lib/rancher/rke2/server/manifests/
     state: directory
+  tags:
+    - rke2
 
 - name: deploy rke2-ingress-nginx manifest
   ansible.builtin.template:
     src: rke2-ingress-nginx.yaml.j2
     dest: /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml
+  tags:
+    - rke2
+
+- name: deploy rke2-kube-proxy manifest
+  ansible.builtin.template:
+    src: rke2-kube-proxy-config.yaml.j2
+    dest: /var/lib/rancher/rke2/server/manifests/rke2-kube-proxy-config.yaml
+  tags:
+    - rke2
 
 - name: run rke2 installer
   ansible.builtin.command:
@@ -62,6 +85,8 @@
     INSTALL_RKE2_VERSION: "{{install_rke2_version}}"
   args:
     creates: /usr/local/bin/rke2
+  tags:
+    - rke2
 
 - name: copy systemd service to /etc/systemd
   ansible.builtin.copy:
@@ -69,16 +94,22 @@
     src: /usr/local/lib/systemd/system/rke2-{{ node_type }}.service
     dest: /etc/systemd/system/rke2-{{ node_type }}.service
   # notify: reload systemd
+  tags:
+    - rke2
 
 - name: create rke2 config dir
   ansible.builtin.file:
     path: /etc/rancher/rke2
     state: directory
+  tags:
+    - rke2
 
 - name: deploy rke2 config
   ansible.builtin.template:
     src: rke2_config.yaml.j2
     dest: /etc/rancher/rke2/config.yaml
+  tags:
+    - rke2
 
 - name: enable rke2-{{ node_type }}
   ansible.builtin.systemd:
@@ -86,19 +117,23 @@
     state: started
     enabled: yes
     daemon-reload: yes
+  tags:
+    - rke2
 
 - name: restart rke2-{{ node_type }}
   ansible.builtin.systemd:
     name: rke2-{{ node_type }}
     state: restarted
   when: not is_initial_node
-
+  tags:
+    - rke2
 
 - name: pause for {{ node_ready_timeout }} minutes for node to initialize.
   ansible.builtin.pause:
     minutes: "{{ node_ready_timeout }}"
   when: not is_agent_node
-
+  tags:
+    - rke2
 
 - name: add a link to kubectl binary
   ansible.builtin.file:
@@ -106,6 +141,8 @@
     path: /usr/local/bin/kubectl
     src: /var/lib/rancher/rke2/bin/kubectl
   when: not is_agent_node
+  tags:
+    - rke2
 
 - name: create .kube directory
   ansible.builtin.file:
@@ -114,6 +151,8 @@
     owner: automation-user
     group: automation-user
   when: not is_agent_node
+  tags:
+    - rke2
 
 - name: copy kubeconfig to ansible user directory
   ansible.builtin.copy:
@@ -124,3 +163,5 @@
     group: automation-user
     mode: 0600
   when: not is_agent_node
+  tags:
+    - rke2
