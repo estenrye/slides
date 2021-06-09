@@ -1,322 +1,57 @@
 ---
 - hosts: default
   become: true
+  tasks:
+    - name: udpate apt-cache
+      ansible.builtin.apt:
+        update_cache: true
+
+- hosts: default
+  become: true
   vars:
-    ubuntu_2004_cis_time_synchronization: chrony
-    ubuntu_2004_cis_firewall: iptables
     ubuntu_2004_cis_section3_rule_3_5_3_2_1: false
     ubuntu_2004_cis_section3_rule_3_5_3_2_2: false
     ubuntu_2004_cis_section3_rule_3_5_3_2_3: false
     ubuntu_2004_cis_section3_rule_3_5_3_2_4: false
+    ubuntu_2004_cis_time_synchronization: chrony
+    ubuntu_2004_cis_firewall: iptables
+    ubuntu_2004_cis_require_ssh_ciphers: aes256-ctr,aes192-ctr,aes128-ctr
+    ubuntu_2004_cis_require_ssh_macs: hmac-sha2-256,hmac-sha2-512
+    ubuntu_2004_cis_require_ssh_kexalgorithms: ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256
+    ubuntu_2004_cis_section5_rule_5_2_2_params_permissions_command: find /etc/ssh -xdev -type f -name 'ssh_host_*_key' -exec chmod u-x,go-rwx {} \;
+    ubuntu_2004_cis_section5_rule_5_2_3_params_permissions_command: find /etc/ssh -xdev -type f -name 'ssh_host_*_key.pub' -exec chmod u-x,go-rwx {} \;
   roles:
     - darkwizard242.cis_ubuntu_2004
   tasks:
-  # - name: Ensure sysctl kernel.randomize_va_space is set to 2
-  #   sysctl:
-  #     name: kernel.randomize_va_space
-  #     value: '2'
-  #     state: present
-  #     reload: true
-  #   when: ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  #   tags:
-  #     - NIST-800-171-3.1.7
-  #     - NIST-800-53-CM-6(a)
-  #     - NIST-800-53-SC-30
-  #     - NIST-800-53-SC-30(2)
-  #     - disable_strategy
-  #     - low_complexity
-  #     - medium_disruption
-  #     - medium_severity
-  #     - reboot_required
-  #     - sysctl_kernel_randomize_va_space
+    - name: remove files
+      ansible.builtin.file:
+        state: absent
+        path: "{{ item }}"
+      loop:
+        - /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg
+        - /etc/netplan/00-installer-config.yaml
+        - /etc/netplan/50-cloud-init.yaml
+        - /etc/udev/rules.d/70-persistent-net.rules
+        - /etc/cloud/cloud.cfg.d/99-pve.cfg
 
-  # - name: Ensure sysctl fs.suid_dumpable is set to 0
-  #   sysctl:
-  #     name: fs.suid_dumpable
-  #     value: '0'
-  #     state: present
-  #     reload: true
-  #   when: ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  #   tags:
-  #     - NIST-800-53-SI-11(a)
-  #     - NIST-800-53-SI-11(b)
-  #     - disable_strategy
-  #     - low_complexity
-  #     - medium_disruption
-  #     - medium_severity
-  #     - reboot_required
-  #     - sysctl_fs_suid_dumpable
+    - name: set persistent net rules
+      ansible.builtin.copy:
+        content: SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{dev_id}=="0x0", ATTR{type}=="1", NAME="eth0"
+        dest: /etc/udev/rules.d/70-persistent-net.rules
 
-  # - name: Configure daily log rotation in /etc/logrotate.conf
-  #   lineinfile:
-  #     create: true
-  #     dest: /etc/logrotate.conf
-  #     regexp: ^daily$
-  #     line: daily
-  #   when: ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  #   tags:
-  #     - NIST-800-53-CM-6(a)
-  #     - PCI-DSS-Req-10.7
-  #     - configure_strategy
-  #     - ensure_logrotate_activated
-  #     - low_complexity
-  #     - low_disruption
-  #     - medium_severity
-  #     - no_reboot_needed
+    - name: set cloud-init config
+      ansible.builtin.copy:
+        content: "datasource_list: [ConfigDrive, NoCloud]"
+        dest: /etc/cloud/cloud.cfg.d/99-pve.cfg
 
-  # - name: Make sure daily log rotation setting is not overriden in /etc/logrotate.conf
-  #   lineinfile:
-  #     create: false
-  #     dest: /etc/logrotate.conf
-  #     regexp: ^[\s]*(weekly|monthly|yearly)$
-  #     state: absent
-  #   when: ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  #   tags:
-  #     - NIST-800-53-CM-6(a)
-  #     - PCI-DSS-Req-10.7
-  #     - configure_strategy
-  #     - ensure_logrotate_activated
-  #     - low_complexity
-  #     - low_disruption
-  #     - medium_severity
-  #     - no_reboot_needed
+    - name: clean cloud init
+      ansible.builtin.command: cloud-init clean
 
-  # - name: Configure cron.daily if not already
-  #   block:
-
-  #     - name: Add shebang
-  #       lineinfile:
-  #         path: /etc/cron.daily/logrotate
-  #         line: '#!/bin/sh'
-  #         insertbefore: BOF
-  #         create: true
-
-  #     - name: Add logrotate call
-  #       lineinfile:
-  #         path: /etc/cron.daily/logrotate
-  #         line: /usr/sbin/logrotate /etc/logrotate.conf
-  #         regexp: ^[\s]*/usr/sbin/logrotate[\s\S]*/etc/logrotate.conf$
-  #   when: ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  #   tags:
-  #     - NIST-800-53-CM-6(a)
-  #     - PCI-DSS-Req-10.7
-  #     - configure_strategy
-  #     - ensure_logrotate_activated
-  #     - low_complexity
-  #     - low_disruption
-  #     - medium_severity
-  #     - no_reboot_needed
-
-  # - name: Disable service apport
-  #   block:
-  #     - name: Gather the service facts
-  #       service_facts: null
-  #     - name: Disable service apport
-  #       systemd:
-  #         name: apport.service
-  #         enabled: 'no'
-  #         state: stopped
-  #         masked: 'yes'
-  #       when: '"apport.service" in ansible_facts.services'
-  #   tags:
-  #     - disable_strategy
-  #     - low_complexity
-  #     - low_disruption
-  #     - no_reboot_needed
-  #     - service_apport_disabled
-  #     - unknown_severity
-
-  # - name: Unit Socket Exists - apport.socket
-  #   command: systemctl list-unit-files apport.socket
-  #   args:
-  #     warn: false
-  #   register: socket_file_exists
-  #   changed_when: false
-  #   ignore_errors: true
-  #   check_mode: false
-  #   tags:
-  #     - disable_strategy
-  #     - low_complexity
-  #     - low_disruption
-  #     - no_reboot_needed
-  #     - service_apport_disabled
-  #     - unknown_severity
-
-  # - name: Disable socket apport
-  #   systemd:
-  #     name: apport.socket
-  #     enabled: 'no'
-  #     state: stopped
-  #     masked: 'yes'
-  #   when: '"apport.socket" in socket_file_exists.stdout_lines[1]'
-  #   tags:
-  #     - disable_strategy
-  #     - low_complexity
-  #     - low_disruption
-  #     - no_reboot_needed
-  #     - service_apport_disabled
-  #     - unknown_severity
-  # - name: Disable SSH Root Login
-  #   block:
-  #     - name: Deduplicate values from /etc/ssh/sshd_config
-  #       lineinfile:
-  #         path: /etc/ssh/sshd_config
-  #         create: false
-  #         regexp: (?i)^\s*PermitRootLogin\s+
-  #         state: absent
-  #     - name: Insert correct line to /etc/ssh/sshd_config
-  #       lineinfile:
-  #         path: /etc/ssh/sshd_config
-  #         create: true
-  #         line: PermitRootLogin no
-  #         state: present
-  #         insertbefore: ^[#\s]*Match
-  #         validate: /usr/sbin/sshd -t -f %s
-  #   when: ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  #   tags:
-  #     - CJIS-5.5.6
-  #     - NIST-800-171-3.1.1
-  #     - NIST-800-171-3.1.5
-  #     - NIST-800-53-
-  #     - NIST-800-53-AC-17(a)
-  #     - NIST-800-53-AC-6(2)
-  #     - NIST-800-53-CM-6(a)
-  #     - NIST-800-53-CM-7(a)
-  #     - NIST-800-53-CM-7(b)
-  #     - NIST-800-53-IA-2
-  #     - NIST-800-53-IA-2(5)
-  #     - low_complexity
-  #     - low_disruption
-  #     - medium_severity
-  #     - no_reboot_needed
-  #     - restrict_strategy
-  #     - sshd_disable_root_login
-
-  # - name: Set SSH Idle Timeout Interval
-  #   block:
-  #     - name: Deduplicate values from /etc/ssh/sshd_config
-  #       lineinfile:
-  #         path: /etc/ssh/sshd_config
-  #         create: false
-  #         regexp: (?i)^\s*ClientAliveInterval\s+
-  #         state: absent
-  #     - name: Insert correct line to /etc/ssh/sshd_config
-  #       lineinfile:
-  #         path: /etc/ssh/sshd_config
-  #         create: true
-  #         line: ClientAliveInterval 300
-  #         state: present
-  #         insertbefore: ^[#\s]*Match
-  #         validate: /usr/sbin/sshd -t -f %s
-  #   when: ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-
-  # - name: Set SSH Client Alive Count Max
-  #   block:
-  #     - name: Deduplicate values from /etc/ssh/sshd_config
-  #       lineinfile:
-  #         path: /etc/ssh/sshd_config
-  #         create: false
-  #         regexp: (?i)^\s*ClientAliveCountMax\s+
-  #         state: absent
-  #     - name: Insert correct line to /etc/ssh/sshd_config
-  #       lineinfile:
-  #         path: /etc/ssh/sshd_config
-  #         create: true
-  #         line: ClientAliveCountMax 0
-  #         state: present
-  #         insertbefore: ^[#\s]*Match
-  #         validate: /usr/sbin/sshd -t -f %s
-  #   when: ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  #   tags:
-  #     - CJIS-5.5.6
-  #     - NIST-800-171-3.1.11
-  #     - NIST-800-53-AC-12
-  #     - NIST-800-53-AC-17(a)
-  #     - NIST-800-53-AC-2(5)
-  #     - NIST-800-53-CM-6(a)
-  #     - NIST-800-53-SC-10
-  #     - PCI-DSS-Req-8.1.8
-  #     - low_complexity
-  #     - low_disruption
-  #     - medium_severity
-  #     - no_reboot_needed
-  #     - restrict_strategy
-  #     - sshd_set_keepalive
-
-  # - name: check for existence of /etc/rsyslog.conf
-  #   ansible.builtin.stat:
-  #     path: /etc/rsyslog.conf
-  #   register: rsyslog_conf_stat_result
-
-  # - name: Ensure System Log Files Have Correct Permissions - set umask
-  #   block:
-  #     - name: Deduplicate values from /etc/rsyslog.conf
-  #       ansible.builtin.lineinfile:
-  #         path: /etc/rsyslog.conf
-  #         create: false
-  #         regexp: ^\$Umask
-  #         state: absent
-  #     - name: Insert correct line to /etc/rsyslog.conf
-  #       ansible.builtin.lineinfile:
-  #         path: /etc/rsyslog.conf
-  #         create: true
-  #         line: $umask 0000
-  #         state: present
-  #         insertafter: ^\$DirCreateMode
-  #         validate: /sbin/rsyslogd -N1 -f %s
-  #   when:
-  #     - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  #     - rsyslog_conf_stat_result.stat.exists
-
-  # - name: Ensure System Log Files Have Correct Permissions
-  #   block:
-  #     - name: Deduplicate values from /etc/rsyslog.conf
-  #       ansible.builtin.lineinfile:
-  #         path: /etc/rsyslog.conf
-  #         create: false
-  #         regexp: ^\$FileCreateMode
-  #         state: absent
-  #     - name: Insert correct line to /etc/rsyslog.conf
-  #       ansible.builtin.lineinfile:
-  #         path: /etc/rsyslog.conf
-  #         create: true
-  #         line: $FileCreateMode 0600
-  #         state: present
-  #         insertbefore: ^\$DirCreateMode
-  #         validate: /sbin/rsyslogd -N1 -f %s
-  #   when:
-  #    - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  #    - rsyslog_conf_stat_result.stat.exists
-
-  - name: remove files
-    ansible.builtin.file:
-      state: absent
-      path: "{{ item }}"
-    loop:
-      - /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg
-      - /etc/netplan/00-installer-config.yaml
-      - /etc/netplan/50-cloud-init.yaml
-      - /etc/udev/rules.d/70-persistent-net.rules
-      - /etc/cloud/cloud.cfg.d/99-pve.cfg
-
-  - name: set persistent net rules
-    ansible.builtin.copy:
-      content: SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{dev_id}=="0x0", ATTR{type}=="1", NAME="eth0"
-      dest: /etc/udev/rules.d/70-persistent-net.rules
-
-  - name: set cloud-init config
-    ansible.builtin.copy:
-      content: "datasource_list: [ConfigDrive, NoCloud]"
-      dest: /etc/cloud/cloud.cfg.d/99-pve.cfg
-
-  - name: clean cloud init
-    ansible.builtin.command: cloud-init clean
-
-  - name: remove /var/log contents
-    file:
-      path: /var/log/{{ item }}
-      state: absent
-    when: item != 'audit'
-    become: true
-    with_fileglob:
-      - /var/log/*
+    - name: remove /var/log contents
+      file:
+        path: /var/log/{{ item }}
+        state: absent
+      when: item != 'audit'
+      become: true
+      with_fileglob:
+        - /var/log/*

@@ -8,3 +8,5 @@ collections:
   - name: community.crypto
     version: 1.4.0
 roles:
+  - name: darkwizard242.cis_ubuntu_2004
+    version: 1.0.2
