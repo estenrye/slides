@@ -5,7 +5,7 @@ variable "ami_id" {
 
 variable "ami_name" {
   type = string
-  default = "packer-ubuntu-2004-minimal-base-20210607"
+  default = "packer-ubuntu-2004-minimal-base-20210609"
 }
 
 variable "instance_type" {

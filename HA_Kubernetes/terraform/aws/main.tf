@@ -45,7 +45,7 @@ resource "aws_eip" "nat_eip" {
 
 resource "aws_subnet" "public_subnet" {
   vpc_id     = aws_vpc.main.id
-  cidr_block = "10.5.1.0/24"
+  cidr_block = "10.5.0.0/24"
   map_public_ip_on_launch = true
 
   tags = {
@@ -206,24 +206,46 @@ resource "aws_security_group" "private_subnet_sg" {
   }
 }
 
-# data "aws_ami" "example" {
-#   executable_users = ["self"]
-#   most_recent      = true
-#   name_regex       = "^packer-ubuntu-2004-minimal-base-\\d{3}"
-#   owners           = ["self"]
+data "aws_ami" "ubuntu" {
+  most_recent      = true
+  owners           = ["self"]
 
-#   filter {
-#     name   = "name"
-#     values = ["packer-ubuntu-2004-minimal-base-*"]
-#   }
+  filter {
+    name   = "name"
+    values = ["packer-ubuntu-2004-minimal-base-*"]
+  }
 
-#   filter {
-#     name   = "root-device-type"
-#     values = ["ebs"]
-#   }
+}
 
-#   filter {
-#     name   = "virtualization-type"
-#     values = ["hvm"]
-#   }
-# }
+# Build an Instance to be the Ansible jumpbox
+
+resource "aws_network_interface" "jumpbox_eth0" {
+  subnet_id   = aws_subnet.public_subnet.id
+  private_ips = ["10.5.0.100"]
+  security_groups = [
+    aws_security_group.public_subnet_sg.id
+  ]
+
+  tags = {
+    Name = "jumpbox_eth0",
+    environment = var.environment,
+    vpc = "main"
+  }
+}
+
+resource "aws_instance" "jumpbox" {
+  ami           = data.aws_ami.ubuntu.id
+  key_name      = aws_key_pair.deployment.key_name
+  instance_type = "t3.micro"
+
+  network_interface {
+    network_interface_id = aws_network_interface.jumpbox_eth0.id
+    device_index         = 0
+  }
+
+  tags = {
+    Name = "jumpbox",
+    environment = var.environment,
+    vpc = "main"
+  }
+}
