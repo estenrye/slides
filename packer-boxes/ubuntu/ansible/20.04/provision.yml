@@ -19,6 +19,27 @@
     ubuntu_2004_cis_section5_rule_5_2_3_params_permissions_command: find /etc/ssh -xdev -type f -name 'ssh_host_*_key.pub' -exec chmod u-x,go-rwx {} \;
   roles:
     - darkwizard242.cis_ubuntu_2004
+  tasks:
+    - name: vbox-vagrant | Install and configure vagrant user access.
+      block:
+        - name: vbox-vagrant | Add vagrant user
+          ansible.builtin.user:
+            name: vagrant
+            password: vagrant
+            shell: /bin/bash
+            create_home: true
+        - name: vbox-vagrant | Configure passwordless sudo for vagrant user
+          ansible.builitn.copy:
+            content: vagrant ALL=NOPASSWD:ALL
+            path: /etc/sudoers.d/vagrant
+        - name: vbox-vagrant | Install vagrant authorized key.
+          ansible.builtin.get_url:
+            url: https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant.pub
+            dest: /home/vagrant/.ssh/authorized_keys
+            owner: vagrant
+            mode: 0600
+      when:
+        - packer_builder_type = "virtualbox-iso"
 
 - hosts: default
   become: true
