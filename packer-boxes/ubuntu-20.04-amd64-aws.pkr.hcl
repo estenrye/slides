@@ -30,7 +30,7 @@ variable "ssh_password" {
 
 variable "iso_url" {
   type = string
-  default = "packer_cache/ubuntu-20.04.2-live-server-amd64.iso"
+  default = "packer_cache/custom-ubuntu-20.04.2-live-server-amd64.iso"
 }
 
 variable "iso_checksum" {
@@ -64,14 +64,10 @@ source "virtualbox-iso" "vbox-vagrant" {
     "ubuntu/http/20.04/virtualbox/user-data"
   ]
   cd_label = "cidata"
-  headless = false
+  headless = true
+  ssh_handshake_attempts = 1000
   ssh_timeout = "1h"
-  boot_wait = "5s"
-  boot_command = [
-        "<enter><wait><enter><wait><f6><wait><esc><wait>",
-        "autoinstall",
-        "<enter>"
-      ]
+  boot_wait = "20m"
 
   cpus = 2
   memory = 4096
@@ -100,7 +96,7 @@ build {
   provisioner "ansible" {
     playbook_file = "./ubuntu/ansible/20.04/provision.yml"
     extra_arguments = [
-      "--extra-vars", "@./ubuntu/ansible/20.04/aws.vars.yml"
+      "--extra-vars", "@./ubuntu/ansible/20.04/virtualbox.vars.yml"
     ]
   }
 

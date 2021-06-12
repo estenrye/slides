@@ -28,10 +28,15 @@
             password: vagrant
             shell: /bin/bash
             create_home: true
+        - name: vbox-vagrant | Ensure .ssh directory is present.
+          ansible.builtin.file:
+            path: /home/vagrant/.ssh
+            owner: vagrant
+            state: directory
         - name: vbox-vagrant | Configure passwordless sudo for vagrant user
-          ansible.builitn.copy:
+          ansible.builtin.copy:
             content: vagrant ALL=NOPASSWD:ALL
-            path: /etc/sudoers.d/vagrant
+            dest: /etc/sudoers.d/vagrant
         - name: vbox-vagrant | Install vagrant authorized key.
           ansible.builtin.get_url:
             url: https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant.pub
@@ -39,7 +44,7 @@
             owner: vagrant
             mode: 0600
       when:
-        - packer_builder_type = "virtualbox-iso"
+        - packer_builder_type == "virtualbox-iso"
 
 - hosts: default
   become: true

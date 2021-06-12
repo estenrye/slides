@@ -1,0 +1,6 @@
+ubuntu_2004_cis_require_ssh_allowusers: ubuntu vagrant
+ubuntu_2004_cis_require_ssh_denyusers: bogus
+ubuntu_2004_cis_section1_rule_1_1_2: false
+ubuntu_2004_cis_section1_rule_1_1_3: false
+ubuntu_2004_cis_section1_rule_1_1_4: false
+ubuntu_2004_cis_section1_rule_1_1_5: false

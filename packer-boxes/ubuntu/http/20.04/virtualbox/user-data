@@ -20,12 +20,6 @@ autoinstall:
     toggle: alt_caps_toggle
     variant: ''
   locale: en_US.UTF8
-  network:
-    ethernets:
-      ens18:
-        dhcp4: true
-        dhcp-identifier: mac
-    version: 2
   late-commands:
     - echo 'automation-user ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/automation-user
   ssh:
