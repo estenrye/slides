@@ -100,4 +100,22 @@ build {
     ]
   }
 
+  post-processor "artifice" {
+    files = [
+      "output-vbox-vagrant/packer-ubuntu-2004-minimal-base-20210609-disk001.vmdk",
+      "output-vbox-vagrant/packer-ubuntu-2004-minimal-base-20210609-disk002.vmdk",
+      "output-vbox-vagrant/packer-ubuntu-2004-minimal-base-20210609-disk003.vmdk",
+      "output-vbox-vagrant/packer-ubuntu-2004-minimal-base-20210609-disk004.vmdk",
+      "output-vbox-vagrant/packer-ubuntu-2004-minimal-base-20210609-disk005.vmdk",
+      "output-vbox-vagrant/packer-ubuntu-2004-minimal-base-20210609-disk006.vmdk",
+      "output-vbox-vagrant/packer-ubuntu-2004-minimal-base-20210609-disk007.vmdk",
+      "output-vbox-vagrant/packer-ubuntu-2004-minimal-base-20210609-disk008.vmdk",
+      "packer-ubuntu-2004-minimal-base-20210609.ovf"
+    ]
+  }
+
+  post-processor "vagrant" {
+    keep_input_artifact = true
+    provider_override = "virtualbox"
+  }
 }
