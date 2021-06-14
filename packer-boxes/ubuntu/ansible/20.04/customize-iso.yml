@@ -120,3 +120,5 @@
       ansible.builtin.copy:
         content: iso_checksum = "sha1:{{ checksum.stat.checksum }}"
         dest: "{{ packer_cache_full_path.stdout | trim }}/custom-{{ iso_path }}.pkvars.hcl"
+
+# TODO: Add upload to Proxmox

@@ -1,0 +1,33 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    packer_cache: ../../../packer_cache
+    cidata_path: ../../http/20.04/proxmox
+    iso_path: cidata-proxmox.iso
+  tasks:
+    - name: build cidata iso
+      ansible.builtin.command:
+        argv:
+          - genisoimage
+          - -output
+          - "{{ packer_cache }}/{{ iso_path }}"
+          - -volid
+          - cidata
+          - -joliet
+          - -rock
+          - "{{ cidata_path }}/user-data"
+          - "{{ cidata_path }}/meta-data"
+
+    - name: Get iso checksum
+      ansible.builtin.stat:
+        path: "{{ packer_cache }}/{{ iso_path }}"
+        get_checksum: true
+      register: checksum
+
+    - name: Write checksum var file
+      ansible.builtin.copy:
+        content: cidata_iso_checksum = "sha1:{{ checksum.stat.checksum }}"
+        dest: "{{ packer_cache }}/{{ iso_path }}.pkvars.hcl"
+
+# TODO: Add upload to Proxmox
