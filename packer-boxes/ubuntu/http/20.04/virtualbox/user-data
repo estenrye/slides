@@ -151,22 +151,41 @@ autoinstall:
         type: mount
         device: disk6-tmp
         path: /tmp
+        options: nodev,nosuid,noexec
 
-      # format and mount /home disk
+      # format and mount /var/tmp disk
       - id: disk7
         type: disk
         path: /dev/sdh
-        name: disk7
+        name: disk6
 
-      - id: disk7-home
+      - id: disk7-var-tmp
         type: format
         fstype: ext4
         volume: disk7
 
+      - id: var-tmp
+        type: mount
+        device: disk7-var-tmp
+        path: /var/tmp
+        options: nodev,nosuid,noexec
+
+      # format and mount /home disk
+      - id: disk8
+        type: disk
+        path: /dev/sdi
+        name: disk8
+
+      - id: disk8-home
+        type: format
+        fstype: ext4
+        volume: disk8
+
       - id: home
         type: mount
-        device: disk7-home
+        device: disk8-home
         path: /home
+        options: nodev
     swap:
       swap: 0
   version: 1
