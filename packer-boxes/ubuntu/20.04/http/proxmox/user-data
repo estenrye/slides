@@ -41,159 +41,143 @@ autoinstall:
   storage:
     config:
       # Identify boot disk.
-      - id: disk0
+      - id: disk-boot
         type: disk
         ptable: msdos
-        path: /dev/vda
-        name: disk0
+        path: /dev/sda
+        name: disk0-boot
         grub_device: true
 
       # bios_grub partition
-      - id: disk0p1
+      - id: partition-boot
         type: partition
-        device: disk0
+        device: disk-boot
         size: 100%
         flag: bios_grub
+        name: disk0p1-boot
         number: 1
 
-      - id: disk0p1-boot
+      - id: format-boot
         type: format
         fstype: ext4
-        volume: disk0p1
+        volume: partition-boot
 
-      - id: boot
+      - id: mount-boot
         type: mount
-        device: disk0p1-boot
+        device: format-boot
         path: /boot
 
       # format and mount root disk
-      - id: disk1
+      - id: disk-root
         type: disk
-        path: /dev/vdb
-        name: disk1
+        path: /dev/sdb
+        name: disk1-root
 
-      - id: disk1-root
+      - id: format-root
         type: format
         fstype: ext4
-        volume: disk1
+        volume: disk-root
 
-      - id: root
+      - id: mount-root
         type: mount
-        device: disk1-root
+        device: format-root
         path: /
 
       # format and mount /var/lib disk
-      - id: disk2
+      - id: disk-var-lib
         type: disk
-        path: /dev/vdc
-        name: disk2
+        path: /dev/sdc
+        name: disk2-var-lib
 
-      - id: disk2-var-lib
+      - id: format-var-lib
         type: format
         fstype: ext4
-        volume: disk2
+        volume: disk-var-lib
 
-      - id: var-lib
+      - id: mount-var-lib
         type: mount
-        device: disk2-var-lib
+        device: format-var-lib
         path: /var/lib
 
       # format and mount /var/log disk
-      - id: disk3
+      - id: disk-var-log
         type: disk
-        path: /dev/vdd
-        name: disk3
+        path: /dev/sdd
+        name: disk3-var-log
 
-      - id: disk3-var-log
+      - id: format-var-log
         type: format
         fstype: ext4
-        volume: disk3
+        volume: disk-var-log
 
-      - id: var-log
+      - id: mount-var-log
         type: mount
-        device: disk3-var-log
+        device: format-var-log
         path: /var/log
 
       # format and mount /var/log/audit disk
-      - id: disk4
+      - id: disk-var-log-audit
         type: disk
-        path: /dev/vde
-        name: disk4
+        path: /dev/sde
+        name: disk4-var-log-audit
 
-      - id: disk4-var-log-audit
+      - id: format-var-log-audit
         type: format
         fstype: ext4
-        volume: disk4
+        volume: disk-var-log-audit
 
-      - id: var-log-audit
+      - id: mount-var-log-audit
         type: mount
-        device: disk4-var-log-audit
+        device: format-var-log-audit
         path: /var/log/audit
 
       # format and mount /var disk
-      - id: disk5
+      - id: disk-var
         type: disk
-        path: /dev/vdf
-        name: disk5
+        path: /dev/sdf
+        name: disk5-var
 
-      - id: disk5-var
+      - id: format-var
         type: format
         fstype: ext4
-        volume: disk5
+        volume: disk-var
 
-      - id: var
+      - id: mount-var
         type: mount
-        device: disk5-var
+        device: format-var
         path: /var
 
-      # format and mount /tmp disk
-      - id: disk6
+      # format and mount /var/tmp disk
+      - id: disk-var-tmp
         type: disk
         path: /dev/sdg
-        name: disk6
+        name: disk6-var-tmp
 
-      - id: disk6-tmp
+      - id: format-var-tmp
         type: format
         fstype: ext4
-        volume: disk6
+        volume: disk-var-tmp
 
-      - id: tmp
+      - id: mount-var-tmp
         type: mount
-        device: disk6-tmp
-        path: /tmp
-        options: nodev,nosuid,noexec
-
-      # format and mount /var/tmp disk
-      - id: disk7
-        type: disk
-        path: /dev/sdh
-        name: disk6
-
-      - id: disk7-var-tmp
-        type: format
-        fstype: ext4
-        volume: disk7
-
-      - id: var-tmp
-        type: mount
-        device: disk7-var-tmp
+        device: format-var-tmp
         path: /var/tmp
         options: nodev,nosuid,noexec
 
       # format and mount /home disk
-      - id: disk8
+      - id: disk-home
         type: disk
-        path: /dev/sdi
-        name: disk8
+        path: /dev/sdh
+        name: disk7-home
 
-      - id: disk8-home
+      - id: format-home
         type: format
         fstype: ext4
-        volume: disk8
+        volume: disk-home
 
-      - id: home
+      - id: mount-home
         type: mount
-        device: disk8-home
+        device: format-home
         path: /home
         options: nodev
     swap:
