@@ -88,8 +88,8 @@ source "vsphere-iso" "vmware" {
 
   cd_label = "cidata"
   cd_files = [
-    "http/20.04/vmware/meta-data",
-    "http/20.04/vmware/user-data"
+    "20.04/http/vmware/meta-data",
+    "20.04/http/vmware/user-data"
   ]
 
   network_adapters {
@@ -138,11 +138,6 @@ source "vsphere-iso" "vmware" {
     disk_size = 2048
     disk_thin_provisioned = true
   }
-
-  storage {
-    disk_size = 2048
-    disk_thin_provisioned = true
-  }
 }
 
 build {
@@ -150,9 +145,9 @@ build {
   sources = [ "source.vsphere-iso.vmware" ]
 
   provisioner "ansible" {
-    playbook_file = "ansible/20.04/provision.yml"
+    playbook_file = "ansible/provision.yml"
     extra_arguments = [
-      "--extra-vars", "@ansible/20.04/vars/vmware.yml"
+      "--extra-vars", "@ansible/vars/vmware.yml"
     ]
   }
 }

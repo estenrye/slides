@@ -31,8 +31,8 @@ source "virtualbox-iso" "vbox-vagrant" {
   shutdown_command = "sudo -S shutdown -P now"
   guest_additions_path = "VBoxGuestAdditions_{{.Version}}.iso"
   cd_files = [
-    "http/20.04/virtualbox/meta-data",
-    "http/20.04/virtualbox/user-data"
+    "20.04/http/virtualbox/meta-data",
+    "20.04/http/virtualbox/user-data"
   ]
   cd_label = "cidata"
   headless = true
@@ -44,8 +44,8 @@ source "virtualbox-iso" "vbox-vagrant" {
   memory = 4096
   disk_size = 1024
   hard_drive_interface = "sata"
-  sata_port_count = 9
-  disk_additional_size = [ 6144, 20000, 20000, 4096, 2048, 2048, 2048, 2048 ]
+  sata_port_count = 8
+  disk_additional_size = [ 6144, 20000, 20000, 4096, 2048, 2048, 2048]
 }
 
 build {
@@ -53,9 +53,9 @@ build {
   sources = [ "source.virtualbox-iso.vbox-vagrant" ]
 
   provisioner "ansible" {
-    playbook_file = "ansible/20.04/provision.yml"
+    playbook_file = "ansible/provision.yml"
     extra_arguments = [
-      "--extra-vars", "@ansible/20.04/vars/virtualbox.yml"
+      "--extra-vars", "@ansible/vars/virtualbox.yml"
     ]
   }
 
