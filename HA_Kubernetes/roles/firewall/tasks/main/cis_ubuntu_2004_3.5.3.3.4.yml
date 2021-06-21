@@ -4,7 +4,7 @@
     table: filter
     chain: INPUT
     jump: ACCEPT
-    destination_port: 22
+    destination_port: "22"
     protocol: tcp
     comment: ssh
     ctstate:
@@ -22,7 +22,7 @@
     table: filter
     chain: INPUT
     jump: ACCEPT
-    destination_port: 123
+    destination_port: "123"
     protocol: udp
     comment: ntp
     ctstate:
@@ -40,13 +40,15 @@
     table: filter
     chain: INPUT
     jump: ACCEPT
-    destination_port: "{{ item.port }}"
-    protocol: "{{ item.protocol }}"
-    comment: "{{ item.service }}"
+    destination_port: "{{ inbound_service_ipv6.port }}"
+    protocol: "{{ inbound_service_ipv6.protocol }}"
+    comment: "{{ inbound_service_ipv6.service }}"
     ctstate:
       - NEW
     wait: "{{ firewall_wait_lock_seconds }}"
   become: true
+  loop_control:
+    loop_var: inbound_service_ipv6
   loop: "{{ firewall_allow_inbound_services_exposed_to_everyone }}"
   notify:
     - persist iptables
@@ -59,8 +61,8 @@
     table: filter
     chain: OUTPUT
     jump: ACCEPT
-    destination_port: 53
-    protocol: "{{ item }}"
+    destination_port: "53"
+    protocol: "{{ inbound_dns_ipv6_protocol }}"
     comment: dns
     ctstate:
       - NEW
@@ -68,6 +70,8 @@
   become: true
   notify:
     - persist iptables
+  loop_control:
+    loop_var: inbound_dns_ipv6_protocol
   loop:
     - tcp
     - udp
@@ -80,13 +84,15 @@
     table: filter
     chain: OUTPUT
     jump: ACCEPT
-    destination_port: "{{ item.port }}"
-    protocol: "{{ item.protocol }}"
-    comment: "{{ item.service }}"
+    destination_port: "{{ outbound_service_ipv6.port }}"
+    protocol: "{{ outbound_service_ipv6.protocol }}"
+    comment: "{{ outbound_service_ipv6.service }}"
     ctstate:
       - NEW
     wait: "{{ firewall_wait_lock_seconds }}"
   become: true
+  loop_control:
+    loop_var: outbound_service_ipv6
   loop: "{{ firewall_allow_outbound_requests_to_everyone }}"
   notify:
     - persist iptables

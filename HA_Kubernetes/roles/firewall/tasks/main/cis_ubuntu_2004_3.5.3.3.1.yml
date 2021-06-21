@@ -15,7 +15,7 @@
   ansible.builtin.iptables:
     ip_version: ipv6
     table: filter
-    chain: FILTER
+    chain: FORWARD
     jump: DROP
     wait: "{{ firewall_wait_lock_seconds }}"
   become: true

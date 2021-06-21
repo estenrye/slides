@@ -2,8 +2,8 @@
   ansible.builtin.iptables:
     ip_version: ipv6
     table: filter
-    chain: "{{ item.chain }}"
-    protocol: "{{ item.protocol }}"
+    chain: "{{ established_conn_ipv6.chain }}"
+    protocol: "{{ established_conn_ipv6.protocol }}"
     jump: ACCEPT
     ctstate:
       - NEW
@@ -12,6 +12,8 @@
   become: true
   notify:
     - persist iptables
+  loop_control:
+    loop_var: established_conn_ipv6
   loop:
     - protocol: tcp
       chain: OUTPUT

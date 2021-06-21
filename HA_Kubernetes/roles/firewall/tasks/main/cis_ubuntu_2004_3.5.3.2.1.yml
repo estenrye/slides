@@ -12,7 +12,7 @@
 - name: IPV4 - Default Deny FILTER Chain
   ansible.builtin.iptables:
     table: filter
-    chain: FILTER
+    chain: FORWARD
     jump: DROP
     wait: "{{ firewall_wait_lock_seconds }}"
   become: true
