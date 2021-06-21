@@ -4,8 +4,10 @@ all:
       hosts:
         haproxy01:
           ansible_host: haproxy01.rancher.ryezone.com
+          haproxy_role: rke2_haproxy_rancher
         haproxy02:
           ansible_host: haproxy02.rancher.ryezone.com
+          haproxy_role: rke2_haproxy_rancher
     kubernetes_cluster:
       children:
         controlplane:

@@ -5,3 +5,4 @@ keepalived_interface: eth0
 keepalived_check_port: "{{ kubernetes_api_server_port }}"
 
 firewall_role: rke2_haproxy
+haproxy_role: rke2_haproxy
