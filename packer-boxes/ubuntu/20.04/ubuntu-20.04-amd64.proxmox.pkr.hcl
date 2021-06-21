@@ -185,7 +185,7 @@ build {
   provisioner "ansible" {
     playbook_file = "ansible/provision.yml"
     extra_arguments = [
-      "--extra-vars", "@ansible/vars/proxmox.vars.yml"
+      "--extra-vars", "@ansible/vars/proxmox.yml"
     ]
   }
 }
