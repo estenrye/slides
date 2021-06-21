@@ -1,6 +1,6 @@
 - name: set facts
-  ansible.builtin.include_tasks:
-    file: firewall_roles/{{ firewall_role }}.yml
+  ansible.builtin.include_vars:
+    file: "{{ firewall_role }}.yml"
   when:
     - firewall_role != 'default'
 
