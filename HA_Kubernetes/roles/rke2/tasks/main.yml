@@ -36,10 +36,15 @@
     enabled: true
   when: rke2_enable_iscsi_csi
 
+- name: make rke2 installer artifact directory
+  ansible.builtin.file:
+    path: /var/lib/rke2-installer
+    state: directory
+
 - name: download rke2 installer
   ansible.builtin.get_url:
     url: https://get.rke2.io
-    dest: /tmp/install.sh
+    dest: /var/lib/rke2-installer/install.sh
     mode: 750
 
 - name: create manifest dir
@@ -55,7 +60,7 @@
 - name: run rke2 installer
   ansible.builtin.command:
     argv:
-      - /tmp/install.sh
+      - /var/lib/rke2-installer/install.sh
   environment:
     INSTALL_RKE2_CHANNEL: "{{install_rke2_channel}}"
     INSTALL_RKE2_TYPE: "{{install_rke2_type}}"
