@@ -115,22 +115,22 @@
       ansible.builtin.include_tasks:
         file: tasks/fstab.yml
       loop:
-        - src: /dev/sdc
+        - src: "{{ disk_src_var_lib }}"
           path: /var/lib
           options: defaults
-        - src: /dev/sdd
+        - src: "{{ disk_src_var_log }}"
           path: /var/log
           options: defaults
-        - src: /dev/sde
+        - src: "{{ disk_src_var_log_audit }}"
           path: /var/log/audit
           options: defaults
-        - src: /dev/sdf
+        - src: "{{ disk_src_var }}"
           path: /var
           options: defaults
-        - src: /dev/sdg
+        - src: "{{ disk_src_var_tmp }}"
           path: /var/tmp
           options: defaults,nodev,nosuid,noexec
-        - src: /dev/sdh
+        - src: "{{ disk_src_home }}"
           path: /home
           options: defaults,nodev
 
