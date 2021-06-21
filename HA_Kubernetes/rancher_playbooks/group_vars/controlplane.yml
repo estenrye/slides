@@ -1,15 +1,4 @@
-# The subnets in this list are high-priority packets from trusted sources
-# like the Kubernetes pod and service networks that are managed using separate
-# controls like Kubernetes Network Policy.
-firewall_always_high_priority_inbound_subnets:
-  - 10.42.0.0/16
-  - 10.43.0.0/16
-
-# These services should only be accessed by sources we trust.
-firewall_allow_inbound_services_exposed_to_friends:
-  - service: SSH
-    port: 22
-    protocol: tcp
+firewall_allow_inbound_services_exposed_to_everyone:
   - service: etcd client api
     protocol: tcp
     port: 2379
@@ -19,6 +8,7 @@ firewall_allow_inbound_services_exposed_to_friends:
   - service: Kubernetes API Server
     protocol: tcp
     port: 6443
+  # TODO: restrict 8472 to cluster nodes only.
   - service: RancherD/RKE2 Flannel VXLAN
     protocol: udp
     port: 8472
@@ -37,10 +27,3 @@ firewall_allow_inbound_services_exposed_to_friends:
   - service: Kubernetes Kube Controller Manager
     protocol: tcp
     port: 10252
-
-# These services are publicly advertised to the world.
-firewall_allow_inbound_services_exposed_to_everyone: []
-
-firewall_forward_chain: []
-
-firewall_bogus_block_loopback_subnet: false

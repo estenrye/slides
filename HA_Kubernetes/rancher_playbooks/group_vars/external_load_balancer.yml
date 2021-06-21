@@ -4,11 +4,14 @@ keepalived_vip: "{{ kubernetes_api_server_vip }}"
 keepalived_interface: eth0
 keepalived_check_port: "{{ kubernetes_api_server_port }}"
 
-# These services should only be accessed by sources we trust.
-firewall_allow_inbound_services_exposed_to_friends:
-  - service: SSH
-    port: 22
+# These services are publicly advertised to the world.
+firewall_allow_inbound_services_exposed_to_everyone:
+  - service: HTTP
     protocol: tcp
+    port: 80
+  - service: HTTPS
+    protocol: tcp
+    port: 443
   - service: Kubernetes API
     protocol: tcp
     port: 6443
@@ -18,15 +21,6 @@ firewall_allow_inbound_services_exposed_to_friends:
   - service: RKE2 Node Join
     protocol: tcp
     port: 9345
-  - service: Step Certificates Certificate Authority
-    protocol: tcp
-    port: 32400
-
-# These services are publicly advertised to the world.
-firewall_allow_inbound_services_exposed_to_everyone:
-  - service: HTTP
-    protocol: tcp
-    port: 80
-  - service: HTTPS
-    protocol: tcp
-    port: 443
+  # - service: Step Certificates Certificate Authority
+  #   protocol: tcp
+  #   port: 32400

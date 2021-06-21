@@ -29,42 +29,5 @@ cert_manager_cloudflare_api_token: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"
 cert_manager_acme_email: esten.rye+acme@ryezone.com
 cert_manager_helm_chart_version: 1.3.0
 
-# The subnets in this list are immediately dropped.
-firewall_bogus_inbound_subnets:
-  - 169.254.0.0/16
-  - 172.16.0.0/12
-  - 192.0.2.0/24
-  - 192.168.0.0/16
-
-# The subnets in this list are hostile and are dropped.
-firewall_enemies_hostile_cidr: []
-  # - 99.99.99.99
-
-# These inbound services are not hosted externally and are dropped when requested
-# on external interfaces.
-firewall_enemies_inbound_services_not_exposed: []
-  # - service: SQLServer
-  #   protocol: tcp
-  #   port: 1433
-
-# The services in this list are high-priority packets from known inbound
-# services like NTP that require relatively low packet processing delay.
-firewall_always_high_priority_inbound_services:
-  - service: NTP
-    protocol: udp
-    port: 123
-
-# These services should only be accessed by sources we trust.
-firewall_allow_inbound_services_exposed_to_friends:
-  - service: SSH
-    port: 22
-    protocol: tcp
-
-# These services are publicly advertised to the world.
-firewall_allow_inbound_services_exposed_to_everyone: []
-  # - service: HTTP
-  #   protocol: tcp
-  #   port: 80
-
 kubernetes_pki_directory: /var/lib/rancher/rke2/server/tls
 step_password: "{{ lookup('password', 'files/secrets/step-ca_token_password chars=ascii_letters,digits length=64') }}"

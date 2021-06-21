@@ -3,9 +3,9 @@ all:
     external_load_balancer:
       hosts:
         haproxy01:
-          ansible_host: haproxy01.dev.ryezone.com
+          ansible_host: haproxy01.common.ryezone.com
         haproxy02:
-          ansible_host: haproxy02.dev.ryezone.com
+          ansible_host: haproxy02.common.ryezone.com
     kubernetes_cluster:
       children:
         controlplane:
@@ -13,29 +13,29 @@ all:
             initial_controlplane:
               hosts:
                 controlplane01:
-                  ansible_host: controlplane01.dev.ryezone.com
+                  ansible_host: controlplane01.common.ryezone.com
             additional_controlplane:
               hosts:
                 controlplane02:
-                  ansible_host: controlplane02.dev.ryezone.com
+                  ansible_host: controlplane02.common.ryezone.com
                 controlplane03:
-                  ansible_host: controlplane03.dev.ryezone.com
+                  ansible_host: controlplane03.common.ryezone.com
         nodes:
           hosts:
             node01:
-              ansible_host: node01.dev.ryezone.com
+              ansible_host: node01.common.ryezone.com
             node02:
-              ansible_host: node02.dev.ryezone.com
+              ansible_host: node02.common.ryezone.com
             node03:
-              ansible_host: node03.dev.ryezone.com
-      
+              ansible_host: node03.common.ryezone.com
+
   vars:
     authorized_users:
       - principal: esten.rye
         uid: 10000
     revoked_users: []
     ansible_user: automation-user
-    platform_environment: dev
+    platform_environment: common
     install_rancher: false
     taint_server_nodes: true
     kubernetes_api_server_vip: 10.5.99.3

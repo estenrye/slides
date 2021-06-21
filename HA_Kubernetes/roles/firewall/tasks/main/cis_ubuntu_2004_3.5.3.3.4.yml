@@ -1,5 +1,6 @@
-- name: Allow Inbound SSH on port 22 from Everyone
+- name: IPV6 - Allow Inbound SSH on port 22 from Everyone
   ansible.builtin.iptables:
+    ip_version: ipv6
     table: filter
     chain: INPUT
     jump: ACCEPT
@@ -12,9 +13,12 @@
   become: true
   notify:
     - persist iptables
+  when:
+    - ipv6_enabled
 
-- name: Allow Inbound NTP on port 123 from Everyone
+- name: IPV6 - Allow Inbound NTP on port 123 from Everyone
   ansible.builtin.iptables:
+    ip_version: ipv6
     table: filter
     chain: INPUT
     jump: ACCEPT
@@ -27,9 +31,12 @@
   become: true
   notify:
     - persist iptables
+  when:
+    - ipv6_enabled
 
-- name: Allow Inbound Service traffic from Everyone
+- name: IPV6 - Allow Inbound Service traffic from Everyone
   ansible.builtin.iptables:
+    ip_version: ipv6
     table: filter
     chain: INPUT
     jump: ACCEPT
@@ -43,9 +50,12 @@
   loop: "{{ firewall_allow_inbound_services_exposed_to_everyone }}"
   notify:
     - persist iptables
+  when:
+    - ipv6_enabled
 
-- name: Allow Outbound DNS on port 53 to Everyone
+- name: IPV6 - Allow Outbound DNS on port 53 to Everyone
   ansible.builtin.iptables:
+    ip_version: ipv6
     table: filter
     chain: OUTPUT
     jump: ACCEPT
@@ -61,9 +71,12 @@
   loop:
     - tcp
     - udp
+  when:
+    - ipv6_enabled
 
-- name: Allow Outbound Service traffic to Everyone
+- name: IPV6 - Allow Outbound Service traffic to Everyone
   ansible.builtin.iptables:
+    ip_version: ipv6
     table: filter
     chain: OUTPUT
     jump: ACCEPT
@@ -77,4 +90,5 @@
   loop: "{{ firewall_allow_outbound_requests_to_everyone }}"
   notify:
     - persist iptables
-
+  when:
+    - ipv6_enabled

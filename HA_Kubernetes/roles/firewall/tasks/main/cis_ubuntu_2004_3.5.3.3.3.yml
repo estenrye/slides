@@ -1,4 +1,4 @@
-- name: Ensure outbound and established connections are configured
+- name: IPV6 - Ensure outbound and established connections are configured
   ansible.builtin.iptables:
     ip_version: ipv6
     table: filter
