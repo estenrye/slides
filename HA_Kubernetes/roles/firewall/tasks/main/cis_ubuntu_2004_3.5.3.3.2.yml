@@ -18,7 +18,7 @@
     table: filter
     chain: OUTPUT
     jump: ACCEPT
-    in_interface: lo
+    out_interface: lo
     wait: "{{ firewall_wait_lock_seconds }}"
   become: yes
   notify:
