@@ -1,11 +1,11 @@
 variable "vm_name" {
   type = string
-  default = "packer-ubuntu-2004-minimal-base-20210609"
+  default = "packer-ubuntu-2004-minimal-base-20210621"
 }
 
 variable "proxmox_vm_id" {
   type = number
-  default = 513
+  default = 515
 }
 
 variable "template_description" {
@@ -30,7 +30,7 @@ variable "ssh_certificate_file" {
 
 variable "iso_url" {
   type = string
-  default = "local:iso/ubuntu-20.04.2-live-server-amd64.iso"
+  default = "local:iso/custom-ubuntu-20.04.2-live-server-amd64.iso"
 }
 
 variable "cidata_iso_url" {
@@ -97,10 +97,9 @@ source "proxmox-iso" "proxmox" {
   iso_storage_pool = "local"
   unmount_iso = true
   cloud_init = false
-  cloud_init_storage_pool = "local-lvm"
 
   additional_iso_files {
-    device = "scsi5"
+    device = "ide3"
     iso_file = var.cidata_iso_url
     iso_checksum = var.cidata_iso_checksum
     unmount = true
@@ -108,12 +107,6 @@ source "proxmox-iso" "proxmox" {
 
   boot = "order=virtio0;ide2;net0"
   boot_wait = "5s"
-  http_directory = "ubuntu/http/20.04/proxmox"
-  boot_command = [
-    "<enter><enter><f6><esc><wait>",
-    "autoinstall ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/",
-    "<enter>"
-  ]
 
   network_adapters {
     model = "virtio"
@@ -190,9 +183,9 @@ build {
   sources = [ "source.proxmox-iso.proxmox" ]
 
   provisioner "ansible" {
-    playbook_file = "ansible/20.04/provision.yml"
+    playbook_file = "ansible/provision.yml"
     extra_arguments = [
-      "--extra-vars", "@ansible/20.04/proxmox.vars.yml"
+      "--extra-vars", "@ansible/vars/proxmox.vars.yml"
     ]
   }
 }

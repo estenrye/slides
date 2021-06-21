@@ -44,7 +44,7 @@ autoinstall:
       - id: disk-boot
         type: disk
         ptable: msdos
-        path: /dev/sda
+        path: /dev/vda
         name: disk0-boot
         grub_device: true
 
@@ -70,7 +70,7 @@ autoinstall:
       # format and mount root disk
       - id: disk-root
         type: disk
-        path: /dev/sdb
+        path: /dev/vdb
         name: disk1-root
 
       - id: format-root
@@ -86,7 +86,7 @@ autoinstall:
       # format and mount /var/lib disk
       - id: disk-var-lib
         type: disk
-        path: /dev/sdc
+        path: /dev/vdc
         name: disk2-var-lib
 
       - id: format-var-lib
@@ -102,7 +102,7 @@ autoinstall:
       # format and mount /var/log disk
       - id: disk-var-log
         type: disk
-        path: /dev/sdd
+        path: /dev/vdd
         name: disk3-var-log
 
       - id: format-var-log
@@ -118,7 +118,7 @@ autoinstall:
       # format and mount /var/log/audit disk
       - id: disk-var-log-audit
         type: disk
-        path: /dev/sde
+        path: /dev/vde
         name: disk4-var-log-audit
 
       - id: format-var-log-audit
@@ -134,7 +134,7 @@ autoinstall:
       # format and mount /var disk
       - id: disk-var
         type: disk
-        path: /dev/sdf
+        path: /dev/vdf
         name: disk5-var
 
       - id: format-var
@@ -150,7 +150,7 @@ autoinstall:
       # format and mount /var/tmp disk
       - id: disk-var-tmp
         type: disk
-        path: /dev/sdg
+        path: /dev/vdg
         name: disk6-var-tmp
 
       - id: format-var-tmp
@@ -167,7 +167,7 @@ autoinstall:
       # format and mount /home disk
       - id: disk-home
         type: disk
-        path: /dev/sdh
+        path: /dev/vdh
         name: disk7-home
 
       - id: format-home

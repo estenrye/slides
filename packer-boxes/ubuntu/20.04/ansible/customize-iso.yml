@@ -2,7 +2,7 @@
 - hosts: localhost
   connection: local
   vars:
-    packer_cache: ../../packer_cache
+    packer_cache: ../packer_cache
     preseed_host: "http://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
     preseed_port: 10080
     iso_url: https://releases.ubuntu.com/20.04.2/ubuntu-20.04.2-live-server-amd64.iso
@@ -10,6 +10,10 @@
     iso_path: ubuntu-20.04.2-live-server-amd64.iso
     iso_extract_path: ubuntu_iso
   tasks:
+    - name: packer_cache directory is present
+      ansible.builtin.file:
+        state: directory
+        path: "{{ packer_cache }}"
     - name: Install 7-zip
       ansible.builtin.package:
         name: p7zip-full

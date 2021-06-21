@@ -2,10 +2,14 @@
 - hosts: localhost
   connection: local
   vars:
-    packer_cache: ../../../packer_cache
-    cidata_path: ../../http/20.04/proxmox
+    packer_cache: ../packer_cache
+    cidata_path: ../http/proxmox
     iso_path: cidata-proxmox.iso
   tasks:
+    - name: packer_cache directory is present
+      ansible.builtin.file:
+        state: directory
+        path: "{{ packer_cache }}"
     - name: build cidata iso
       ansible.builtin.command:
         argv:
