@@ -1,46 +1,6 @@
-# The subnets in this list are immediately dropped.
-firewall_bogus_inbound_subnets:
-  - 169.254.0.0/16
-  - 172.16.0.0/12
-  - 192.0.2.0/24
-  - 192.168.0.0/16
-  - 10.0.0.0/8
-
-# The subnets in this list are hostile and are dropped.
-firewall_enemies_hostile_cidr: []
-  # - 99.99.99.99
-
-# These inbound services are not hosted externally and are dropped when requested
-# on external interfaces.
-firewall_enemies_inbound_services_not_exposed: []
-  # - service: SQLServer
-  #   protocol: tcp
-  #   port: 1433
-
-# The subnets in this list are high-priority packets from trusted sources
-# like the Kubernetes pod and service networks that are managed using separate
-# controls like Kubernetes Network Policy.
-firewall_always_high_priority_inbound_subnets: []
-  # - 10.42.0.0/16
-  # - 10.43.0.0/16
-
-# The services in this list are high-priority packets from known inbound
-# services like NTP that require relatively low packet processing delay.
-firewall_always_high_priority_inbound_services:
-  - service: NTP
-    protocol: udp
-    port: 123
-
-# The subnets in this are trusted and are accepted.
-firewall_friends_known_cidr: []
-  # - 10.0.2.0/24
-  # - 10.5.0.0/16
-
-# These services should only be accessed by sources we trust.
-firewall_allow_inbound_services_exposed_to_friends: []
-  # - service: SSH
-  #   port: 22
-  #   protocol: tcp
+firewall_bogus_block_loopback_subnet: true
+firewall_wait_lock_seconds: "5"
+firewall_allow_outbound_requests_to_everyone: []
   # - service: Kubernetes API
   #   protocol: tcp
   #   port: 6443
@@ -51,24 +11,15 @@ firewall_allow_inbound_services_exposed_to_friends: []
   #   protocol: tcp
   #   port: 9345
 
-# These services are publicly advertised to the world.
-firewall_allow_inbound_services_exposed_to_everyone:
-  - service: SSH
-    port: 22
-    protocol: tcp
+firewall_allow_inbound_services_exposed_to_everyone: []
+  # - service: Kubernetes API
+  #   protocol: tcp
+  #   port: 6443
+  # - service: HAProxy Stats Page
+  #   protocol: tcp
+  #   port: 8000
+  # - service: RKE2 Node Join
+  #   protocol: tcp
+  #   port: 9345
 
-firewall_input_chain:
-  - Bogus
-  - Always
-  - Enemies
-  - Allow
-
-firewall_forward_chain:
-  - Bogus
-  - Always
-  - Enemies
-  - Allow
-
-firewall_bogus_block_loopback_subnet: true
-
-firewall_wait_lock_seconds: "5"
+ipv6_enabled: false

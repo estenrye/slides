@@ -1,0 +1,32 @@
+- name: Default Deny INPUT Chain
+  ansible.builtin.iptables:
+    table: filter
+    chain: INPUT
+    jump: DROP
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  when: firewall_bogus_block_loopback_subnet
+  notify:
+    - persist iptables
+
+- name: Default Deny FILTER Chain
+  ansible.builtin.iptables:
+    table: filter
+    chain: FILTER
+    jump: DROP
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  when: firewall_bogus_block_loopback_subnet
+  notify:
+    - persist iptables
+
+- name: Default Deny OUTPUT Chain
+  ansible.builtin.iptables:
+    table: filter
+    chain: OUTPUT
+    jump: DROP
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  when: firewall_bogus_block_loopback_subnet
+  notify:
+    - persist iptables

@@ -1,0 +1,94 @@
+- name: Allow Inbound SSH on port 22 from Everyone
+  ansible.builtin.iptables:
+    ip_version: ipv6
+    table: filter
+    chain: INPUT
+    jump: ACCEPT
+    destination_port: 22
+    protocol: tcp
+    comment: ssh
+    ctstate:
+      - NEW
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  notify:
+    - persist iptables
+  when:
+    - ipv6_enabled
+
+- name: Allow Inbound NTP on port 123 from Everyone
+  ansible.builtin.iptables:
+    ip_version: ipv6
+    table: filter
+    chain: INPUT
+    jump: ACCEPT
+    destination_port: 123
+    protocol: udp
+    comment: ntp
+    ctstate:
+      - NEW
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  notify:
+    - persist iptables
+  when:
+    - ipv6_enabled
+
+- name: Allow Inbound Service traffic from Everyone
+  ansible.builtin.iptables:
+    ip_version: ipv6
+    table: filter
+    chain: INPUT
+    jump: ACCEPT
+    destination_port: "{{ item.port }}"
+    protocol: "{{ item.protocol }}"
+    comment: "{{ item.service }}"
+    ctstate:
+      - NEW
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  loop: "{{ firewall_allow_inbound_services_exposed_to_everyone }}"
+  notify:
+    - persist iptables
+  when:
+    - ipv6_enabled
+
+- name: Allow Outbound DNS on port 53 to Everyone
+  ansible.builtin.iptables:
+    ip_version: ipv6
+    table: filter
+    chain: OUTPUT
+    jump: ACCEPT
+    destination_port: 53
+    protocol: "{{ item }}"
+    comment: dns
+    ctstate:
+      - NEW
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  notify:
+    - persist iptables
+  loop:
+    - tcp
+    - udp
+  when:
+    - ipv6_enabled
+
+- name: Allow Outbound Service traffic to Everyone
+  ansible.builtin.iptables:
+    ip_version: ipv6
+    table: filter
+    chain: OUTPUT
+    jump: ACCEPT
+    destination_port: "{{ item.port }}"
+    protocol: "{{ item.protocol }}"
+    comment: "{{ item.service }}"
+    ctstate:
+      - NEW
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  loop: "{{ firewall_allow_outbound_requests_to_everyone }}"
+  notify:
+    - persist iptables
+  when:
+    - ipv6_enabled
