@@ -1,22 +1,3 @@
 kubernetes_is_controlplane: false
 kubernetes_is_initial_controlplane: false
-
-firewall_allow_inbound_services_exposed_to_everyone:
-  - service: HTTP
-    protocol: tcp
-    port: 80
-  - service: HTTPS
-    protocol: tcp
-    port: 443
-  - service: RancherD/RKE2 Flannel VXLAN
-    protocol: udp
-    port: 8472
-  - service: Rancher Monitoring Node Exporter
-    protocol: tcp
-    port: 9796
-  - service: Kubernetes Kubelet API
-    protocol: tcp
-    port: 10250
-  # - service: Step Certificates Certificate Authority
-  #   protocol: tcp
-  #   port: 32400
+firewall_role: rke2_node

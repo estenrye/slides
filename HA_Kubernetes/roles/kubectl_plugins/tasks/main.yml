@@ -1,6 +1,6 @@
 - name: download kubectl binary
   get_url:
-    url: https://dl.k8s.io/release/v{{ kubectl_version }}/bin/linux/amd64/kubectl
+    url: https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl
     dest: /usr/local/bin/kubectl
   when: install_kubectl
   become: true

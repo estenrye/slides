@@ -23,3 +23,4 @@ firewall_allow_inbound_services_exposed_to_everyone: []
   #   port: 9345
 
 ipv6_enabled: false
+firewall_role: default

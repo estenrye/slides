@@ -83,4 +83,3 @@
   loop: "{{ firewall_allow_outbound_requests_to_everyone }}"
   notify:
     - persist iptables
-

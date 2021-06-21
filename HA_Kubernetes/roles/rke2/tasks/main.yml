@@ -104,13 +104,23 @@
     minutes: "{{ node_ready_timeout }}"
   when: not is_agent_node
 
+- name: download kubectl binary
+  get_url:
+    url: https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/kubectl
+  when:
+    - install_kubectl
+    - not is_agent_node
+  become: true
 
 - name: add a link to kubectl binary
   ansible.builtin.file:
     state: link
     path: /usr/local/bin/kubectl
     src: /var/lib/rancher/rke2/bin/kubectl
-  when: not is_agent_node
+  when:
+    - not install_kubectl
+    - not is_agent_node
 
 - name: create .kube directory
   ansible.builtin.file:
