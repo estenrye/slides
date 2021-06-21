@@ -1,34 +1,18 @@
-- name: IPV4 - Allow Inbound rke2 Node traffic from Everyone
-  ansible.builtin.iptables:
-    table: filter
-    chain: INPUT
-    jump: ACCEPT
-    destination_port: "{{ inbound_service_ipv4_node.port }}"
-    protocol: "{{ inbound_service_ipv4_node.protocol }}"
-    comment: "{{ inbound_service_ipv4_node.service }}"
-    ctstate:
-      - NEW
-    wait: "{{ firewall_wait_lock_seconds }}"
-  become: true
-  loop_control:
-    loop_var: inbound_service_ipv4_node
-  loop:
-    - service: HTTP
-      protocol: tcp
-      port: 80
-    - service: HTTPS
-      protocol: tcp
-      port: 443
-    - service: RancherD/RKE2 Flannel VXLAN
-      protocol: udp
-      port: 8472
-    - service: Rancher Monitoring Node Exporter
-      protocol: tcp
-      port: 9796
-    - service: Kubernetes Kubelet API
-      protocol: tcp
-      port: 10250
-  notify:
-    - persist iptables
-  when:
-    - firewall_role == 'rke2_node'
+- name: Set Inbound Services by Role - rke2_node
+  ansible.builtin.set_fact:
+    firewall_allow_inbound_services_exposed_to_everyone:
+      - service: HTTP
+        protocol: tcp
+        port: 80
+      - service: HTTPS
+        protocol: tcp
+        port: 443
+      - service: RancherD/RKE2 Flannel VXLAN
+        protocol: udp
+        port: 8472
+      - service: Rancher Monitoring Node Exporter
+        protocol: tcp
+        port: 9796
+      - service: Kubernetes Kubelet API
+        protocol: tcp
+        port: 10250

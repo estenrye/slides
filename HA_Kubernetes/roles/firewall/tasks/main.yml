@@ -1,3 +1,9 @@
+- name: set facts
+  ansible.builtin.include_tasks:
+    file: firewall_roles/{{ firewall_role }}.yml
+  when:
+    - firewall_role != 'default'
+
 - ansible.builtin.include_tasks:
     file: "{{ item }}"
   loop:
@@ -12,8 +18,3 @@
     - main/cis_ubuntu_2004_3.5.3.3.3.yml
     - main/cis_ubuntu_2004_3.5.3.3.4.yml
     - main/cis_ubuntu_2004_3.5.3.3.1.yml
-
-- ansible.builtin.include_tasks:
-    file: firewall_roles/{{ firewall_role }}.yml
-  when:
-    - firewall_role != 'default'
