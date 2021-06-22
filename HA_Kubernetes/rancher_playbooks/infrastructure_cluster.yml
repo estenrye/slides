@@ -1,6 +1,7 @@
 - hosts: initial_controlplane
   roles:
     - kubectl_plugins
+    - rancher_monitoring
     - cert_manager
     - truenas_container_storage_interface
     - step_certificates

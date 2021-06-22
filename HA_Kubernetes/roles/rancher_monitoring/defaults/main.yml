@@ -1,0 +1,11 @@
+rancher_chart_repo_url: https://charts.rancher.io
+rancher_monitoring_version: 14.5.100
+
+rancher_monitoring_helm_values:
+  rke2Etcd:
+    clients:
+    tolerations:
+      - effect: NoExecute
+        operator: Exists
+      - effect: NoSchedule
+        operator: Exists
