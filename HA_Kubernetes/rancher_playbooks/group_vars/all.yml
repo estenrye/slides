@@ -17,4 +17,5 @@ cert_manager_acme_email: esten.rye+acme@ryezone.com
 cert_manager_helm_chart_version: 1.3.0
 
 kubernetes_pki_directory: /var/lib/rancher/rke2/server/tls
+kube_config_file: /etc/rancher/rke2/rke2.yaml
 step_password: "{{ lookup('password', 'files/secrets/step-ca_token_password chars=ascii_letters,digits length=64') }}"

@@ -18,11 +18,14 @@
   community.kubernetes.k8s:
     state: present
     src: "{{ ansible_k8s_manifests_directory }}/cert-manager_crds.yml"
+    kubeconfig: "{{ kube_config_file }}"
+  become: true
 
 - name: Add chart repo for cert-manager
   community.kubernetes.helm_repository:
     name: "{{ cert_manager_helm_chart_repo_name }}"
     repo_url: "{{ cert_manager_helm_chart_repo_uri }}"
+  become: true
 
 - name: pause for 2 minutes for node to initialize.
   ansible.builtin.pause:
@@ -35,11 +38,13 @@
     chart_version: "{{ cert_manager_helm_chart_version }}"
     release_namespace: "{{ cert_manager_namespace }}"
     create_namespace: true
+    kubeconfig: "{{ kube_config_file }}"
     values:
       prometheus:
         enabled: "{{ cert_manager_enable_prometheus }}"
         servicemonitor:
           enabled: true
+  become: true
 
 - name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
   community.crypto.openssl_privatekey:
@@ -52,6 +57,7 @@
 - name: Configure Cloudflare API Key for cert-manager
   community.kubernetes.k8s:
     state: present
+    kubeconfig: "{{ kube_config_file }}"
     definition:
       apiVersion: v1
       kind: Secret
@@ -62,10 +68,12 @@
       stringData:
         api-token: "{{ cert_manager_cloudflare_api_token }}"
         tls-key: "{{ acme_issuer_key.privatekey }}"
+  become: true
 
 - name: Configure LetsEncrypt Cloudflare Issuer for cert-manager
   community.kubernetes.k8s:
     state: present
+    kubeconfig: "{{ kube_config_file }}"
     definition:
       apiVersion: cert-manager.io/v1
       kind: ClusterIssuer
@@ -75,7 +83,7 @@
       spec:
         acme:
           email: "{{ cert_manager_acme_email }}"
-          server: "{{ acme_server }}"
+          server: "{{ public_acme_server }}"
           preferredChain: "ISRG Root X1"
           privateKeySecretRef:
             name: cert-manager-issuer-secret
@@ -89,3 +97,33 @@
               selector:
                 dnsZones:
                 - "{{ kubernetes_zone }}"
+  become: true
+
+- name: Configure Smallstep ACME Issuer for cert-manager
+  community.kubernetes.k8s:
+    state: present
+    kubeconfig: "{{ kube_config_file }}"
+    definition:
+      apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      metadata:
+        name: smallstep-cloudflare-dns01
+        namespace: cert-manager
+      spec:
+        acme:
+          email: "{{ cert_manager_acme_email }}"
+          server: "{{ private_acme_server }}"
+          preferredChain: "ISRG Root X1"
+          privateKeySecretRef:
+            name: cert-manager-issuer-secret
+            key: tls-key
+          solvers:
+            - dns01:
+                cloudflare:
+                  apiTokenSecretRef:
+                    name: cert-manager-issuer-secret
+                    key: api-token
+              selector:
+                dnsZones:
+                - "{{ kubernetes_zone }}"
+  become: true

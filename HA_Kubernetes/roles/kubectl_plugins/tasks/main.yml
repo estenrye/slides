@@ -16,3 +16,9 @@
   ansible.builtin.package:
     name: certbot
   become: true
+
+- name: install required pip packages
+  ansible.builtin.pip:
+    name:
+      - openshift
+  become: true

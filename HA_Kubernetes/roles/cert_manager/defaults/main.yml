@@ -12,5 +12,7 @@ ansible_k8s_manifests_group: automation-user
 kubernetes_pki_directory: /var/lib/rancher/rke2/server/tls
 cert_manager_cloudflare_api_token: "{{ lookup ('env', 'CLOUDFLARE_API_TOKEN') }}"
 cert_manager_acme_email: no-reply@example.com
-acme_server: https://acme-v02.api.letsencrypt.org/directory
+public_acme_server: https://acme-v02.api.letsencrypt.org/directory
+private_acme_server: https://ca.common.{{ cloudflare.zone }}/acme/acme/directory
 kubernetes_zone: example.com
+kube_config_file: /etc/rancher/rke2/rke2.yaml
