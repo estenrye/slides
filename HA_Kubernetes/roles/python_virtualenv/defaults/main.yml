@@ -1,0 +1,10 @@
+python_virtualenv_directory: /opt/python_virtualenv_ansible
+python_virtualenv_owner: automation-user
+python_virtualenv_group: automation-user
+
+altInterpreterFileName: python3.8
+python_apt_pypi_version: 0.7.8
+cryptography_pypi_version: 3.4.7
+openshift_pypi_version: 0.12.0
+pyopenssl_pypi_version: 20.0.1
+virtualenv_pypi_version: 20.4.7

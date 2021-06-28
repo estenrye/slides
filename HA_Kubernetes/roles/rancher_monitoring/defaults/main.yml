@@ -1,6 +1,8 @@
 rancher_chart_repo_url: https://charts.rancher.io
 rancher_monitoring_version: 14.5.100
 
+kube_config_file: ~/.kube/config
+
 rancher_monitoring_helm_values:
   rke2Etcd:
     clients:

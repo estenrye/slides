@@ -19,13 +19,11 @@
     state: present
     src: "{{ ansible_k8s_manifests_directory }}/cert-manager_crds.yml"
     kubeconfig: "{{ kube_config_file }}"
-  become: true
 
 - name: Add chart repo for cert-manager
   community.kubernetes.helm_repository:
     name: "{{ cert_manager_helm_chart_repo_name }}"
     repo_url: "{{ cert_manager_helm_chart_repo_uri }}"
-  become: true
 
 - name: pause for 2 minutes for node to initialize.
   ansible.builtin.pause:
@@ -44,7 +42,6 @@
         enabled: "{{ cert_manager_enable_prometheus }}"
         servicemonitor:
           enabled: true
-  become: true
 
 - name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
   community.crypto.openssl_privatekey:
@@ -68,7 +65,6 @@
       stringData:
         api-token: "{{ cert_manager_cloudflare_api_token }}"
         tls-key: "{{ acme_issuer_key.privatekey }}"
-  become: true
 
 - name: Configure LetsEncrypt Cloudflare Issuer for cert-manager
   community.kubernetes.k8s:
@@ -97,7 +93,6 @@
               selector:
                 dnsZones:
                 - "{{ kubernetes_zone }}"
-  become: true
 
 - name: Configure Smallstep ACME Issuer for cert-manager
   community.kubernetes.k8s:
@@ -126,4 +121,3 @@
               selector:
                 dnsZones:
                 - "{{ kubernetes_zone }}"
-  become: true

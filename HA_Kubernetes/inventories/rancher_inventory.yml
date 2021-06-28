@@ -1,30 +1,32 @@
 all:
   children:
-    external_load_balancer:
-      hosts:
-        haproxy01:
-          ansible_host: haproxy01.rancher.ryezone.com
-          haproxy_role: rke2_haproxy_rancher
-        haproxy02:
-          ansible_host: haproxy02.rancher.ryezone.com
-          haproxy_role: rke2_haproxy_rancher
-    kubernetes_cluster:
+    remote:
       children:
-        controlplane:
+        external_load_balancer:
+          hosts:
+            haproxy01:
+              ansible_host: haproxy01.rancher.ryezone.com
+              haproxy_role: rke2_haproxy_rancher
+            haproxy02:
+              ansible_host: haproxy02.rancher.ryezone.com
+              haproxy_role: rke2_haproxy_rancher
+        kubernetes_cluster:
           children:
-            initial_controlplane:
-              hosts:
-                controlplane01:
-                  ansible_host: controlplane01.rancher.ryezone.com
-                  firewall_role: rke2_controlplane_rancher
-            additional_controlplane:
-              hosts:
-                controlplane02:
-                  ansible_host: controlplane02.rancher.ryezone.com
-                  firewall_role: rke2_controlplane_rancher
-                controlplane03:
-                  ansible_host: controlplane03.rancher.ryezone.com
-                  firewall_role: rke2_controlplane_rancher
+            controlplane:
+              children:
+                initial_controlplane:
+                  hosts:
+                    controlplane01:
+                      ansible_host: controlplane01.rancher.ryezone.com
+                      firewall_role: rke2_controlplane_rancher
+                additional_controlplane:
+                  hosts:
+                    controlplane02:
+                      ansible_host: controlplane02.rancher.ryezone.com
+                      firewall_role: rke2_controlplane_rancher
+                    controlplane03:
+                      ansible_host: controlplane03.rancher.ryezone.com
+                      firewall_role: rke2_controlplane_rancher
   vars:
     authorized_users:
       - principal: esten.rye

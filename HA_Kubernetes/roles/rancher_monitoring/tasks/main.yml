@@ -4,7 +4,6 @@
     repo_url: "{{ rancher_chart_repo_url }}"
   tags:
     - rancher_monitoring
-  become: true
 
 - name: Install Rancher Monitoring CRD Chart
   community.kubernetes.helm:
@@ -14,7 +13,6 @@
     release_namespace: cattle-monitoring-system
     create_namespace: true
     kubeconfig: "{{ kube_config_file }}"
-  become: true
   tags:
     - rancher_monitoring
 
@@ -27,6 +25,5 @@
     create_namespace: true
     kubeconfig: "{{ kube_config_file }}"
     values: "{{ rancher_monitoring_helm_values }}"
-  become: true
   tags:
     - rancher_monitoring

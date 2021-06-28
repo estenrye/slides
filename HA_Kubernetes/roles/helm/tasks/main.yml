@@ -3,11 +3,13 @@
     checksum: "{{ helm_checksum }}"
     url: "{{ helm_url }}"
     dest: "{{ helm_dest }}"
+  become: true
 
 - name: add a helm bin directory
   ansible.builtin.file:
     state: directory
     path: "{{ helm_bin_dir }}/helm-{{ helm_arch }}"
+    mode: 0755
   become: true
 
 - name: Unzip zipped files
@@ -32,4 +34,5 @@
 - name: install required python modules
   ansible.builtin.pip:
     name: openshift
-    version: "{{ helm_openshift_pypi_version }}"
+    version: "{{ openshift_pypi_version }}"
+    virtualenv: "{{ python_virtualenv_directory }}"

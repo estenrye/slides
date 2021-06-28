@@ -4,7 +4,6 @@
     repo_url: "{{ democratic_csi.helm.repo }}"
   tags:
     - container_storage_interface
-  become: true
 
 - name: Deploy democratic-csi chart
   community.kubernetes.helm:
@@ -132,4 +131,3 @@
       #    snapshotter-secret:
   tags:
     - container_storage_interface
-  become: true

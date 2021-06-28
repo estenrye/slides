@@ -1,0 +1,121 @@
+- name: Ensure manifests directory exists
+  ansible.builtin.file:
+    state: directory
+    dest: "{{ python_virtualenv_directory }}"
+    owner: "{{ python_virtualenv_owner }}"
+    group: "{{ python_virtualenv_group }}"
+  become: true
+
+- name: install required packages
+  ansible.builtin.package:
+    name:
+      - python3-pip
+      - python3-apt
+  become: true
+
+- name: install virtualenv for root user
+  ansible.builtin.pip:
+    name: virtualenv
+    version: "{{ virtualenv_pypi_version }}"
+  become: true
+
+- name: install virtualenv for automation user
+  ansible.builtin.pip:
+    name: virtualenv
+    version: "{{ virtualenv_pypi_version }}"
+    virtualenv: "{{ python_virtualenv_directory }}"
+  become: true
+
+- name: install openshift pypi module
+  ansible.builtin.pip:
+    name: openshift
+    version: "{{ openshift_pypi_version }}"
+    virtualenv: "{{ python_virtualenv_directory }}"
+  become: true
+
+- name: install PyOpenSSL pypi module
+  ansible.builtin.pip:
+    name: PyOpenSSL
+    version: "{{ pyopenssl_pypi_version }}"
+    virtualenv: "{{ python_virtualenv_directory }}"
+  become: true
+
+- name: install cryptography pypi module
+  ansible.builtin.pip:
+    name: cryptography
+    version: "{{ cryptography_pypi_version }}"
+    virtualenv: "{{ python_virtualenv_directory }}"
+  become: true
+
+- name: Install python3-apt
+  block:
+    - file:
+        path: "{{ python_virtualenv_directory }}/src"
+        state: directory
+        owner: "{{ python_virtualenv_owner }}"
+        group: "{{ python_virtualenv_group }}"
+        mode: '0750'
+    - name: Download python3-apt package
+      shell: "apt-get download python3-apt"
+      args:
+        chdir: "{{ python_virtualenv_directory }}/src"
+        warn: false
+    - name: Get filename of downloaded package
+      find:
+        paths: "{{ python_virtualenv_directory }}/src"
+        file_type: file
+        patterns: python3-apt*
+      register: findResult
+    - fail:
+        msg: Downloaded package was not found
+      when: findResult is undefined or findResult.files|length == 0
+    - set_fact:
+        python3AptPackageFileName: "{{ findResult.files[0].path|regex_replace('^.*/(.*)$','\\1') }}"
+      when: findResult is defined
+    - name: Extract package
+      shell: dpkg -x {{ python3AptPackageFileName }} python3-apt
+      args:
+        chdir: "{{ python_virtualenv_directory }}/src"
+    - name: Get list of sharable objects
+      find:
+        paths: "{{ python_virtualenv_directory }}/src/python3-apt/usr/lib/python3/dist-packages" # Path should stay stable throughout python 3.x I guess
+        file_type: file
+        patterns: '*.so'
+      register: findResult
+    - set_fact:
+        python3AptShareableObjectsFilenames: "{{ python3AptShareableObjectsFilenames|default([]) + [item.path|regex_replace('^.*/(.*)$','\\1')] }}"
+      with_items: "{{ findResult.files }}"
+    - name: Copy package into virtualenv lib directory
+      copy:
+        src: "{{ python_virtualenv_directory }}/src/python3-apt/usr/lib/python3/dist-packages/"
+        dest: "{{ python_virtualenv_directory }}/lib/{{ altInterpreterFileName }}/site-packages/"
+        remote_src: yes
+        owner: "{{ python_virtualenv_owner }}"
+        group: "{{ python_virtualenv_group }}"
+        mode: '0750'
+    - name: Rename shareable objects
+      shell: "mv {{ item }} {{ item|regex_replace('(.*)\\..*\\.(.*)', '\\1.\\2') }}"
+      args:
+        chdir: "{{ python_virtualenv_directory }}/lib/{{ altInterpreterFileName }}/site-packages/"
+      with_items: "{{ python3AptShareableObjectsFilenames }}"
+  become: true
+
+- name: Recursively change owner of virtualenv directory
+  command:
+    argv:
+      - chown
+      - -R
+      - "{{ python_virtualenv_owner }}"
+      - "{{ python_virtualenv_directory }}"
+    warn: false
+  become: true
+
+- name: Recursively change group of virtualenv directory
+  command:
+    argv:
+      - chgrp
+      - -R
+      - "{{ python_virtualenv_group }}"
+      - "{{ python_virtualenv_directory }}"
+    warn: false
+  become: true

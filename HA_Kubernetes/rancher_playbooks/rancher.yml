@@ -1,3 +1,9 @@
+- hosts: all
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  roles:
+    - python_virtualenv
+
 - name: Apply DNS
   import_playbook: rancher_00_dns.yml
 

@@ -6,6 +6,8 @@ metallb:
     chart_version: 2.4.0
     namespace: metallb
 
+kube_config_file: ~/.kube/config
+
 metallb_address_pool_starting_ip: 10.35.0.110
 metallb_address_pool_ending_ip: 10.35.0.150
 

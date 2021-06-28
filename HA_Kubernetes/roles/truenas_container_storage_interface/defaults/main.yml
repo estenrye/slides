@@ -11,4 +11,4 @@ democratic_csi:
     name: democratic-csi
     namespace: democratic-csi
 
-kube_config_file: /etc/rancher/rke2/rke2.yaml
+kube_config_file: ~/.kube/config

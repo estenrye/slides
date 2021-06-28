@@ -6,6 +6,7 @@ cert_manager_namespace: cert-manager
 cert_manager_enable_prometheus: false
 cert_manager_enalbe_service_monitor: false
 
+python_virtualenv_directory: /opt/python_virtualenv_ansible
 ansible_k8s_manifests_directory: /opt/ansible/k8s_manifests
 ansible_k8s_manifests_owner: automation-user
 ansible_k8s_manifests_group: automation-user
@@ -15,4 +16,4 @@ cert_manager_acme_email: no-reply@example.com
 public_acme_server: https://acme-v02.api.letsencrypt.org/directory
 private_acme_server: https://ca.common.{{ cloudflare.zone }}/acme/acme/directory
 kubernetes_zone: example.com
-kube_config_file: /etc/rancher/rke2/rke2.yaml
+kube_config_file: ~/.kube/config

@@ -18,5 +18,5 @@
     chart_version: "{{ metallb.helm.chart_version }}"
     release_namespace: "{{ metallb.helm.namespace }}"
     create_namespace: true
+    kubeconfig: "{{ kube_config_file }}"
     values: "{{ metallb_values }}"
-

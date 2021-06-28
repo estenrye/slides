@@ -1,7 +1,15 @@
 - hosts: initial_controlplane
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  roles:
+    - python_virtualenv
+
+- hosts: initial_controlplane
   roles:
     - kubectl_plugins
+    - helm
     - rancher_monitoring
     - cert_manager
     - truenas_container_storage_interface
+    - metallb
     - step_certificates

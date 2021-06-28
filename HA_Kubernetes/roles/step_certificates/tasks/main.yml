@@ -9,14 +9,12 @@
       repo_url: "{{ step_certificates.helm.repo }}"
   tags:
     - smallstep
-  become: true
 
 - name: Update Helm Repositories
   ansible.builtin.command: helm repo update
   changed_when: false
   tags:
     - smallstep
-  become: true
 
 - name: Install step cli client
   ansible.builtin.apt:
@@ -361,7 +359,6 @@
   tags:
     - smallstep
     - smallstep_mariadb
-  become: true
 
 - name: Install Step Certificates Chart
   block:
@@ -388,7 +385,6 @@
         values_files:
           - "/home/{{ ansible_user }}/.helm_values/step.values.yml"
       register: step_helm
-      become: true
     - name: list smallstep certificates pods
       community.kubernetes.k8s_info:
         api_version: v1
@@ -397,7 +393,6 @@
         kubeconfig: "{{ kube_config_file }}"
         label_selectors:
           - app.kubernetes.io/name=step-certificates
-      become: true
       register: step_ca_pods
       when: step_helm.changed
     - name: delete smallstep certificates pods
@@ -410,7 +405,6 @@
         kubeconfig: "{{ kube_config_file }}"
       loop: "{{ step_ca_pods.resources }}"
       when: step_helm.changed
-      become: true
   always:
     - name: delete values.yml
       ansible.builtin.file:
