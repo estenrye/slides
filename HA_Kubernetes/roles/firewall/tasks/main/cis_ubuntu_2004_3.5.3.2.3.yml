@@ -1,0 +1,28 @@
+- name: IPV4 - Ensure outbound and established connections are configured
+  ansible.builtin.iptables:
+    table: filter
+    chain: "{{ established_conn_ipv4.chain }}"
+    protocol: "{{ established_conn_ipv4.protocol }}"
+    jump: ACCEPT
+    ctstate:
+      - NEW
+      - ESTABLISHED
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  notify:
+    - persist iptables
+  loop_control:
+    loop_var: established_conn_ipv4
+  loop:
+    - protocol: tcp
+      chain: OUTPUT
+    - protocol: udp
+      chain: OUTPUT
+    - protocol: icmp
+      chain: OUTPUT
+    - protocol: tcp
+      chain: INPUT
+    - protocol: udp
+      chain: INPUT
+    - protocol: icmp
+      chain: INPUT

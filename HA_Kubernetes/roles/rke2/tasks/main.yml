@@ -46,10 +46,15 @@
   tags:
     - rke2
 
+- name: make rke2 installer artifact directory
+  ansible.builtin.file:
+    path: /var/lib/rke2-installer
+    state: directory
+
 - name: download rke2 installer
   ansible.builtin.get_url:
     url: https://get.rke2.io
-    dest: /tmp/install.sh
+    dest: /var/lib/rke2-installer/install.sh
     mode: 750
   tags:
     - rke2
@@ -78,7 +83,7 @@
 - name: run rke2 installer
   ansible.builtin.command:
     argv:
-      - /tmp/install.sh
+      - /var/lib/rke2-installer/install.sh
   environment:
     INSTALL_RKE2_CHANNEL: "{{install_rke2_channel}}"
     INSTALL_RKE2_TYPE: "{{install_rke2_type}}"
@@ -135,14 +140,26 @@
   tags:
     - rke2
 
+- name: download kubectl binary
+  get_url:
+    url: https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/kubectl
+    mode: 0755
+  when:
+    - install_kubectl
+    - not is_agent_node
+  become: true
+
 - name: add a link to kubectl binary
   ansible.builtin.file:
     state: link
     path: /usr/local/bin/kubectl
     src: /var/lib/rancher/rke2/bin/kubectl
-  when: not is_agent_node
   tags:
     - rke2
+  when:
+    - not install_kubectl
+    - not is_agent_node
 
 - name: create .kube directory
   ansible.builtin.file:

@@ -1,0 +1,185 @@
+#cloud-config
+autoinstall:
+  refresh-installer:
+    update: true
+  apt:
+    geoip: true
+    preserve_sources_list: false
+    primary:
+      - arches: [amd64, i386]
+        uri: http://us.archive.ubuntu.com/ubuntu
+      - arches: [default]
+        uri: http://ports.ubuntu.com/ubuntu-ports
+  identity:
+    hostname: ubuntu_2004_tmpl
+    password: $6$packerautomation$PzucfEdatgpl1YmyH6vfEqFqKURhtMVq5Dqa6hunUcH7qqyHUqM8PceyUgI5WMi6glMbdJOoKSbrvSK9omUiz/
+    realname: Automation User
+    username: automation-user
+  keyboard:
+    layout: us
+    toggle: alt_caps_toggle
+    variant: ''
+  locale: en_US.UTF8
+  network:
+    ethernets:
+      ens18:
+        dhcp4: true
+        dhcp-identifier: mac
+    version: 2
+  packages:
+    - qemu-guest-agent
+    - auditd
+    - cloud-init
+  late-commands:
+    - echo 'automation-user ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/automation-user
+  ssh:
+    allow-pw: true
+    authorized-keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDN+pva6hiM1bTWkzG6QQL51v83hnyNqDGzG/G/zqFSxygJg/yvFHbRF0rs1h+kmh5LkBrulH3BEXOgvB9a8ASUPxZBsg2E0ql20f3ke3HR7PRZN/qyDFSRWVN42prkf7qsJlfWxVQgg03/LI+ngYJv2B78wyBsal4c7EmELtMCn+Rxl9bM9a/N+4STyZzcmsI9vAHiHmbTLjRlZ5WGT4utVRgmeiuMl86oYZG7UoBWndNrbz56P0R3VtIRZKEk0OsHyj810Yv82epJzabIimXB97XPkPxejEwbf1DwCgYIynfXMURo4OJUvOREqequTE1P2LLVJDJHKTSG66d5ZmKmJdLz6Fvo9cC0TMePfEiMUlXxbIvo6jdFsaFOkds2rfjUJ5EUCYwDezNVbybxV0KTSnylzAc02JoH5Mf6gO7VQLLoD3MnGkKxOdMUWjTtJb+H2RvtFSZOHGDBkoGAoRLAuuGiB/QxDLr5zmpHV1kBQ9N/cdCMA2K+uYodCUxHBZM= esten@jumpbox
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDZfs8GnWnZwfPbBeNf0K0D2fAYnwk3Xs4rlv5o5BXIc1zhIfuxH8mu114DQ4aNT+AyWffdR7MdyKamv3uDt6Al95AP6bV4sAjd9jEpVsfqLmkYIV8wujC6S6WLIbn2QDDhyY9a1qUz/Dedt6FeBVxRIo85P47A29JiJyNR1nYg6D0iL/PSolDApxoSqTW04mNgCaCpyhz6ds1KFba3MnGjw4LrWS0KlmbvxwgY6li1lzrn0csxShkSLLo2sdO6CSqLM9Op+zXJg3O0kKlDOn2YwDqL4e5OesXbgy4AwUtkyHumizKIkrpjGySYKO4sTa/Ia2i9MHbkj6dygSeu4GZ94a65hKFBYguYek3uC8wr/c7Lp4qCbJ2s30yAnoZ9ANSRDykiUqRKjhgzhq4A8MlyiIJi6OHvJnjzSskJQjcCcwkNwfRwe0X3/eE5EZko+eSWzodKEJP+/B0daiTonlStq5B5oV6amRo4uhnUTX6mVWNF66W6CKEGPAIa7ogGQM= esten@laptop
+    install-server: true
+  storage:
+    config:
+      # Identify boot disk.
+      - id: disk-boot
+        type: disk
+        ptable: msdos
+        path: /dev/vda
+        name: disk0-boot
+        grub_device: true
+
+      # bios_grub partition
+      - id: partition-boot
+        type: partition
+        device: disk-boot
+        size: 100%
+        flag: bios_grub
+        name: disk0p1-boot
+        number: 1
+
+      - id: format-boot
+        type: format
+        fstype: ext4
+        volume: partition-boot
+
+      - id: mount-boot
+        type: mount
+        device: format-boot
+        path: /boot
+
+      # format and mount root disk
+      - id: disk-root
+        type: disk
+        path: /dev/vdb
+        name: disk1-root
+
+      - id: format-root
+        type: format
+        fstype: ext4
+        volume: disk-root
+
+      - id: mount-root
+        type: mount
+        device: format-root
+        path: /
+
+      # format and mount /var/lib disk
+      - id: disk-var-lib
+        type: disk
+        path: /dev/vdc
+        name: disk2-var-lib
+
+      - id: format-var-lib
+        type: format
+        fstype: ext4
+        volume: disk-var-lib
+
+      - id: mount-var-lib
+        type: mount
+        device: format-var-lib
+        path: /var/lib
+
+      # format and mount /var/log disk
+      - id: disk-var-log
+        type: disk
+        path: /dev/vdd
+        name: disk3-var-log
+
+      - id: format-var-log
+        type: format
+        fstype: ext4
+        volume: disk-var-log
+
+      - id: mount-var-log
+        type: mount
+        device: format-var-log
+        path: /var/log
+
+      # format and mount /var/log/audit disk
+      - id: disk-var-log-audit
+        type: disk
+        path: /dev/vde
+        name: disk4-var-log-audit
+
+      - id: format-var-log-audit
+        type: format
+        fstype: ext4
+        volume: disk-var-log-audit
+
+      - id: mount-var-log-audit
+        type: mount
+        device: format-var-log-audit
+        path: /var/log/audit
+
+      # format and mount /var disk
+      - id: disk-var
+        type: disk
+        path: /dev/vdf
+        name: disk5-var
+
+      - id: format-var
+        type: format
+        fstype: ext4
+        volume: disk-var
+
+      - id: mount-var
+        type: mount
+        device: format-var
+        path: /var
+
+      # format and mount /var/tmp disk
+      - id: disk-var-tmp
+        type: disk
+        path: /dev/vdg
+        name: disk6-var-tmp
+
+      - id: format-var-tmp
+        type: format
+        fstype: ext4
+        volume: disk-var-tmp
+
+      - id: mount-var-tmp
+        type: mount
+        device: format-var-tmp
+        path: /var/tmp
+        options: nodev,nosuid,noexec
+
+      # format and mount /home disk
+      - id: disk-home
+        type: disk
+        path: /dev/vdh
+        name: disk7-home
+
+      - id: format-home
+        type: format
+        fstype: ext4
+        volume: disk-home
+
+      - id: mount-home
+        type: mount
+        device: format-home
+        path: /home
+        options: nodev
+    swap:
+      swap: 0
+  version: 1

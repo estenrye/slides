@@ -1,0 +1,38 @@
+- name: IPV6 - Default Deny INPUT Chain
+  ansible.builtin.iptables:
+    ip_version: ipv6
+    table: filter
+    chain: INPUT
+    jump: DROP
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  notify:
+    - persist iptables
+  when:
+    - ipv6_enabled
+
+- name: IPV6 - Default Deny FILTER Chain
+  ansible.builtin.iptables:
+    ip_version: ipv6
+    table: filter
+    chain: FORWARD
+    jump: DROP
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  notify:
+    - persist iptables
+  when:
+    - ipv6_enabled
+
+- name: IPV6 - Default Deny OUTPUT Chain
+  ansible.builtin.iptables:
+    ip_version: ipv6
+    table: filter
+    chain: OUTPUT
+    jump: DROP
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  notify:
+    - persist iptables
+  when:
+    - ipv6_enabled

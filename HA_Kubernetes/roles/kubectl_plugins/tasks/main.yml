@@ -1,6 +1,6 @@
 - name: download kubectl binary
   get_url:
-    url: https://dl.k8s.io/release/v{{ kubectl_version }}/bin/linux/amd64/kubectl
+    url: https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl
     dest: /usr/local/bin/kubectl
   when: install_kubectl
   become: true
@@ -15,4 +15,10 @@
 - name: install certbot
   ansible.builtin.package:
     name: certbot
+  become: true
+
+- name: install required pip packages
+  ansible.builtin.pip:
+    name:
+      - openshift
   become: true

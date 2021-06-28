@@ -1,4 +1,10 @@
 ---
+- name: set facts
+  ansible.builtin.include_vars:
+    file: "{{ haproxy_role }}.yml"
+  when:
+    - haproxy_role != 'default'
+
 - name: Ensure HAProxy is installed.
   package:
     name: haproxy

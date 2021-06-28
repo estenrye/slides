@@ -4,8 +4,10 @@ all:
       hosts:
         haproxy01:
           ansible_host: haproxy01.rancher.ryezone.com
+          haproxy_role: rke2_haproxy_rancher
         haproxy02:
           ansible_host: haproxy02.rancher.ryezone.com
+          haproxy_role: rke2_haproxy_rancher
     kubernetes_cluster:
       children:
         controlplane:
@@ -14,114 +16,15 @@ all:
               hosts:
                 controlplane01:
                   ansible_host: controlplane01.rancher.ryezone.com
-                  firewall_allow_inbound_services_exposed_to_friends:
-                    - service: SSH
-                      port: 22
-                      protocol: tcp
-                    - service: HTTP
-                      protocol: tcp
-                      port: 80
-                    - service: HTTPS
-                      protocol: tcp
-                      port: 443  
-                    - service: etcd client api
-                      protocol: tcp
-                      port: 2379
-                    - service: etcd peer api
-                      protocol: tcp
-                      port: 2380
-                    - service: Kubernetes API Server
-                      protocol: tcp
-                      port: 6443
-                    - service: RancherD/RKE2 Flannel VXLAN
-                      protocol: udp
-                      port: 8472
-                    - service: RKE2 Node Join
-                      protocol: tcp
-                      port: 9345
-                    - service: Kubernetes Kubelet API
-                      protocol: tcp
-                      port: 10250
-                    - service: Kubernetes Kube Scheduler
-                      protocol: tcp
-                      port: 10251
-                    - service: Kubernetes Kube Controller Manager
-                      protocol: tcp
-                      port: 10252
+                  firewall_role: rke2_controlplane_rancher
             additional_controlplane:
               hosts:
                 controlplane02:
                   ansible_host: controlplane02.rancher.ryezone.com
-                  firewall_allow_inbound_services_exposed_to_friends:
-                    - service: SSH
-                      port: 22
-                      protocol: tcp
-                    - service: HTTP
-                      protocol: tcp
-                      port: 80
-                    - service: HTTPS
-                      protocol: tcp
-                      port: 443  
-                    - service: etcd client api
-                      protocol: tcp
-                      port: 2379
-                    - service: etcd peer api
-                      protocol: tcp
-                      port: 2380
-                    - service: Kubernetes API Server
-                      protocol: tcp
-                      port: 6443
-                    - service: RancherD/RKE2 Flannel VXLAN
-                      protocol: udp
-                      port: 8472
-                    - service: RKE2 Node Join
-                      protocol: tcp
-                      port: 9345
-                    - service: Kubernetes Kubelet API
-                      protocol: tcp
-                      port: 10250
-                    - service: Kubernetes Kube Scheduler
-                      protocol: tcp
-                      port: 10251
-                    - service: Kubernetes Kube Controller Manager
-                      protocol: tcp
-                      port: 10252
+                  firewall_role: rke2_controlplane_rancher
                 controlplane03:
                   ansible_host: controlplane03.rancher.ryezone.com
-                  firewall_allow_inbound_services_exposed_to_friends:
-                    - service: SSH
-                      port: 22
-                      protocol: tcp
-                    - service: HTTP
-                      protocol: tcp
-                      port: 80
-                    - service: HTTPS
-                      protocol: tcp
-                      port: 443  
-                    - service: etcd client api
-                      protocol: tcp
-                      port: 2379
-                    - service: etcd peer api
-                      protocol: tcp
-                      port: 2380
-                    - service: Kubernetes API Server
-                      protocol: tcp
-                      port: 6443
-                    - service: RancherD/RKE2 Flannel VXLAN
-                      protocol: udp
-                      port: 8472
-                    - service: RancherD/RKE2 Node Join
-                      protocol: tcp
-                      port: 9345
-                    - service: Kubernetes Kubelet API
-                      protocol: tcp
-                      port: 10250
-                    - service: Kubernetes Kube Scheduler
-                      protocol: tcp
-                      port: 10251
-                    - service: Kubernetes Kube Controller Manager
-                      protocol: tcp
-                      port: 10252
+                  firewall_role: rke2_controlplane_rancher
   vars:
     authorized_users:
       - principal: esten.rye

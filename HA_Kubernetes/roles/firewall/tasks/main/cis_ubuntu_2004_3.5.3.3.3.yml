@@ -1,0 +1,31 @@
+- name: IPV6 - Ensure outbound and established connections are configured
+  ansible.builtin.iptables:
+    ip_version: ipv6
+    table: filter
+    chain: "{{ established_conn_ipv6.chain }}"
+    protocol: "{{ established_conn_ipv6.protocol }}"
+    jump: ACCEPT
+    ctstate:
+      - NEW
+      - ESTABLISHED
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  notify:
+    - persist iptables
+  loop_control:
+    loop_var: established_conn_ipv6
+  loop:
+    - protocol: tcp
+      chain: OUTPUT
+    - protocol: udp
+      chain: OUTPUT
+    - protocol: icmp
+      chain: OUTPUT
+    - protocol: tcp
+      chain: INPUT
+    - protocol: udp
+      chain: INPUT
+    - protocol: icmp
+      chain: INPUT
+  when:
+    - ipv6_enabled

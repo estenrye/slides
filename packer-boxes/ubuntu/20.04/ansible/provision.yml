@@ -1,0 +1,174 @@
+---
+- hosts: default
+  become: true
+  tasks:
+    - name: udpate apt-cache
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: full
+
+    - name: vbox-vagrant | Install and configure vagrant user access.
+      block:
+        - name: vbox-vagrant | Add vagrant user
+          ansible.builtin.user:
+            name: vagrant
+            password: vagrant
+            shell: /bin/bash
+            create_home: true
+        - name: vbox-vagrant | Ensure .ssh directory is present.
+          ansible.builtin.file:
+            path: /home/vagrant/.ssh
+            owner: vagrant
+            state: directory
+        - name: vbox-vagrant | Configure passwordless sudo for vagrant user
+          ansible.builtin.copy:
+            content: vagrant ALL=NOPASSWD:ALL
+            dest: /etc/sudoers.d/vagrant
+        - name: vbox-vagrant | Install vagrant authorized key.
+          ansible.builtin.get_url:
+            url: https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant.pub
+            dest: /home/vagrant/.ssh/authorized_keys
+            owner: vagrant
+            mode: 0600
+      when:
+        - packer_builder_type == "virtualbox-iso"
+    - name: vmware | Configure VMWare Prerequisites
+      block:
+        - name: vmware | Install Guest Customization Prerequisites
+          ansible.builtin.package:
+            name:
+              - perl
+              - open-vm-tools
+            state: present
+        - name: vmware | Workaround for https://kb.vmware.com/s/article/59687 | Remove netplan installer config.
+          ansible.builtin.file:
+            path: /etc/netplan/00-installer-config.yaml
+            state: absent
+        - name: vmware | Workaround for https://kb.vmware.com/s/article/59687 | Disable cloud-init
+          ansible.builtin.file:
+            path: /etc/cloud/cloud-init.disabled
+            state: touch
+        - name: vmware | Workaround for https://kb.vmware.com/s/article/59687 | Configure open-vm-tools service
+          ansible.builtin.lineinfile:
+            firstmatch: true
+            insertafter: ^\[Unit\]
+            line: After=dbus.service
+            path: /lib/systemd/system/open-vm-tools.service
+      when:
+        - packer_build_name == "vmware"
+
+- hosts: default
+  become: true
+  vars:
+    ubuntu_2004_cis_section3_rule_3_5_3_2_1: false
+    ubuntu_2004_cis_auditd_maxlogfile: 32
+    ubuntu_2004_cis_time_synchronization: chrony
+    ubuntu_2004_cis_firewall: iptables
+    ubuntu_2004_cis_require_ssh_ciphers: aes256-ctr,aes192-ctr,aes128-ctr
+    ubuntu_2004_cis_require_ssh_macs: hmac-sha2-256,hmac-sha2-512
+    ubuntu_2004_cis_require_ssh_kexalgorithms: ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256
+    ubuntu_2004_cis_section5_rule_5_2_2_params_permissions_command: find /etc/ssh -xdev -type f -name 'ssh_host_*_key' -exec chmod u-x,go-rwx {} \;
+    ubuntu_2004_cis_section5_rule_5_2_3_params_permissions_command: find /etc/ssh -xdev -type f -name 'ssh_host_*_key.pub' -exec chmod u-x,go-rwx {} \;
+  roles:
+    - darkwizard242.cis_ubuntu_2004
+
+- hosts: default
+  become: true
+  vars:
+    ubuntu_2004_cis_section1: false
+    ubuntu_2004_cis_section2: false
+    ubuntu_2004_cis_section3: true
+    ubuntu_2004_cis_section4: false
+    ubuntu_2004_cis_section5: false
+    ubuntu_2004_cis_section6: false
+    ubuntu_2004_cis_firewall: iptables
+  roles:
+    - darkwizard242.cis_ubuntu_2004
+
+- hosts: default
+  become: true
+  tasks:
+    - name: save iptables v4 rules
+      ansible.builtin.shell:
+        cmd: iptables-save > /etc/iptables/rules.v4
+        warn: false
+
+    - name: save iptables v6 rules
+      ansible.builtin.shell:
+        cmd: ip6tables-save > /etc/iptables/rules.v6
+        warn: false
+
+    - name: Add fstab entry for tmpfs directories
+      ansible.posix.mount:
+        state: present
+        fstype: tmpfs
+        opts: "{{ item.options }}"
+        path: "{{ item.path }}"
+        src: none
+      loop:
+        - path: /tmp
+          options: defaults,nosuid,nodev,noexec,relatime,size=2G
+        - path: /dev/shm
+          options: defaults,nosuid,nodev,noexec,relatime,size=2G
+
+    - name: Configure fstab entry for directories
+      ansible.builtin.include_tasks:
+        file: tasks/fstab.yml
+      loop:
+        - src: "{{ disk_src_var_lib }}"
+          path: /var/lib
+          options: defaults
+        - src: "{{ disk_src_var_log }}"
+          path: /var/log
+          options: defaults
+        - src: "{{ disk_src_var_log_audit }}"
+          path: /var/log/audit
+          options: defaults
+        - src: "{{ disk_src_var }}"
+          path: /var
+          options: defaults
+        - src: "{{ disk_src_var_tmp }}"
+          path: /var/tmp
+          options: defaults,nodev,nosuid,noexec
+        - src: "{{ disk_src_home }}"
+          path: /home
+          options: defaults,nodev
+
+    # Note that this must be removed when installing to systems using UEFI.  UEFI requires the FAT filesystem.
+    - name: 1.1.1.7 Ensure mounting of FAT filesystems is limited
+      ansible.builtin.copy:
+        content: install vfat /bin/true
+        dest: /etc/modprobe.d/vfat.conf
+
+    - name: remove files
+      ansible.builtin.file:
+        state: absent
+        path: "{{ item }}"
+      loop:
+        - /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg
+        - /etc/netplan/00-installer-config.yaml
+        - /etc/netplan/50-cloud-init.yaml
+        - /etc/udev/rules.d/70-persistent-net.rules
+        - /etc/cloud/cloud.cfg.d/99-pve.cfg
+
+    - name: set persistent net rules
+      ansible.builtin.copy:
+        content: SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{dev_id}=="0x0", ATTR{type}=="1", NAME="eth0"
+        dest: /etc/udev/rules.d/70-persistent-net.rules
+
+    - name: set cloud-init config
+      ansible.builtin.copy:
+        content: "datasource_list: [ConfigDrive, NoCloud]"
+        dest: /etc/cloud/cloud.cfg.d/99-pve.cfg
+
+    - name: clean cloud init
+      ansible.builtin.command: cloud-init clean
+
+    - name: remove /var/log contents
+      file:
+        path: /var/log/{{ item }}
+        state: absent
+      when: item != 'audit'
+      become: true
+      with_fileglob:
+        - /var/log/*

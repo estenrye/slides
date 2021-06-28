@@ -1,0 +1,15 @@
+ubuntu_2004_cis_require_ssh_allowusers: automation-user vagrant
+ubuntu_2004_cis_require_ssh_allowgroups: automation-user vagrant
+ubuntu_2004_cis_require_ssh_denyusers: bogus
+ubuntu_2004_cis_require_ssh_denygroups: bogus
+ubuntu_2004_cis_section1_rule_1_1_2: false
+ubuntu_2004_cis_section1_rule_1_1_3: false
+ubuntu_2004_cis_section1_rule_1_1_4: false
+ubuntu_2004_cis_section1_rule_1_1_5: false
+
+disk_src_var_lib: /dev/sdc
+disk_src_var_log: /dev/sdd
+disk_src_var_log_audit: /dev/sde
+disk_src_var: /dev/sdf
+disk_src_var_tmp: /dev/sdg
+disk_src_home: /dev/sdh

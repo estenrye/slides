@@ -1,0 +1,42 @@
+- name: IPV6 - Always accept traffic from the loopback interface
+  ansible.builtin.iptables:
+    ip_version: ipv6
+    table: filter
+    chain: INPUT
+    jump: ACCEPT
+    in_interface: lo
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: yes
+  notify:
+    - persist iptables
+  when:
+    - ipv6_enabled
+
+- name: IPV6 - Always accept traffic from the loopback interface
+  ansible.builtin.iptables:
+    ip_version: ipv6
+    table: filter
+    chain: OUTPUT
+    jump: ACCEPT
+    out_interface: lo
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: yes
+  notify:
+    - persist iptables
+  when:
+    - ipv6_enabled
+
+- name: IPV6 - Block packets from 127.0.0.0/8 not received on the loopback interface
+  ansible.builtin.iptables:
+    ip_version: ipv6
+    table: filter
+    chain: INPUT
+    jump: DROP
+    source: ::1
+    in_interface: "! lo"
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  notify:
+    - persist iptables
+  when:
+    - ipv6_enabled

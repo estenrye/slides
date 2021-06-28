@@ -5,6 +5,7 @@ step_cli_arch: amd64
 
 pki_directory: "{{ kubernetes_pki_directory | default('/etc') }}/smallstep-ca"
 
+kube_config_file: /etc/rancher/rke2/rke2.yaml
 
 certificate_root_ca:
   commonName: Ryezone Labs Root CA

@@ -1,7 +1,7 @@
 variable "template_name" {
   description = "This is the proxmox template to use when provisioning servers."
   type        = string
-  default     = "ubuntu2004-tmpl-512"
+  default     = "packer-ubuntu-2004-minimal-base-20210621"
 }
 
 variable "zone_name" {

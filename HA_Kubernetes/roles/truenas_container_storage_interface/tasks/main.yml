@@ -4,7 +4,8 @@
     repo_url: "{{ democratic_csi.helm.repo }}"
   tags:
     - container_storage_interface
-  
+  become: true
+
 - name: Deploy democratic-csi chart
   community.kubernetes.helm:
     name: "{{ democratic_csi.helm.name }}"
@@ -12,6 +13,7 @@
     chart_version: "{{ democratic_csi.helm.version }}"
     release_namespace: "{{ democratic_csi.helm.namespace }}"
     create_namespace: true
+    kubeconfig: "{{ kube_config_file }}"
     values:
       driver:
         config:
@@ -39,7 +41,7 @@
             # datasetParentName should therefore be 17 chars or less
             datasetParentName: "{{ truenas_dataset_root }}/v"
             # do NOT make datasetParentName and detachedSnapshotsDatasetParentName overlap
-            # they may be siblings, but neither should be nested in the other 
+            # they may be siblings, but neither should be nested in the other
             detachedSnapshotsDatasetParentName: "{{ truenas_dataset_root }}/s"
             # "" (inherit), lz4, gzip-9, etc
             zvolCompression:
@@ -94,11 +96,11 @@
           # for block-based storage can be ext3, ext4, xfs
           # for nfs should be nfs
           fsType: ext4
-            
+
           # if true, volumes created from other snapshots will be
           # zfs send/received instead of zfs cloned
           # detachedVolumesFromSnapshots: "false"
-          
+
           # if true, volumes created from other volumes will be
           # zfs send/received instead of zfs cloned
           # detachedVolumesFromVolumes: "false"
@@ -130,3 +132,4 @@
       #    snapshotter-secret:
   tags:
     - container_storage_interface
+  become: true

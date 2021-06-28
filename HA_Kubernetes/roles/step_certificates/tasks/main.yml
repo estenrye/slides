@@ -9,12 +9,14 @@
       repo_url: "{{ step_certificates.helm.repo }}"
   tags:
     - smallstep
+  become: true
 
 - name: Update Helm Repositories
   ansible.builtin.command: helm repo update
   changed_when: false
   tags:
     - smallstep
+  become: true
 
 - name: Install step cli client
   ansible.builtin.apt:
@@ -22,6 +24,7 @@
     state: present
   tags:
     - smallstep
+  become: true
 
 - name: Create CA PKI directory
   ansible.builtin.file:
@@ -59,7 +62,7 @@
         mode: 0600
         owner: root
       when: |-
-        not stat_result.stat.exists or 
+        not stat_result.stat.exists or
         certificate_root_ca.force_regenerate
       become: true
 
@@ -80,7 +83,7 @@
           - --not-after={{ certificate_root_ca.not_after | default('43824h') }}
           - --force
       when: |-
-        not stat_result.stat.exists or 
+        not stat_result.stat.exists or
         certificate_root_ca.force_regenerate
       become: true
   always:
@@ -127,7 +130,7 @@
         mode: 0600
         owner: root
       when: |-
-        not stat_result.stat.exists or 
+        not stat_result.stat.exists or
         certificate_root_ca.force_regenerate or
         certificate_intermediate_ca.force_regenerate
       become: true
@@ -139,7 +142,7 @@
         mode: 0600
         owner: root
       when: |-
-        not stat_result.stat.exists or 
+        not stat_result.stat.exists or
         certificate_root_ca.force_regenerate or
         certificate_intermediate_ca.force_regenerate
       become: true
@@ -164,7 +167,7 @@
           - --ca-password-file={{ pki_directory }}/root_ca_password
           - --force
       when: |-
-        not stat_result.stat.exists or 
+        not stat_result.stat.exists or
         certificate_root_ca.force_regenerate or
         certificate_intermediate_ca.force_regenerate
       become: true
@@ -317,7 +320,7 @@
           - --force
       when: not stat_result.stat.exists or jwk_provisioner.force_regenerate
       become: true
-    
+
     - name: Convert JWK Provisioner Key to compact key format.
       ansible.builtin.shell:
         cmd: cat {{ pki_directory }}/jwk_provisioner.priv | step crypto jose format > {{ pki_directory }}/jwk_provisioner.key
@@ -353,10 +356,12 @@
     chart_version: "{{ step_mariadb.helm.version }}"
     release_namespace: "{{ step_k8s_namespace }}"
     create_namespace: true
+    kubeconfig: "{{ kube_config_file }}"
     values: "{{ step_mariadb.helm_values }}"
   tags:
     - smallstep
     - smallstep_mariadb
+  become: true
 
 - name: Install Step Certificates Chart
   block:
@@ -379,16 +384,20 @@
         chart_version: "{{ step_certificates.helm.version }}"
         release_namespace: "{{ step_k8s_namespace }}"
         create_namespace: true
+        kubeconfig: "{{ kube_config_file }}"
         values_files:
           - "/home/{{ ansible_user }}/.helm_values/step.values.yml"
       register: step_helm
+      become: true
     - name: list smallstep certificates pods
       community.kubernetes.k8s_info:
         api_version: v1
         kind: Pod
         namespace: smallstep-ca
+        kubeconfig: "{{ kube_config_file }}"
         label_selectors:
           - app.kubernetes.io/name=step-certificates
+      become: true
       register: step_ca_pods
       when: step_helm.changed
     - name: delete smallstep certificates pods
@@ -398,8 +407,10 @@
         kind: "{{ item.kind }}"
         name: "{{ item.metadata.name }}"
         namespace: "{{ item.metadata.namespace }}"
+        kubeconfig: "{{ kube_config_file }}"
       loop: "{{ step_ca_pods.resources }}"
       when: step_helm.changed
+      become: true
   always:
     - name: delete values.yml
       ansible.builtin.file:

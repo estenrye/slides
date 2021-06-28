@@ -1,0 +1,128 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    packer_cache: ../packer_cache
+    preseed_host: "http://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+    preseed_port: 10080
+    iso_url: https://releases.ubuntu.com/20.04.2/ubuntu-20.04.2-live-server-amd64.iso
+    iso_checksum: sha256:d1f2bf834bbe9bb43faf16f9be992a6f3935e65be0edece1dee2aa6eb1767423
+    iso_path: ubuntu-20.04.2-live-server-amd64.iso
+    iso_extract_path: ubuntu_iso
+  tasks:
+    - name: packer_cache directory is present
+      ansible.builtin.file:
+        state: directory
+        path: "{{ packer_cache }}"
+    - name: Install 7-zip
+      ansible.builtin.package:
+        name: p7zip-full
+      become: true
+
+    - name: Get IPV4 Addresses
+      debug:
+        var: hostvars[inventory_hostname]['ansible_default_ipv4']['address']
+
+    - name: Create extract path
+      ansible.builtin.file:
+        path: "{{ packer_cache }}"
+        state: directory
+      loop:
+        - "{{ packer_cache }}"
+        - "{{ packer_cache }}/{{ iso_extract_path }}"
+
+    - name: Get full path of packer cache
+      ansible.builtin.command:
+        cmd: "readlink -f {{ packer_cache }}"
+      register: packer_cache_full_path
+
+    - name: Download Ubuntu ISO
+      ansible.builtin.get_url:
+        url: "{{ iso_url }}"
+        checksum: "{{ iso_checksum }}"
+        dest: "{{ packer_cache }}/{{ iso_path }}"
+
+    - name: Extract Ubuntu ISO
+      become: true
+      block:
+        - name: Create mount path
+          ansible.builtin.file:
+            path: /mnt/iso
+            state: directory
+        - name: Mount Ubuntu ISO
+          ansible.posix.mount:
+            fstype: iso9660
+            opts: loop
+            src: "{{ packer_cache }}/{{ iso_path }}"
+            path: /mnt/iso
+            state: mounted
+        - name: Extract Ubuntu ISO contents.
+          ansible.posix.synchronize:
+            src: /mnt/iso
+            dest: "{{ packer_cache }}/{{ iso_extract_path }}"
+            group: true
+            owner: true
+            perms: true
+      always:
+        - name: Unmount Ubuntu ISO
+          ansible.posix.mount:
+            path: /mnt/iso
+            state: unmounted
+
+    - name: Insert http preseed configuration - isolinux.cfg
+      ansible.builtin.copy:
+        dest: "{{ packer_cache }}/{{ iso_extract_path }}/iso/isolinux/isolinux.cfg"
+        content: |-
+          default http_preseed
+          label http_preseed
+            menu label ^Install Ubuntu Server - HTTP Preseed
+            kernel /casper/vmlinuz
+            append   initrd=/casper/initrd quiet  --- autoinstall
+          timeout 5
+      become: true
+
+    - name: Insert http preseed configuration - grub.conf
+      ansible.builtin.copy:
+        dest: "{{ packer_cache }}/{{ iso_extract_path }}/iso/boot/grub/grub.cfg"
+        content: |-
+          menuentry "Install Ubuntu Server - HTTP Preseed"
+            set gfxpayload=keep
+            linux	/casper/vmlinuz   quiet  --- autoinstall
+            initrd	/casper/initrd
+      become: true
+
+    - name: Make custom Ubuntu ISO
+      ansible.builtin.command:
+        argv:
+          - mkisofs
+          - -r
+          - -V
+          - "Custom Ubuntu Install CD"
+          - -J
+          - -l
+          - -b
+          - isolinux/isolinux.bin
+          - -c
+          - isolinux/boot.cat
+          - -no-emul-boot
+          - -boot-load-size
+          - 4
+          - -boot-info-table
+          - -o
+          - "{{ packer_cache_full_path.stdout | trim }}/custom-{{ iso_path }}"
+          - "{{ packer_cache_full_path.stdout | trim }}/{{ iso_extract_path }}/iso"
+      become: true
+
+    - name: Get iso checksum
+      ansible.builtin.stat:
+        path: "{{ packer_cache_full_path.stdout | trim }}/custom-{{ iso_path }}"
+        get_checksum: true
+      register: checksum
+      become: true
+
+    - name: Write checksum var file
+      ansible.builtin.copy:
+        content: iso_checksum = "sha1:{{ checksum.stat.checksum }}"
+        dest: "{{ packer_cache_full_path.stdout | trim }}/custom-{{ iso_path }}.pkvars.hcl"
+
+# TODO: Add upload to Proxmox

@@ -1,0 +1,85 @@
+- name: IPV4 - Allow Inbound SSH on port 22 from Everyone
+  ansible.builtin.iptables:
+    table: filter
+    chain: INPUT
+    jump: ACCEPT
+    destination_port: "22"
+    protocol: tcp
+    comment: ssh
+    ctstate:
+      - NEW
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  notify:
+    - persist iptables
+
+- name: IPV4 - Allow Inbound NTP on port 123 from Everyone
+  ansible.builtin.iptables:
+    table: filter
+    chain: INPUT
+    jump: ACCEPT
+    destination_port: "123"
+    protocol: udp
+    comment: ntp
+    ctstate:
+      - NEW
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  notify:
+    - persist iptables
+
+- name: IPV4 - Allow Inbound Service traffic from Everyone
+  ansible.builtin.iptables:
+    table: filter
+    chain: INPUT
+    jump: ACCEPT
+    destination_port: "{{ inbound_service_ipv4.port }}"
+    protocol: "{{ inbound_service_ipv4.protocol }}"
+    comment: "{{ inbound_service_ipv4.service }}"
+    ctstate:
+      - NEW
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  loop_control:
+    loop_var: inbound_service_ipv4
+  loop: "{{ firewall_allow_inbound_services_exposed_to_everyone }}"
+  notify:
+    - persist iptables
+
+- name: IPV4 - Allow Outbound DNS on port 53 to Everyone
+  ansible.builtin.iptables:
+    table: filter
+    chain: OUTPUT
+    jump: ACCEPT
+    destination_port: "53"
+    protocol: "{{ outbound_dns_ipv4_protocol }}"
+    comment: dns
+    ctstate:
+      - NEW
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  notify:
+    - persist iptables
+  loop_control:
+    loop_var: outbound_dns_ipv4_protocol
+  loop:
+    - tcp
+    - udp
+
+- name: IPV4 - Allow Outbound Service traffic to Everyone
+  ansible.builtin.iptables:
+    table: filter
+    chain: OUTPUT
+    jump: ACCEPT
+    destination_port: "{{ outbound_service_ipv4.port }}"
+    protocol: "{{ outbound_service_ipv4.protocol }}"
+    comment: "{{ outbound_service_ipv4.service }}"
+    ctstate:
+      - NEW
+    wait: "{{ firewall_wait_lock_seconds }}"
+  become: true
+  loop_control:
+    loop_var: outbound_service_ipv4
+  loop: "{{ firewall_allow_outbound_requests_to_everyone }}"
+  notify:
+    - persist iptables
