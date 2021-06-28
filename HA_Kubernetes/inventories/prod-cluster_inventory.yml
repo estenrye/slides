@@ -36,13 +36,13 @@ all:
             default_backend: https-ingress
             options:
               - tcplog
-          - name: https-stepca
-            bind_address: "*"
-            bind_port: 32400
-            mode: tcp
-            default_backend: https-stepca
-            options:
-              - tcplog
+          # - name: https-stepca
+          #   bind_address: "*"
+          #   bind_port: 32400
+          #   mode: tcp
+          #   default_backend: https-stepca
+          #   options:
+          #     - tcplog
 
         haproxy_backends:
           - name: api-server
@@ -84,14 +84,14 @@ all:
             http_checks:
               - expect status 200
             servers: "{{ rke2_ingress_servers }}"
-          - name: https-stepca
-            mode: tcp
-            port: 32400
-            balance_method: roundrobin
-            options: []
-            http_checks: []
-            check_options: inter 2m downinter 2m observe layer4 error-limit 10 on-error mark-down
-            servers: "{{ rke2_ingress_servers }}"
+          # - name: https-stepca
+          #   mode: tcp
+          #   port: 32400
+          #   balance_method: roundrobin
+          #   options: []
+          #   http_checks: []
+          #   check_options: inter 2m downinter 2m observe layer4 error-limit 10 on-error mark-down
+          #   servers: "{{ rke2_ingress_servers }}"
 
     kubernetes_cluster:
       children:
@@ -115,7 +115,7 @@ all:
               ansible_host: node02.prod.ryezone.com
             node03:
               ansible_host: node03.prod.ryezone.com
-      
+
   vars:
     authorized_users:
       - principal: esten.rye

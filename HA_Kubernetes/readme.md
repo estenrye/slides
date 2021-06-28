@@ -9,7 +9,7 @@
     ```bash
     cd ./terraform/proxmox
     terraform apply -var-file rancher/rancher.tfvars -state rancher/terraform.tfstate -auto-approve
-    terraform apply -var-file dev/dev.tfvars -state dev/terraform.tfstate -auto-approve
+    terraform apply -var-file common/common.tfvars -state dev/terraform.tfstate -auto-approve
     terraform apply -var-file prod/prod.tfvars -state prod/terraform.tfstate -auto-approve
     ```
 
@@ -17,6 +17,7 @@
 
     ```bash
     cd ./rancher_playbooks/
+    ansible-playbook -i ../inventories/common-cluster_inventory.yml rancher.yml
     ansible-playbook -i ../inventories/rancher_inventory.yml rancher.yml
     ansible-playbook -i ../inventories/rancher_inventory.yml management_plane.yml
     ansible-playbook -i ../inventories/dev-cluster_inventory.yml rancher.yml
