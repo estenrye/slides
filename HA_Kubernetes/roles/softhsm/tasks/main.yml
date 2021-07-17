@@ -1,0 +1,36 @@
+- name: Ensure Directory Exists
+  ansible.builtin.file:
+    state: directory
+    path: /opt/ansible
+    owner: automation-user
+  become: true
+
+- name: Install Build Prerequisites
+  ansible.builtin.package:
+    name:
+      - automake
+      - autoconf
+      - libtool
+      - libssl-dev
+      - pkg-config
+  become: true
+
+- name: Download SoftHSM Tarball
+  ansible.builtin.get_url:
+    url: https://dist.opendnssec.org/source/softhsm-2.6.1.tar.gz
+    checksum: sha256:61249473054bcd1811519ef9a989a880a7bdcc36d317c9c25457fc614df475f2
+    dest: /opt/ansible/softhsm.tar.gz
+  register: download_result
+
+- name: unarchive SoftHSM Tarball
+  ansible.builtin.unarchive:
+    dest: /opt/ansible
+    src: /opt/ansible/softhsm.tar.gz
+    remote_src: true
+  when: download_result.changed
+
+- name: configure install
+  ansible.builtin.command:
+    argv:
+      - /opt/ansible/softhsm-2.6.1/configure
+
