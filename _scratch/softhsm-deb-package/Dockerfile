@@ -30,7 +30,7 @@ ADD https://github.com/opendnssec/SoftHSMv2/archive/refs/tags/${version}.zip /So
 # Unzip Source Code
 RUN unzip /SoftHSM.zip
 
-# Change work diretory to unzipped source code
+# Change work directory to unzipped source code
 WORKDIR /SoftHSMv2-${version}
 
 # Configure and Build Package files.
