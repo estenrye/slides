@@ -13,10 +13,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build dependencies
 RUN apt update && apt install -y \
+  ansible \
   autoconf \
   automake \
   botan \
   build-essential \
+  libp11-kit-dev \
   libssl-dev \
   libtool \
   pkg-config \
@@ -33,9 +35,17 @@ WORKDIR /SoftHSMv2-${version}
 
 # Configure and Build Package files.
 RUN sh ./autogen.sh \
-  && ./configure --disable-dependency-tracking --prefix=/package/softhsm_${version}-${revision}_${arch} \
+  && ./configure \
+    --disable-dependency-tracking \
+    --prefix=/package/softhsm_${version}-${revision}_${arch} \
+    --with-crypto-backend=openssl \
+    --with-openssl=/usr \
   && make \
   && make install
 
 WORKDIR /package
 
+COPY templates /package/templates
+COPY playbook.yml /package/playbook.yml
+
+RUN ansible-playbook -i localhost, playbook.yml

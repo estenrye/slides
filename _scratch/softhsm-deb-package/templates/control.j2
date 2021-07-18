@@ -1,0 +1,9 @@
+Package: {{ package_name }}
+Version: {{ package_version }}
+Architecture: {{ package_arch }}
+Maintainer: {{ maintainer_name }} <{{ maintainer_email }}>
+Description: {{ package_short_description }}
+  {{ package_long_description | indent(2) }}
+Section: {{ package_section }}
+Depends:{% for item in package_depends %}  {{ item }}{{ ", " if not loop.last else "" }}
+{% endfor %}
