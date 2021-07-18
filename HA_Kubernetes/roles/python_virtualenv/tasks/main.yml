@@ -48,43 +48,64 @@
   become: true
 
 - name: Install python3-apt
+  become: true
   block:
-    - file:
+    - name: Create Package Source Directory
+      ansible.builtin.file:
         path: "{{ python_virtualenv_directory }}/src"
         state: directory
         owner: "{{ python_virtualenv_owner }}"
         group: "{{ python_virtualenv_group }}"
         mode: '0750'
+
+    - name: Test for package presence
+      ansible.builtin.find:
+        paths: "{{ python_virtualenv_directory }}/src"
+        file_type: file
+        patterns: python3-apt*
+      register: package_download_idempotency
+
     - name: Download python3-apt package
       shell: "apt-get download python3-apt"
       args:
         chdir: "{{ python_virtualenv_directory }}/src"
         warn: false
+      register: package_download
+      when: package_download_idempotency is undefined or package_download_idempotency.files | length == 0
+
     - name: Get filename of downloaded package
       find:
         paths: "{{ python_virtualenv_directory }}/src"
         file_type: file
         patterns: python3-apt*
       register: findResult
+
     - fail:
         msg: Downloaded package was not found
       when: findResult is undefined or findResult.files|length == 0
+
     - set_fact:
         python3AptPackageFileName: "{{ findResult.files[0].path|regex_replace('^.*/(.*)$','\\1') }}"
       when: findResult is defined
+
     - name: Extract package
       shell: dpkg -x {{ python3AptPackageFileName }} python3-apt
       args:
         chdir: "{{ python_virtualenv_directory }}/src"
+      when: package_download.changed
+
     - name: Get list of sharable objects
       find:
         paths: "{{ python_virtualenv_directory }}/src/python3-apt/usr/lib/python3/dist-packages" # Path should stay stable throughout python 3.x I guess
         file_type: file
         patterns: '*.so'
       register: findResult
+
     - set_fact:
         python3AptShareableObjectsFilenames: "{{ python3AptShareableObjectsFilenames|default([]) + [item.path|regex_replace('^.*/(.*)$','\\1')] }}"
       with_items: "{{ findResult.files }}"
+      when: package_download.changed
+
     - name: Copy package into virtualenv lib directory
       copy:
         src: "{{ python_virtualenv_directory }}/src/python3-apt/usr/lib/python3/dist-packages/"
@@ -93,12 +114,14 @@
         owner: "{{ python_virtualenv_owner }}"
         group: "{{ python_virtualenv_group }}"
         mode: '0750'
+      when: package_download.changed
+
     - name: Rename shareable objects
       shell: "mv {{ item }} {{ item|regex_replace('(.*)\\..*\\.(.*)', '\\1.\\2') }}"
       args:
         chdir: "{{ python_virtualenv_directory }}/lib/{{ altInterpreterFileName }}/site-packages/"
       with_items: "{{ python3AptShareableObjectsFilenames }}"
-  become: true
+      when: package_download.changed
 
 - name: Recursively change owner of virtualenv directory
   command:
@@ -109,6 +132,9 @@
       - "{{ python_virtualenv_directory }}"
     warn: false
   become: true
+  when:
+    - package_download is defined
+    - package_download.changed
 
 - name: Recursively change group of virtualenv directory
   command:
@@ -119,3 +145,6 @@
       - "{{ python_virtualenv_directory }}"
     warn: false
   become: true
+  when:
+    - package_download is defined
+    - package_download.changed
