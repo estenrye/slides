@@ -9,7 +9,7 @@
     ```bash
     cd ./terraform/proxmox
     terraform apply -var-file rancher/rancher.tfvars -state rancher/terraform.tfstate -auto-approve
-    terraform apply -var-file common/common.tfvars -state dev/terraform.tfstate -auto-approve
+    terraform apply -var-file common/common.tfvars -state common/terraform.tfstate -auto-approve
     terraform apply -var-file prod/prod.tfvars -state prod/terraform.tfstate -auto-approve
     ```
 
