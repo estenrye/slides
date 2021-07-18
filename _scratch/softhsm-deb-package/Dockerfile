@@ -43,9 +43,12 @@ RUN sh ./autogen.sh \
   && make \
   && make install
 
+# Change work directory to package output directory
 WORKDIR /package
 
+# Copy Ansible logic for packaging debian packages
 COPY templates /package/templates
 COPY playbook.yml /package/playbook.yml
 
+# Package debian package
 RUN ansible-playbook -i localhost, playbook.yml
