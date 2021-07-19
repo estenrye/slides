@@ -28,8 +28,8 @@
       designed to meet the requirements of OpenDNSSEC, but can also work
       together with other cryptographic products because of the PKCS#11
       interface.
-    maintainer_name: Esten Rye
-    maintainer_email: esten.rye+softhsm-package@ryezone.com
+    maintainer_name: Ryezone Labs
+    maintainer_email: info@ryezone.com
 
   tasks:
   - name: Create Debian Directory
@@ -50,3 +50,10 @@
         - --root-owner-group
         - "{{ package }}"
       creates:  "{{ package }}.deb"
+
+  - name: Check to see if GPG key is present
+    ansible.builtin.stat:
+      path: /secrets/package-signing-key.gpg
+
+  - name: Create package-signing-key.gpg if it does not exist.
+    ansible.builtin.
