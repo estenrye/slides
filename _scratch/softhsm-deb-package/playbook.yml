@@ -50,10 +50,3 @@
         - --root-owner-group
         - "{{ package }}"
       creates:  "{{ package }}.deb"
-
-  - name: Check to see if GPG key is present
-    ansible.builtin.stat:
-      path: /secrets/package-signing-key.gpg
-
-  - name: Create package-signing-key.gpg if it does not exist.
-    ansible.builtin.
