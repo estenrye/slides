@@ -5,7 +5,8 @@
     package_version: "{{ lookup('env', 'version') }}"
     package_revision: "{{ lookup('env', 'revision') }}"
     package_arch: "{{ lookup('env', 'arch') }}"
-    package_directory: /package/{{ package_name }}_{{ package_version }}-{{ package_revision}}_{{ package_arch }}
+    source_directory: /tmp/package/SoftHSMv2-{{version}}
+    package_directory: /tmp/package/{{ package_name }}_{{ package_version }}-{{ package_revision}}_{{ package_arch }}
     package: "{{ package_name }}_{{ package_version }}-{{ package_revision}}_{{ package_arch }}"
     package_section: utils
     package_depends:
@@ -32,6 +33,62 @@
     maintainer_email: info@ryezone.com
 
   tasks:
+  - name: Install Prerequisite Build Packages
+    ansible.builtin.package:
+      name:
+        - autoconf
+        - automake
+        - botan
+        - build-essential
+        - libp11-kit-dev
+        - libssl-dev
+        - libtool
+        - pkg-config
+        - unzip
+
+  - name: Create /tmp/package directory
+    ansible.builtin.file:
+      path: /tmp/package
+      state: directory
+
+  - name: Download Source
+    ansible.builtin.get_url:
+      url: https://github.com/opendnssec/SoftHSMv2/archive/refs/tags/${version}.zip
+      dest: /tmp/package/SoftHSM.zip
+
+  - name: Unarchive Source
+    ansible.builtin.unarchive:
+      src: /tmp/package/SoftHSM.zip
+      dest: /tmp/package
+
+  - name: Run autogen.sh
+    ansible.builtin.command:
+      chdir: "{{ source_directory }}"
+      argv:
+       - autogen.sh
+
+  - name: Run configure
+    ansible.builtin.command:
+      chdir: "{{ source_directory }}"
+      argv:
+        - ./configure
+        - --disable-dependency-tracking
+        - --prefix={{ package_directory }}
+        - --with-crypto-backend=openssl
+        - --with-openssl=/usr
+
+  - name: Compile Source
+    ansible.builtin.command:
+      chdir: "{{ source_directory }}"
+      argv:
+        - make
+
+  - name: Package binaries
+    ansible.builtin.command:
+      chdir: "{{ source_directory }}"
+      argv:
+        - make install
+
   - name: Create Debian Directory
     ansible.builtin.file:
       path: "{{ package_directory }}/DEBIAN"
