@@ -2,10 +2,10 @@
   connection: local
   vars:
     package_name: softhsm
-    package_version: "{{ lookup('env', 'version') }}"
-    package_revision: "{{ lookup('env', 'revision') }}"
-    package_arch: "{{ lookup('env', 'arch') }}"
-    source_directory: /tmp/package/SoftHSMv2-{{version}}
+    package_version: 2.6.1
+    package_revision: 1
+    package_arch: amd64
+    source_directory: /tmp/package/SoftHSMv2-{{ package_version }}
     package_directory: /tmp/package/{{ package_name }}_{{ package_version }}-{{ package_revision}}_{{ package_arch }}
     package: "{{ package_name }}_{{ package_version }}-{{ package_revision}}_{{ package_arch }}"
     package_section: utils
@@ -45,6 +45,9 @@
         - libtool
         - pkg-config
         - unzip
+    become: true
+    tags:
+      - package-install
 
   - name: Create /tmp/package directory
     ansible.builtin.file:
@@ -53,8 +56,15 @@
 
   - name: Download Source
     ansible.builtin.get_url:
-      url: https://github.com/opendnssec/SoftHSMv2/archive/refs/tags/${version}.zip
+      url: https://github.com/opendnssec/SoftHSMv2/archive/refs/tags/{{ package_version }}.zip
       dest: /tmp/package/SoftHSM.zip
+
+  - name: clean build
+    ansible.builtin.file:
+      path: "{{ source_directory }}"
+      state: absent
+    tags:
+      - clean_source_directory
 
   - name: Unarchive Source
     ansible.builtin.unarchive:
@@ -65,7 +75,8 @@
     ansible.builtin.command:
       chdir: "{{ source_directory }}"
       argv:
-       - autogen.sh
+       - sh
+       - ./autogen.sh
 
   - name: Run configure
     ansible.builtin.command:
@@ -73,9 +84,30 @@
       argv:
         - ./configure
         - --disable-dependency-tracking
+        - --enable-64bit
         - --prefix={{ package_directory }}
+        - --exec-prefix={{ package_directory }}
         - --with-crypto-backend=openssl
         - --with-openssl=/usr
+        - --with-p11-kit={{ package_directory }}/usr/share/p11-kit/modules
+
+  - name: Replace Bad DEFAULT_PKCS11_LIB from config.h
+    ansible.builtin.lineinfile:
+      path: "{{ source_directory }}/config.h"
+      regexp: '^#define DEFAULT_PKCS11_LIB'
+      line: '#define DEFAULT_PKCS11_LIB "/lib/softhsm/libsofthsm2.so"'
+
+  - name: Replace Bad DEFAULT_SOFTHSM2_CONF from config.h
+    ansible.builtin.lineinfile:
+      path: "{{ source_directory }}/config.h"
+      regexp: '^#define DEFAULT_SOFTHSM2_CONF'
+      line: '#define DEFAULT_SOFTHSM2_CONF "/etc/softhsm2.conf"'
+
+  - name: Replace Bad DEFAULT_TOKENDIR from config.h
+    ansible.builtin.lineinfile:
+      path: "{{ source_directory }}/config.h"
+      regexp: '^#define DEFAULT_TOKENDIR'
+      line: '#define DEFAULT_TOKENDIR "/var/lib/softhsm/tokens/"'
 
   - name: Compile Source
     ansible.builtin.command:
@@ -83,11 +115,17 @@
       argv:
         - make
 
+  - name: Create package Directory
+    ansible.builtin.file:
+      path: "{{ package_directory }}"
+      state: directory
+
   - name: Package binaries
     ansible.builtin.command:
       chdir: "{{ source_directory }}"
       argv:
-        - make install
+        - make
+        - install
 
   - name: Create Debian Directory
     ansible.builtin.file:
@@ -99,11 +137,32 @@
       src: templates/control.j2
       dest: "{{ package_directory }}/DEBIAN/control"
 
+  - name: Remove Prefix from conf files
+    ansible.builtin.lineinfile:
+      path: "{{ item }}"
+      regexp: ^directories\.tokendir =
+      line: directories.tokendir = /var/lib/softhsm/tokens/
+    loop:
+      - "{{ package_directory }}/etc/softhsm2.conf"
+      - "{{ package_directory }}/etc/softhsm2.conf.sample"
+
+  - name: Remove Prefix from module
+    ansible.builtin.lineinfile:
+      path: "{{ package_directory }}/usr/share/p11-kit/modules/softhsm2.module"
+      regexp: "^module:"
+      line: "module: /lib/softhsm/libsofthsm2.so"
+
+  - name: Remove Prefix from libdir
+    ansible.builtin.lineinfile:
+      path: "{{ package_directory }}/lib/softhsm/libsofthsm2.la"
+      regexp: ^libdir=
+      line: libdir='/lib/softhsm'
+
   - name: Create Debian Package
     ansible.builtin.command:
+      chdir: /tmp/package
       argv:
         - dpkg-deb
         - --build
         - --root-owner-group
         - "{{ package }}"
-      creates:  "{{ package }}.deb"
