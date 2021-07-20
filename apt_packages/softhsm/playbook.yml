@@ -31,7 +31,7 @@
       interface.
     maintainer_name: Ryezone Labs
     maintainer_email: info@ryezone.com
-
+    maintainer_gpg_passphrase: "{{ gpg_passphrase }}"
   tasks:
   - name: Install Prerequisite Build Packages
     ansible.builtin.package:
@@ -40,6 +40,7 @@
         - automake
         - botan
         - build-essential
+        - dpkg-sig
         - libp11-kit-dev
         - libssl-dev
         - libtool
@@ -166,3 +167,15 @@
         - --build
         - --root-owner-group
         - "{{ package }}"
+
+  # - name: Sign Package
+  #   block:
+  #     - name: Sign Package
+  #       ansible.builtin.command:
+  #       chdir: /tmp/package
+  #       argv:
+  #         - dpkg-sig
+  #         - --sign
+  #         - builder
+  #         - -m
+  #         - "{{ maintainer_name }}"

@@ -17,5 +17,5 @@ gpg_passphrase: 'your-passphrase-here'
 ## Build Process
 
 ```bash
-ansible-playbook -e @~/.ansible_creds.yml --ask-vault-pass -i localhost, playbook.yml
+ansible-playbook -e @~/.ansible_creds.yml --ask-vault-pass -i localhost, generate_key.yml
 ```

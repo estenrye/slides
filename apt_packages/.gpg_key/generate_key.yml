@@ -1,0 +1,83 @@
+- hosts: localhost
+  connection: local
+  vars:
+    maintainer_name: Ryezone Labs
+    maintainer_email: info@ryezone.com
+    maintainer_gpg_passphrase: "{{ gpg_passphrase }}"
+  tasks:
+  - name: Create ~/.gnupg directory
+    ansible.builtin.file:
+      path: ~/.gnupg
+      state: directory
+      mode: 0700
+    tags:
+      - gpg
+
+  - name: Ensure cert-digest-algo uses SHA256
+    ansible.builtin.lineinfile:
+      create: true
+      path: ~/.gnupg/gpg.conf
+      regexp: ^cert-digest-algo
+      line: cert-digest-algo SHA256
+    tags:
+      - gpg
+
+  - name: Ensure digest-algo uses SHA256
+    ansible.builtin.lineinfile:
+      create: true
+      path: ~/.gnupg/gpg.conf
+      regexp: ^digest-algo
+      line: digest-algo SHA256
+    tags:
+      - gpg
+
+  - name: Determine if key exists in keyring.
+    ansible.builtin.command:
+      cmd: gpg --locate-keys {{ maintainer_email }}
+    ignore_errors: true
+    changed_when: false
+    register: stat_key
+
+  - name: Generate gpg key
+    block:
+    - name: Create GPG batch file
+      ansible.builtin.template:
+        src: templates/gpg_key.batch.j2
+        dest: ~/.gnupg/{{ maintainer_name | replace(" ", "_") | lower }}.batch
+        mode: 0700
+    - name: create gpg key
+      ansible.builtin.command:
+        argv:
+          - gpg
+          - --batch
+          - --gen-key
+          - ~/.gnupg/{{ maintainer_name | replace(" ", "_") | lower }}.batch
+    - name: Locate key in keyring.
+      ansible.builtin.command:
+        cmd: gpg --locate-keys {{ maintainer_email }}
+      register: locate_key
+    always:
+    - name: Remove batch file
+      ansible.builtin.file:
+        path: ~/.gnupg/{{ maintainer_name | replace(" ", "_") | lower }}.batch
+        state: absent
+    when:
+      - stat_key.failed
+    tags:
+      - gpg
+
+  - name: Get key_id from stat_key
+    ansible.builtin.set_fact:
+      key_id: "{{ stat_key.stdout_lines[1] | trim }}"
+    when:
+      - not stat_key.failed
+
+  - name: Get key_id from locate_key
+    ansible.builtin.set_fact:
+      key_id: "{{ locate_key.stdout_lines[1] | trim }}"
+    when:
+      - locate_key.changed
+
+  - debug:
+      var: key_id
+

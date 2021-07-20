@@ -1,0 +1,11 @@
+%echo Generating a standard key
+Key-Type: RSA
+Key-Length: 4096
+Subkey-Length: 4096
+Name-Real: {{ maintainer_name }}
+Name-Email: {{ maintainer_email }}
+Passphrase: {{ maintainer_gpg_passphrase }}
+Expire-Date: 0
+# Do a commit here, so that we can later print "done" :-)
+%commit
+%echo done
