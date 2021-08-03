@@ -12,6 +12,7 @@
     package_depends:
       - openssl (>= 1.0.0)
       - libp11-kit-dev
+    package_priority: standard
     package_short_description: SoftHSM is a software implementation of a generic cryptographic device with a PKCS#11 interface.
     package_long_description: |-
       OpenDNSSEC handles and stores its cryptographic keys via the PKCS#11
@@ -168,14 +169,14 @@
         - --root-owner-group
         - "{{ package }}"
 
-  # - name: Sign Package
-  #   block:
-  #     - name: Sign Package
-  #       ansible.builtin.command:
-  #       chdir: /tmp/package
-  #       argv:
-  #         - dpkg-sig
-  #         - --sign
-  #         - builder
-  #         - -m
-  #         - "{{ maintainer_name }}"
+  - name: Sign Package
+    block:
+      - name: Sign Package
+        ansible.builtin.command:
+          chdir: /tmp/package
+          argv:
+            - dpkg-sig
+            - --sign
+            - builder
+            - -m
+            - "{{ maintainer_name }}"

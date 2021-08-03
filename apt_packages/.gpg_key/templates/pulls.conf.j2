@@ -1,0 +1,20 @@
+Name: {{ pulls.Name }}
+From: {{ pulls.From }}
+{% if pulls.Components is defined %}
+Components: {{ pulls.Components | join(' ') }}
+{% endif %}
+{% if pulls.Architectures is defined %}
+Architectures: {{ pulls.Architectures | join(' ') }}
+{% endif %}
+{% if pulls.UDebComponents is defined %}
+UDebComponents: {{ pulls.UDebComponents | join(' ') }}
+{% endif %}
+{% if pulls.FilterFormula is defined %}
+FilterFormula: {{ pulls.FilterFormula | join(' ') }}
+{% endif %}
+{% if pulls.FilterList is defined %}
+FilterList: {{ pulls.FilterList | join(' ') }}
+{% endif %}
+{% if pulls.FilterSrcList is defined %}
+FilterSrcList: {{ pulls.FilterSrcList | join(' ') }}
+{% endif %}

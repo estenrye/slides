@@ -7,3 +7,4 @@ Description: {{ package_short_description }}
 Section: {{ package_section }}
 Depends:{% for item in package_depends %}  {{ item }}{{ ", " if not loop.last else "" }}
 {% endfor %}
+Priority: {{ package_priority }}

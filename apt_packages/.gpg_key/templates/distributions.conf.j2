@@ -1,0 +1,96 @@
+Codename: {{ distribution.Codename }}
+{% if distribution.Suite is defined %}
+Suite: {{ distribution.Suite }}
+{% endif %}
+{% if distribution.FakeComponentPrefix is defined %}
+FakeComponentPrefix: {{ distribution.FakeComponentPrefix }}
+{% endif %}
+{% if distribution.AlsoAcceptFor is defined %}
+AlsoAcceptFor: {{ distribution.AlsoAcceptFor }}
+{% endif %}
+{% if distribution.Version is defined %}
+Version: {{ distribution.Version }}
+{% endif %}
+{% if distribution.Origin is defined %}
+Origin: {{ distribution.Origin }}
+{% endif %}
+{% if distribution.Label is defined %}
+Label: {{ distribution.Label }}
+{% endif %}
+{% if distribution.NotAutomatic is defined %}
+NotAutomatic: {{ distribution.NotAutomatic }}
+{% endif %}
+{% if distribution.ButAutomaticUpgrades is defined %}
+ButAutomaticUpgrades: {{ distribution.ButAutomaticUpgrades }}
+{% endif %}
+{% if distribution.Description is defined %}
+Description: {{ distribution.Description }}
+{% endif %}
+Architectures: {{ distribution.Architectures | join(' ') }}
+Components: {{ distribution.Components | join(' ') }}
+{% if distribution.UDebComponents is defined %}
+UDebComponents: {{ distribution.UDebComponents | join(' ') }}
+{% endif %}
+{% if distribution.Update is defined %}
+Update: {{ distribution.Update }}
+{% endif %}
+{% if distribution.Pull is defined %}
+Pull: {{ distribution.Pull }}
+{% endif %}
+{% if distribution.SignWith is defined %}
+SignWith: {{ distribution.SignWith }}
+{% endif %}
+{% if distribution.DebOverride is defined %}
+DebOveride: {{ distribution.DebOverride }}
+{% endif %}
+{% if distribution.UDebOverride is defined %}
+UDebOveride: {{ distribution.UDebOverride }}
+{% endif %}
+{% if distribution.DscOverride is defined %}
+DscOveride: {{ distribution.DscOverride }}
+{% endif %}
+{% if distribution.DebIndicies is defined %}
+DebIndicies: {{ distribution.DebIndicies }}
+{% endif %}
+{% if distribution.UDebIndices is defined %}
+UDebIndices: {{ distribution.UDebIndices }}
+{% endif %}
+{% if distribution.DscIndices is defined %}
+DscIndices: {{ distribution.DscIndices }}
+{% endif %}
+{% if distribution.ExportOptions is defined %}
+ExportOptions: {{ distribution.ExportOptions }}
+{% endif %}
+{% if distribution.Contents is defined %}
+Contents: {{ distribution.Contents }}
+{% endif %}
+{% if distribution.ContentsArchitectures is defined %}
+ContentsArchitectures: {{ distribution.ContentsArchitectures }}
+{% endif %}
+{% if distribution.ContentsComponents is defined %}
+ContentsComponents: {{ distribution.ContentsComponents }}
+{% endif %}
+{% if distribution.ContentsUComponents is defined %}
+ContentsUComponents: {{ distribution.ContentsUComponents }}
+{% endif %}
+{% if distribution.Uploaders is defined %}
+Uploaders: {{ distribution.Uploaders }}
+{% endif %}
+{% if distribution.Tracking is defined %}
+Tracking: {{ distribution.Tracking }}
+{% endif %}
+{% if distribution.Log is defined %}
+Log: {{ distribution.Log }}
+{% endif %}
+{% if distribution.ValidFor is defined %}
+ValidFor: {{ distribution.ValidFor }}
+{% endif %}
+{% if distribution.ReadOnly is defined %}
+ReadOnly: {{ distribution.ReadOnly }}
+{% endif %}
+{% if distribution.ByHandHooks is defined %}
+ByHandHooks: {{ distribution.ByHandHooks }}
+{% endif %}
+{% if distribution.Signed_By is defined %}
+Signed-By: {{ distribution.Signed_By }}
+{% endif %}

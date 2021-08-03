@@ -1,0 +1,82 @@
+Name: {{ updates.Name }}
+
+{% if updates.Method is defined and updates.From is not defined %}
+Method: {{ updates.Method }}
+{% endif %}
+
+{% if updates.Fallback is defined and updates.From is not defined %}
+Fallback: {{ updates.Fallback }}
+{% endif %}
+
+{% if updates.Config is defined and updates.From is not defined %}
+{% for config_line in updates.Config %}
+{% if loop.index == 0 %}
+Config: {{ config_line }}
+{% else %}
+  {{ config_line }}
+{% endif %}
+{% endfor %}
+
+{% if updates.From is defined %}
+From: {{ updates.From }}
+{% endif %}
+
+{% if updates.Suite is defined %}
+Suite: {{ updates.Suite }}
+{% endif %}
+
+{% if updates.Components is defined %}
+Components: {{ updates.Components | join(' ') }}
+{% endif %}
+
+{% if updates.Architectures is defined %}
+Architectures: {{ updates.Architectures | join(' ') }}
+{% endif %}
+
+{% if updates.UDebComponents is defined %}
+UDebComponents: {{ updates.UDebComponents | join(' ') }}
+{% endif %}
+
+{% if updates.IgnoreRelease is defined %}
+IgnoreRelease: {{ updates.IgnoreRelease }}
+{% endif %}
+
+{% if updates.GetInRelease is defined %}
+GetInRelease: {{ updates.GetInRelease }}
+{% endif %}
+
+{% if updates.Flat is defined %}
+Flat: {{ updates.Flat }}
+{% endif %}
+
+{% if updates.IgnoreHashes is defined %}
+IgnoreHashes: {{ updates.IgnoreHashes }}
+{% endif %}
+
+{% if updates.FilterFormula is defined %}
+FilterFormula: {{ updates.FilterFormula }}
+{% endif %}
+
+{% if updates.FilterList is defined %}
+FilterList: {{ updates.FilterList }}
+{% endif %}
+
+{% if updates.FilterSrcList is defined %}
+FilterSrcList: {{ updates.FilterSrcList }}
+{% endif %}
+
+{% if updates.OmitExtraSourceOnly is defined %}
+OmitExtraSourceOnly: {{ updates.OmitExtraSourceOnly }}
+{% endif %}
+
+{% if updates.ListHook is defined %}
+ListHook: {{ updates.ListHook }}
+{% endif %}
+
+{% if updates.ListShellHook is defined %}
+ListShellHook: {{ updates.ListShellHook }}
+{% endif %}
+
+{% if updates.DownloadListsAs is defined %}
+DownloadListsAs: {{ updates.DownloadListsAs }}
+{% endif %}
