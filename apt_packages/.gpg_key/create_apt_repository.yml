@@ -42,8 +42,12 @@
           - source
         VerifyRelease: 0E08A149DE57BFBE
     options:
-      - basedir /opt/apt_repo
-      - keepunreferencedfiles
+      basedir: /opt/apt_repo
+      # gnupghome: /opt/apt_repo/.gnupg
+      keepunreferencedfiles: true
+    trusted_keys:
+      - name: salt-archive-keyring.gpg
+        url: https://repo.saltproject.io/py3/debian/10/amd64/latest/salt-archive-keyring.gpg
   tasks:
     - name: Install apt packaging tools
       ansible.builtin.package:
@@ -67,7 +71,6 @@
         - "{{ apt_repo_base_directory }}/conf"
         - "{{ apt_repo_base_directory }}/conf/distributions"
         # - "{{ apt_repo_base_directory }}/conf/options"
-        # - "{{ apt_repo_base_directory }}/conf/updates"
       tags:
         - create-repo-base-directory
 
@@ -105,3 +108,24 @@
       loop: "{{ updates }}"
       loop_control:
         loop_var: update
+
+    - name: Create Options Config
+      ansible.builtin.template:
+        src: templates/options.conf.j2
+        dest: "{{ apt_repo_base_directory }}/conf/options"
+      when:
+        - options is defined
+
+    - name: Download Keys
+      ansible.builtin.get_url:
+        url: "{{ item.url }}"
+        dest: /tmp/{{ item.name }}.gpg
+      loop: "{{ trusted_keys }}"
+
+    - name: Import Keys
+      ansible.builtin.command:
+        argv:
+          - gpg
+          - --import
+          - /tmp/{{ item.name }}.gpg
+      loop: "{{ trusted_keys }}"

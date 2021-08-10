@@ -1,3 +1,7 @@
-{% for option in options %}
-{{ option }}
+{% for key, value  in options.items() %}
+{% if value is sameas true %}
+{{ key }}
+{% else %}
+{{ key }} {{ value }}
+{% endif %}
 {% endfor %}
