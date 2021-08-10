@@ -17,31 +17,33 @@
           - main
         Description: Ryezone Labs Ubuntu Package Repo
         SignWith: "{{ maintainer_keyid }}"
-    #   - Origin: Saltstack
-    #     Label: Saltstack
-    #     Suite: wheezy-saltstack
-    #     Codename: wheezy-saltstack
-    #     Description: Saltstack nightly packages for wheezy
-    #     Architectures:
-    #       - amd64
-    #       - source
-    #     Components:
-    #       - main
-    #     SignWith: "{{ maintainer_keyid }}"
-    #     Update: wheezy-saltstack
-    #     Log: /var/log/reprepro/saltstack.log
-    # updates:
-    #   - Name: wheezy-saltstack
-    #     Method: http://debian.saltstack.com/debian
-    #     Suite: wheezy-saltstack
-    #     Components: main
-    #     Architectures:
-    #       - amd64
-    #       - source
-    #     VerifyRelease: B09E40B0F2AE6AB9
-    # options:
-    #   - basedir /opt/apt_repo
-    #   - keepunreferencedfiles
+        Log: /opt/apt_repo/apt.ryezone.com.log
+      - Origin: Saltstack
+        Label: Saltstack
+        Suite: buster-saltstack
+        Codename: buster-saltstack
+        Description: Saltstack nightly packages for wheezy
+        Architectures:
+          - amd64
+          - source
+        Components:
+          - main
+        SignWith: "{{ maintainer_keyid }}"
+        Update: buster-saltstack
+        Log: /opt/apt_repo/buster-saltstack.log
+    updates:
+      - Name: buster-saltstack
+        Method: https://repo.saltproject.io/py3/debian/10/amd64/latest
+        Suite: buster
+        Components:
+          - main
+        Architectures:
+          - amd64
+          - source
+        VerifyRelease: 0E08A149DE57BFBE
+    options:
+      - basedir /opt/apt_repo
+      - keepunreferencedfiles
   tasks:
     - name: Install apt packaging tools
       ansible.builtin.package:
@@ -69,6 +71,19 @@
       tags:
         - create-repo-base-directory
 
+    - name: Create Repo Directory Structures
+      ansible.builtin.file:
+        path: "{{ apt_repo_base_directory }}/conf/updates"
+        state: directory
+        mode: 0755
+        owner: "{{ apt_repo_owner }}"
+      become: true
+      when:
+        - updates is defined
+        - updates | length > 0
+      tags:
+        - create-repo-base-directory
+
     - name: Export GPG Public Key
       ansible.builtin.shell:
         cmd: gpg --armor --export {{ maintainer_keyid }} > {{ apt_repo_base_directory }}/apt.ryezone.com.key
@@ -82,3 +97,11 @@
       loop: "{{ distributions }}"
       loop_control:
         loop_var: distribution
+
+    - name: Create Updates Config
+      ansible.builtin.template:
+        src: templates/updates.conf.j2
+        dest: "{{ apt_repo_base_directory }}/conf/updates/{{ update.Name }}.conf"
+      loop: "{{ updates }}"
+      loop_control:
+        loop_var: update

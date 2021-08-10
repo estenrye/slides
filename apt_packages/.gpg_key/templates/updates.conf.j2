@@ -1,82 +1,67 @@
-Name: {{ updates.Name }}
-
-{% if updates.Method is defined and updates.From is not defined %}
-Method: {{ updates.Method }}
+Name: {{ update.Name }}
+{% if update.Method is defined and update.From is not defined %}
+Method: {{ update.Method }}
 {% endif %}
-
-{% if updates.Fallback is defined and updates.From is not defined %}
-Fallback: {{ updates.Fallback }}
+{% if update.Fallback is defined and update.From is not defined %}
+Fallback: {{ update.Fallback }}
 {% endif %}
-
-{% if updates.Config is defined and updates.From is not defined %}
-{% for config_line in updates.Config %}
+{% if update.Config is defined and update.From is not defined %}
+{% for config_line in update.Config %}
 {% if loop.index == 0 %}
 Config: {{ config_line }}
 {% else %}
   {{ config_line }}
 {% endif %}
 {% endfor %}
-
-{% if updates.From is defined %}
-From: {{ updates.From }}
 {% endif %}
-
-{% if updates.Suite is defined %}
-Suite: {{ updates.Suite }}
+{% if update.From is defined %}
+From: {{ update.From }}
 {% endif %}
-
-{% if updates.Components is defined %}
-Components: {{ updates.Components | join(' ') }}
+{% if update.Suite is defined %}
+Suite: {{ update.Suite }}
 {% endif %}
-
-{% if updates.Architectures is defined %}
-Architectures: {{ updates.Architectures | join(' ') }}
+{% if update.Components is defined %}
+Components: {{ update.Components | join(' ') }}
 {% endif %}
-
-{% if updates.UDebComponents is defined %}
-UDebComponents: {{ updates.UDebComponents | join(' ') }}
+{% if update.Architectures is defined %}
+Architectures: {{ update.Architectures | join(' ') }}
 {% endif %}
-
-{% if updates.IgnoreRelease is defined %}
-IgnoreRelease: {{ updates.IgnoreRelease }}
+{% if update.UDebComponents is defined %}
+UDebComponents: {{ update.UDebComponents | join(' ') }}
 {% endif %}
-
-{% if updates.GetInRelease is defined %}
-GetInRelease: {{ updates.GetInRelease }}
+{% if update.IgnoreRelease is defined %}
+IgnoreRelease: {{ update.IgnoreRelease }}
 {% endif %}
-
-{% if updates.Flat is defined %}
-Flat: {{ updates.Flat }}
+{% if update.GetInRelease is defined %}
+GetInRelease: {{ update.GetInRelease }}
 {% endif %}
-
-{% if updates.IgnoreHashes is defined %}
-IgnoreHashes: {{ updates.IgnoreHashes }}
+{% if update.Flat is defined %}
+Flat: {{ update.Flat }}
 {% endif %}
-
-{% if updates.FilterFormula is defined %}
-FilterFormula: {{ updates.FilterFormula }}
+{% if update.IgnoreHashes is defined %}
+IgnoreHashes: {{ update.IgnoreHashes }}
 {% endif %}
-
-{% if updates.FilterList is defined %}
-FilterList: {{ updates.FilterList }}
+{% if update.FilterFormula is defined %}
+FilterFormula: {{ update.FilterFormula }}
 {% endif %}
-
-{% if updates.FilterSrcList is defined %}
-FilterSrcList: {{ updates.FilterSrcList }}
+{% if update.FilterList is defined %}
+FilterList: {{ update.FilterList }}
 {% endif %}
-
-{% if updates.OmitExtraSourceOnly is defined %}
-OmitExtraSourceOnly: {{ updates.OmitExtraSourceOnly }}
+{% if update.FilterSrcList is defined %}
+FilterSrcList: {{ update.FilterSrcList }}
 {% endif %}
-
-{% if updates.ListHook is defined %}
-ListHook: {{ updates.ListHook }}
+{% if update.OmitExtraSourceOnly is defined %}
+OmitExtraSourceOnly: {{ update.OmitExtraSourceOnly }}
 {% endif %}
-
-{% if updates.ListShellHook is defined %}
-ListShellHook: {{ updates.ListShellHook }}
+{% if update.ListHook is defined %}
+ListHook: {{ update.ListHook }}
 {% endif %}
-
-{% if updates.DownloadListsAs is defined %}
-DownloadListsAs: {{ updates.DownloadListsAs }}
+{% if update.ListShellHook is defined %}
+ListShellHook: {{ update.ListShellHook }}
+{% endif %}
+{% if update.DownloadListsAs is defined %}
+DownloadListsAs: {{ update.DownloadListsAs }}
+{% endif %}
+{% if update.VerifyRelease is defined %}
+VerifyRelease: {{ update.VerifyRelease }}
 {% endif %}
