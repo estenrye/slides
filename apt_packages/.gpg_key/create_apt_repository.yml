@@ -20,7 +20,7 @@
         Log: /opt/apt_repo/apt.ryezone.com.log
       - Origin: ubuntu-focal
         Label: Ubuntu Focal Mirror
-        Codename: focal
+        Codename: ubuntu-focal
         Description: Ubuntu 20.04 Focal Mirror
         Architectures:
           - amd64
@@ -67,7 +67,7 @@
         Architectures:
           - amd64
           - source
-        VerifyRelease:
+        VerifyRelease: 871920D1991BC93C
     options:
       basedir: /opt/apt_repo
       # gnupghome: /opt/apt_repo/.gnupg
