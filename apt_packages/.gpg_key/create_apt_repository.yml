@@ -18,6 +18,21 @@
         Description: Ryezone Labs Ubuntu Package Repo
         SignWith: "{{ maintainer_keyid }}"
         Log: /opt/apt_repo/apt.ryezone.com.log
+      - Origin: ubuntu-focal
+        Label: Ubuntu Focal Mirror
+        Codename: focal
+        Description: Ubuntu 20.04 Focal Mirror
+        Architectures:
+          - amd64
+          - source
+        Components:
+          - main
+          - restricted
+          - universe
+          - multiverse
+        SignWith: "{{ maintainer_keyid }}"
+        Update: ubuntu-focal
+        Log: /opt/apt_repo/ubuntu-focal.log
       - Origin: Saltstack
         Label: Saltstack
         Suite: buster-saltstack
@@ -41,6 +56,18 @@
           - amd64
           - source
         VerifyRelease: 0E08A149DE57BFBE
+      - Name: ubuntu-focal
+        Method: http://us.archive.ubuntu.com/ubuntu/
+        Suite: focal
+        Components:
+          - main
+          - restricted
+          - universe
+          - multiverse
+        Architectures:
+          - amd64
+          - source
+        VerifyRelease:
     options:
       basedir: /opt/apt_repo
       # gnupghome: /opt/apt_repo/.gnupg
@@ -129,3 +156,10 @@
           - --import
           - /tmp/{{ item.name }}.gpg
       loop: "{{ trusted_keys }}"
+
+    - name: Import Ubuntu archive key
+      ansible.builtin.command:
+        argv:
+          - gpg
+          - --import
+          - /usr/share/keyrings/ubuntu-archive-keyring.gpg
