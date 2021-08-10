@@ -69,9 +69,15 @@
           - source
         VerifyRelease: 871920D1991BC93C
     options:
-      basedir: /opt/apt_repo
+      - basedir /opt/apt_repo
       # gnupghome: /opt/apt_repo/.gnupg
-      keepunreferencedfiles: true
+      - keepunreferencedfiles
+      - verbose
+      - verbose
+      - verbose
+      - verbose
+      - verbose
+      - verbose
     trusted_keys:
       - name: salt-archive-keyring.gpg
         url: https://repo.saltproject.io/py3/debian/10/amd64/latest/salt-archive-keyring.gpg
