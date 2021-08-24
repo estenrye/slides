@@ -25,6 +25,7 @@ RUN apt update \
     python3-pip \
     p7zip-full \
     sudo \
+    xorriso \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /tmp/* \
   && apt clean
