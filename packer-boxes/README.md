@@ -8,7 +8,8 @@
 git clone https://github.com/estenrye/slides.git
 cd slides
 ```
-1. Run packer.
+
+2. Run packer.
 
 ```bash
 # Customize the ubuntu installer iso.
