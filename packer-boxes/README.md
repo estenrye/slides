@@ -32,10 +32,6 @@ docker run --rm \
     ubuntu-20.04-amd64.proxmox.pkr.hcl
 ```
 
-## Update vmid
-
-increment `vmid` in `variables/ubuntu.20.04.json`
-
 ## Generating password hash
 
 ```bash
@@ -53,26 +49,6 @@ autoinstall:
     # ...
     password: $6$your_salt$GZLxq4csSvLsH.1XWSYO4uQnta8O.PVW1sumNVktlnCeggJQJL5muU7RvDzbAZ/rF/oFxU8a/O0DZ9c7hx5yn.
   # ...
-```
-
-## create secrets.json
-
-```json
-{
-  "ssh_password": "your_password"
-}
-```
-
-## Building Ubuntu 20.04
-
-```bash
-packer build -var-file=secrets.json -var-file=variables/ubuntu.20.04.json ubuntu-20.04-amd64-proxmox.json
-```
-
-## If using default configuration:
-
-```bash
-packer build -var-file=variables/ubuntu.20.04.json ubuntu-20.04-amd64-proxmox.json
 ```
 
 # after build is complete
