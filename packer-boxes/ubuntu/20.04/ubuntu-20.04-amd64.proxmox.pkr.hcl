@@ -1,11 +1,11 @@
 variable "vm_name" {
   type = string
-  default = "packer-ubuntu-2004-minimal-base-20210621"
+  default = "packer-ubuntu-2004-minimal-base-20210824"
 }
 
 variable "proxmox_vm_id" {
   type = number
-  default = 515
+  default = 516
 }
 
 variable "template_description" {
@@ -84,8 +84,8 @@ source "proxmox-iso" "proxmox" {
   qemu_agent = true
   template_name = var.vm_name
   template_description = var.template_description
-  memory = 4096
-  cores = 2
+  memory = 8192
+  cores = 4
   os = "l26"
   node = var.proxmox_node
   ssh_username = var.ssh_username
@@ -95,14 +95,14 @@ source "proxmox-iso" "proxmox" {
   iso_file = var.iso_url
   iso_checksum = var.iso_checksum
   iso_storage_pool = "local"
-  unmount_iso = true
+  unmount_iso = true  # TODO: Review this setting.
   cloud_init = false
 
   additional_iso_files {
     device = "ide3"
     iso_file = var.cidata_iso_url
     iso_checksum = var.cidata_iso_checksum
-    unmount = true
+    unmount = true  # TODO: Review this setting.
   }
 
   boot = "order=virtio0;ide2;net0"
@@ -172,6 +172,14 @@ source "proxmox-iso" "proxmox" {
   disks {
     type = "virtio"
     disk_size = "2G"
+    storage_pool = "local-lvm"
+    storage_pool_type = "lvm-thin"
+    format = "qcow2"
+  }
+
+  disks {
+    type = "virtio"
+    disk_size = "100G"
     storage_pool = "local-lvm"
     storage_pool_type = "lvm-thin"
     format = "qcow2"

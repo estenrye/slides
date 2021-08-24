@@ -170,6 +170,23 @@ autoinstall:
         device: format-home
         path: /home
         options: nodev
+
+      # format and mount /var/lib/longhorn disk
+      - id: disk-var-lib-longhorn
+        type: disk
+        path: /dev/vdh
+        name: disk8-var-lib-longhorn
+
+      - id: format-var-lib-longhorn
+        type: format
+        fstype: ext4
+        volume: disk-var-lib-longhorn
+
+      - id: mount-var-tmp
+        type: mount
+        device: format-var-lib-longhorn
+        path: /var/lib/longhorn
+
     swap:
       swap: 0
   version: 1

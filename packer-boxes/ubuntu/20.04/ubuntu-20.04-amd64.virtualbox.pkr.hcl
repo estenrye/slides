@@ -44,8 +44,8 @@ source "virtualbox-iso" "vbox-vagrant" {
   memory = 4096
   disk_size = 1024
   hard_drive_interface = "sata"
-  sata_port_count = 8
-  disk_additional_size = [ 6144, 20000, 20000, 4096, 2048, 2048, 2048]
+  sata_port_count = 9
+  disk_additional_size = [ 6144, 20000, 20000, 4096, 2048, 2048, 2048, 102400]
 }
 
 build {
@@ -69,6 +69,7 @@ build {
       "output-vbox-vagrant/${ var.vm_name }-disk006.vmdk",
       "output-vbox-vagrant/${ var.vm_name }-disk007.vmdk",
       "output-vbox-vagrant/${ var.vm_name }-disk008.vmdk",
+      "output-vbox-vagrant/${ var.vm_name }-disk009.vmdk",
       "${ var.vm_name }.ovf"
     ]
   }

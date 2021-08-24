@@ -138,6 +138,11 @@ source "vsphere-iso" "vmware" {
     disk_size = 2048
     disk_thin_provisioned = true
   }
+
+  storage {
+    disk_size = 102400
+    disk_thin_provisioned = true
+  }
 }
 
 build {
