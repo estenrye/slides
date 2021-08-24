@@ -17,9 +17,12 @@ RUN apt update \
   && apt update \
   && apt install -y \
     docker-ce-cli \
+    genisoimage \
+    mkisofs \
     packer \
     python3 \
     python3-pip \
+    p7zip-full \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /tmp/* \
   && apt clean
