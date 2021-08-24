@@ -6,7 +6,7 @@ molecule == 3.2.0
 molecule-docker == 0.2.4
 molecule-vagrant == 0.6.3
 openshift == 0.12.1
-pytest == 6.2.1
+pytest ==6.2.4
 pytest-testinfra == 6.4.0
 python-vagrant == 0.5.15
 yamllint == 1.26.3
