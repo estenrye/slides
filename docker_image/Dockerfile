@@ -31,13 +31,12 @@ RUN groupadd --gid 10000 docker \
   chown automation-user /install /ansible
 
 USER automation-user
-
+ENV PATH /home/automation-user/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 WORKDIR /ansible
 
 COPY requirements.txt /install/requirements.txt
 
-RUN echo 'export PATH="/home/automation-user/.local/bin:$PATH"' >> /home/automation-user/.bashrc \
-  && pip3 install --no-warn-script-location -r /install/requirements.txt
+RUN pip3 install --no-warn-script-location -r /install/requirements.txt
 
 COPY requirements.yml /install/requirements.yml
 
