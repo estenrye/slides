@@ -24,15 +24,18 @@ RUN apt update \
     python3 \
     python3-pip \
     p7zip-full \
+    sudo \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /tmp/* \
   && apt clean
 
 RUN groupadd --gid 10000 docker \
   && groupadd --gid 1000 automation-user \
-  && useradd --shell /bin/bash --home-dir /home/automation-user --create-home --groups docker --gid 1000 --uid 1000 automation-user \
+  && useradd --shell /bin/bash --home-dir /home/automation-user --create-home --groups docker --groups sudo --gid 1000 --uid 1000 automation-user \
   && mkdir -p /install /ansible \
   chown automation-user /install /ansible
+
+COPY sudoers /etc/sudoers
 
 USER automation-user
 ENV PATH /home/automation-user/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
