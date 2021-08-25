@@ -1,4 +1,4 @@
-ansible == 4.3.0
+ansible ==4.4.0
 ansible-lint == 5.1.2
 cookiecutter == 1.7.3
 docker == 5.0.0
