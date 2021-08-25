@@ -6,7 +6,7 @@ collections:
   - name: community.kubernetes
     version: 1.2.1
   - name: community.crypto
-    version: 1.4.0
+    version: 1.8.0
 roles:
   - name: darkwizard242.cis_ubuntu_2004
     version: 1.0.2
