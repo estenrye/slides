@@ -1,4 +1,4 @@
-FROM golang:1.15.5 AS build
+FROM golang:1.17.0 AS build
 WORKDIR /go/src/ingress_default_backend
 COPY go.mod .
 COPY server.go .
