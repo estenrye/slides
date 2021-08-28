@@ -1,0 +1,47 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    # TODO: Create module for creating proxmox pools.
+
+    - name: Create a Linked VM Clone
+      community.general.proxmox_kvm:
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_pass }}"
+        api_host: "{{ proxmox_host }}"
+        proxmox_default_behavior: no_defaults
+        clone: "{{ proxmox_template }}"
+        name: "{{ vm.name }}.{{ kubernetes_zone }}"
+        node: "{{ vm.node }}"
+        full: no
+        format: unspecified
+        pool: "{{ platform_environment }}"
+        timeout: 500
+      loop_control:
+        loop_var: vm
+      loop: "{{ guest_vms }}"
+
+    - name: Modify cloned vm
+      community.general.proxmox_kvm:
+        name: "{{ vm.name }}.{{ kubernetes_zone }}"
+        node: "{{ vm.node }}"
+        update: true
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_pass }}"
+        api_host: "{{ proxmox_host }}"
+        proxmox_default_behavior: no_defaults
+        memory: "{{ vm.memory | int }}"
+        vcpus: "{{ vm.cpu | int }}"
+        searchdomains: '{{ kubernetes_zone }}'
+        tags:
+          - "{{ platform_environment }}"
+          - "{{ vm.platform_role }}"
+          - "{{ vm.name }}"
+        nameservers: "{{ proxmox_nameservers }}"
+        net:
+          net0: 'virtio,bridge={{ proxmox_bridge }},firewall=0'
+        ipconfig:
+          ipconfig0: 'ip={{ vm.ipv4 }},gw={{ proxmox_gateway }}'
+        state: started
+      loop_control:
+        loop_var: vm
+      loop: "{{ guest_vms }}"

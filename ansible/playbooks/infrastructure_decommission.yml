@@ -1,0 +1,33 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Stop VMs
+      community.general.proxmox_kvm:
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_pass }}"
+        api_host: "{{ proxmox_host }}"
+        name: "{{ vm.name }}.{{ kubernetes_zone }}"
+        node: "{{ vm.node }}"
+        pool: "{{ platform_environment }}"
+        proxmox_default_behavior: no_defaults
+        state: stopped
+        timeout: 500
+      loop_control:
+        loop_var: vm
+      loop: "{{ guest_vms }}"
+      ignore_errors: true
+
+    - name: Delete VMs
+      community.general.proxmox_kvm:
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_pass }}"
+        api_host: "{{ proxmox_host }}"
+        name: "{{ vm.name }}.{{ kubernetes_zone }}"
+        node: "{{ vm.node }}"
+        pool: "{{ platform_environment }}"
+        proxmox_default_behavior: no_defaults
+        state: absent
+        timeout: 500
+      loop_control:
+        loop_var: vm
+      loop: "{{ guest_vms }}"

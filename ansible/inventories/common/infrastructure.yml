@@ -1,0 +1,61 @@
+all:
+  children:
+    localhost:
+  vars:
+    platform_environment: common
+    kubernetes_zone: common.ryezone.com
+    proxmox_template: packer-ubuntu-2004-minimal-base-20210824
+    proxmox_bridge: vmbr0
+    proxmox_nameservers:
+      - '1.1.1.1'
+      - '1.0.0.1'
+    proxmox_gateway: '10.5.0.1'
+    guest_vms:
+      - name: haproxy01
+        platform_role: external_node_balancer
+        node: proxmox02
+        cpu: 2
+        memory: 4096
+        ipv4: '10.5.15.10/24'
+      - name: haproxy02
+        platform_role: external_node_balancer
+        node: proxmox02
+        cpu: 2
+        memory: 4096
+        ipv4: '10.5.15.11/24'
+      - name: controlplane01
+        platform_role: controlplane
+        node: proxmox02
+        cpu: 2
+        memory: 4096
+        ipv4: '10.5.15.20/24'
+      - name: controlplane02
+        platform_role: controlplane
+        node: proxmox02
+        cpu: 2
+        memory: 4096
+        ipv4: '10.5.15.21/24'
+      - name: controlplane03
+        platform_role: controlplane
+        node: proxmox02
+        cpu: 2
+        memory: 4096
+        ipv4: '10.5.15.22/24'
+      - name: node01
+        platform_role: controlplane
+        node: proxmox02
+        cpu: 4
+        memory: 8192
+        ipv4: '10.5.15.30/24'
+      - name: node02
+        platform_role: controlplane
+        node: proxmox02
+        cpu: 4
+        memory: 8192
+        ipv4: '10.5.15.31/24'
+      - name: node03
+        platform_role: controlplane
+        node: proxmox02
+        cpu: 4
+        memory: 8192
+        ipv4: '10.5.15.32/24'
