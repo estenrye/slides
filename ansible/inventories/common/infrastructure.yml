@@ -16,46 +16,46 @@ all:
         node: proxmox02
         cpu: 2
         memory: 4096
-        ipv4: '10.5.15.10/24'
+        ipv4: '10.5.15.10/16'
       - name: haproxy02
         platform_role: external_node_balancer
         node: proxmox02
         cpu: 2
         memory: 4096
-        ipv4: '10.5.15.11/24'
+        ipv4: '10.5.15.11/16'
       - name: controlplane01
         platform_role: controlplane
         node: proxmox02
         cpu: 2
         memory: 4096
-        ipv4: '10.5.15.20/24'
+        ipv4: '10.5.15.20/16'
       - name: controlplane02
         platform_role: controlplane
         node: proxmox02
         cpu: 2
         memory: 4096
-        ipv4: '10.5.15.21/24'
+        ipv4: '10.5.15.21/16'
       - name: controlplane03
         platform_role: controlplane
         node: proxmox02
         cpu: 2
         memory: 4096
-        ipv4: '10.5.15.22/24'
+        ipv4: '10.5.15.22/16'
       - name: node01
         platform_role: node
         node: proxmox02
         cpu: 4
         memory: 8192
-        ipv4: '10.5.15.30/24'
+        ipv4: '10.5.15.30/16'
       - name: node02
         platform_role: node
         node: proxmox02
         cpu: 4
         memory: 8192
-        ipv4: '10.5.15.31/24'
+        ipv4: '10.5.15.31/16'
       - name: node03
         platform_role: node
         node: proxmox02
         cpu: 4
         memory: 8192
-        ipv4: '10.5.15.32/24'
+        ipv4: '10.5.15.32/16'
