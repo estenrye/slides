@@ -19,3 +19,19 @@
       value: "{{ values_from_inv.cloudflare_value }}"
       record: "{{ values_from_inv.cloudflare_record }}"
       state: present
+
+- hosts: initial_controlplane
+  connection: local
+  tasks:
+  - name: Set DNS A Records
+    community.general.cloudflare_dns:
+      zone: "{{ cloudflare_zone }}"
+      api_token: "{{ cloudflare_api_token }}"
+      type: A
+      value: "{{ vip.cloudflare_value }}"
+      record: "{{ vip.cloudflare_record }}"
+      state: present
+    loop_control:
+      loop_var: vip
+    loop: "{{ cluster_vips }}"
+

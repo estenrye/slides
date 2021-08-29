@@ -1,0 +1,7 @@
+platform_environment: common
+cluster_wildcard_vip: 10.5.15.1
+cluster_vips:
+  - cloudflare_value: "{{ cluster_wildcard_vip }}"
+    cloudflare_record: kube-api.common
+  - cloudflare_value: "{{ cluster_wildcard_vip }}"
+    cloudflare_record: "*.common"
