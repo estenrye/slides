@@ -1,0 +1,21 @@
+- hosts: all_cluster_vms
+  connection: local
+  tasks:
+  - name: compute dns values
+    ansible.builtin.set_fact:
+     values_from_inv:
+       cloudflare_value: "{{ proxmox_ipconfig0.ip | ipaddr('address') }}"
+       cloudflare_record: "{{ proxmox_name | replace('.'+cloudflare_zone, '') }}"
+
+  - name: output computed dns values
+    ansible.builtin.debug:
+       var: values_from_inv
+
+  - name: Set DNS A Records
+    community.general.cloudflare_dns:
+      zone: "{{ cloudflare_zone }}"
+      api_token: "{{ cloudflare_api_token }}"
+      type: A
+      value: "{{ values_from_inv.cloudflare_value }}"
+      record: "{{ values_from_inv.cloudflare_record }}"
+      state: present

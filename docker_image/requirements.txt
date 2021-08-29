@@ -5,6 +5,7 @@ docker == 5.0.0
 molecule ==3.4.0
 molecule-docker ==1.0.2
 molecule-vagrant == 0.6.3
+netaddr == 0.8.0
 openshift == 0.12.1
 proxmoxer == 1.1.1
 pytest ==6.2.4

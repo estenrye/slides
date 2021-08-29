@@ -32,6 +32,5 @@ groups:
     and 'common' in (proxmox_tags_parsed|list)
   common: >
     'common' in (proxmox_tags_parsed|list)
-compose:
-  ansible_port: 22
-
+  all_cluster_vms: >
+    'common' in (proxmox_tags_parsed|list)
