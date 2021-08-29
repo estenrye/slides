@@ -42,19 +42,19 @@ all:
         memory: 4096
         ipv4: '10.5.15.22/24'
       - name: node01
-        platform_role: controlplane
+        platform_role: node
         node: proxmox02
         cpu: 4
         memory: 8192
         ipv4: '10.5.15.30/24'
       - name: node02
-        platform_role: controlplane
+        platform_role: node
         node: proxmox02
         cpu: 4
         memory: 8192
         ipv4: '10.5.15.31/24'
       - name: node03
-        platform_role: controlplane
+        platform_role: node
         node: proxmox02
         cpu: 4
         memory: 8192
