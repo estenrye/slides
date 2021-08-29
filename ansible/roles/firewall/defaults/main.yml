@@ -1,0 +1,5 @@
+firewall_ipv6_enabled: false
+firewall_rules_allow_inbound_v4: []
+firewall_rules_allow_outbound_v4: []
+firewall_rules_allow_inbound_v6: []
+firewall_rules_allow_outbound_v6: []

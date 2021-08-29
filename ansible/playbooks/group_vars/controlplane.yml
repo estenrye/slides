@@ -1,0 +1,31 @@
+firewall_rules_allow_inbound_v4:
+  - name: etcd client api
+    protocol: tcp
+    port: 2379
+  - name: etcd peer api
+    protocol: tcp
+    port: 2380
+  - name: Kubernetes API Server
+    protocol: tcp
+    port: 6443
+  - name: RancherD/RKE2 Flannel VXLAN
+    protocol: udp
+    port: 8472
+  - name: RKE2 Node Join
+    protocol: tcp
+    port: 9345
+  - name: Kubernetes Kubelet API
+    protocol: tcp
+    port: 10250
+  - name: Kubernetes Kube Scheduler
+    protocol: tcp
+    port: 10251
+  - name: Kubernetes Kube Controller Manager
+    protocol: tcp
+    port: 10252
+
+firewall_rules_allow_outbound_v4: []
+
+firewall_ipv6_enabled: false
+firewall_rules_allow_inbound_v6: []
+firewall_rules_allow_outbound_v6: []

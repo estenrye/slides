@@ -1,0 +1,22 @@
+firewall_rules_allow_inbound_v4:
+  - name: http
+    port: 80
+    protocol: tcp
+  - name: https
+    port: 443
+    protocol: tcp
+  - name: kubernetes api
+    port: 6443
+    protocol: tcp
+  - name: haproxy stats page
+    port: 8000
+    protocol: tcp
+  - name: rke2 node join
+    port: 9345
+    protocol: tcp
+
+firewall_rules_allow_outbound_v4: []
+
+firewall_ipv6_enabled: false
+firewall_rules_allow_inbound_v6: []
+firewall_rules_allow_outbound_v6: []

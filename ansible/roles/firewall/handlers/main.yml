@@ -1,0 +1,21 @@
+- name: reload iptables | v4
+  ansible.builtin.command:
+    argv:
+      - iptables-restore
+      - --counters
+      - --verbose
+      - --table=filter
+      - /etc/iptables/rules.v4
+  listen: reload ipv4 rules
+  become: true
+
+- name: reload iptables | v6
+  ansible.builtin.command:
+    argv:
+      - ip6tables-restore
+      - --counters
+      - --verbose
+      - --table=filter
+      - /etc/iptables/rules.v6
+  listen: reload ipv6 rules
+  become: true

@@ -1,0 +1,54 @@
+- name: Install iptables
+  ansible.builtin.package:
+    name:
+      - iptables
+      - iptables-persistent
+  become: true
+
+- name: Create iptables configuration directory.
+  file:
+    path: /etc/iptables
+    state: directory
+  become: true
+
+- name: uninstall nftables
+  ansible.builtin.package:
+    name: nftables
+    state: absent
+  become: true
+
+- name: uninstall ufw
+  ansible.builtin.package:
+    name: ufw
+    state: absent
+  become: true
+
+- name: Write Persistent IPV4 Rules
+  ansible.builtin.template:
+    src: rules.v4.j2
+    dest: /etc/iptables/rules.v4
+    mode: 0644
+    validate: iptables-restore --test --table=filter %S
+    backup: true
+  notify: reload ipv4 rules
+  become: true
+
+- name: Write Persistent IPV6 Rules | IPV6 Enabled
+  ansible.builtin.template:
+    src: rules.v6.j2
+    dest: /etc/iptables/rules.v6
+    mode: 0644
+    validate: ip6tables-restore --test --table=filter %S
+    backup: true
+  notify: reload ipv6 rules
+  become: true
+  when: firewall_ipv6_enabled
+
+- name: Write Persistent IPV6 Rules | IPV6 Disabled
+  ansible.builtin.template:
+    src: rules.v6.j2
+    dest: /etc/iptables/rules.v6
+    mode: 0644
+    backup: true
+  become: true
+  when: not firewall_ipv6_enabled
