@@ -11,12 +11,16 @@ RUN apt update \
   && mkdir -p /usr/local/share/keyrings \
   && curl -fSl -o /tmp/docker.gpg https://download.docker.com/linux/ubuntu/gpg \
   && curl -fSl -o /tmp/hashicorp.gpg https://apt.releases.hashicorp.com/gpg \
+  && curl -fSl -o /tmp/microsoft.gpg https://packages.microsoft.com/keys/microsoft.asc \
   && gpg --batch --yes --dearmor -o /usr/local/share/keyrings/docker.gpg /tmp/docker.gpg \
   && gpg --batch --yes --dearmor -o /usr/local/share/keyrings/hashicorp.gpg /tmp/hashicorp.gpg \
+  && gpg --batch --yes --dearmor -o /usr/local/share/keyrings/microsoft.gpg /tmp/microsoft.gpg \
   && echo "deb [arch=amd64 signed-by=/usr/local/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" >> /etc/apt/sources.list \
   && echo "deb [arch=amd64 signed-by=/usr/local/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" >> /etc/apt/sources.list \
+  && echo "deb [arch=amd64 signed-by=/usr/local/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" >> /etc/apt/sources.list \
   && apt update \
   && apt install -y \
+    azure-cli \
     docker-ce-cli \
     genisoimage \
     mkisofs \
@@ -25,6 +29,7 @@ RUN apt update \
     python3-pip \
     p7zip-full \
     sudo \
+    terraform \
     xorriso \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /tmp/* \
