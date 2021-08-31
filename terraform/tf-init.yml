@@ -1,0 +1,8 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: initialize terraform
+      ansible.builtin.command:
+        argv:
+          - terraform
+          - init

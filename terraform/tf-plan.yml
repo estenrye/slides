@@ -1,20 +1,17 @@
 - hosts: localhost
+  connection: local
   tasks:
-    - name: login to azure
+    - name: create terraform plan
       ansible.builtin.command:
         argv:
-          - az
-          - login
-          - --service-principal
-          - --username
-          - "{{ azure_service_principal.appId }}"
-          - --tennant
-          - "{{ azure_service_principal.tennantId }}"
-          - --password
-          - "{{ azure_service_principal.password }}"
-
-    - name: apply terraform
-      ansible.builtin.command:
-        arg:
           - terraform
           - plan
+          - -no-color
+          - -json
+          - -out
+          - tf.plan
+      environment:
+        ARM_CLIENT_ID: "{{ azure_service_principal.appId }}"
+        ARM_CLIENT_SECRET: "{{ azure_service_principal.password }}"
+        ARM_SUBSCRIPTION_ID: "{{ azure_service_principal.subscriptionId }}"
+        ARM_TENANT_ID: "{{ azure_service_principal.tenantId }}"

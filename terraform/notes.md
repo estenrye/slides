@@ -47,7 +47,7 @@ I selected `Standard_D16_v3`
 az vm image list \
   --location northcentralus \
   --publisher Debian \
-  --offer debian \
+  --offer debian-11-daily \
   --sku 11-gen2 \
   --all \
   --query '[].{URN:urn}' \
@@ -56,6 +56,74 @@ az vm image list \
 
 I selected: `Debian:debian-11-daily:11-gen2:0.20210819.739`
 
+# Running the terraform init
+
+```bash
+docker run --rm \
+  --mount type=bind,source=`readlink -f ~/src/slides/terraform`,target=/ansible \
+  --mount type=bind,source=`readlink -f ~/.ansible/secrets`,target=/secrets \
+  --mount type=bind,source=`readlink -f ~/.ssh`,target=/home/automation-user/.ssh \
+  estenrye/ansible:latest \
+  ansible-playbook \
+    -e @/secrets/creds.yml \
+    --vault-password-file /secrets/secret.key \
+    -i localhost, \
+    /ansible/tf-init.yml
+```
+
+# Running the terraform plan
+
+```bash
+docker run --rm \
+  --mount type=bind,source=`readlink -f ~/src/slides/terraform`,target=/ansible \
+  --mount type=bind,source=`readlink -f ~/.ansible/secrets`,target=/secrets \
+  --mount type=bind,source=`readlink -f ~/.ssh`,target=/home/automation-user/.ssh \
+  estenrye/ansible:latest \
+  ansible-playbook \
+    -e @/secrets/creds.yml \
+    --vault-password-file /secrets/secret.key \
+    -i localhost, \
+    /ansible/tf-plan.yml
+```
+
+# See the output of the terraform plan
+
+```bash
+docker run --rm \
+  --mount type=bind,source=`readlink -f ~/src/slides/terraform`,target=/ansible \
+  estenrye/ansible:latest \
+  terraform show tf.plan
+```
+
+# Running the terraform apply
+
+```bash
+docker run --rm \
+  --mount type=bind,source=`readlink -f ~/src/slides/terraform`,target=/ansible \
+  --mount type=bind,source=`readlink -f ~/.ansible/secrets`,target=/secrets \
+  --mount type=bind,source=`readlink -f ~/.ssh`,target=/home/automation-user/.ssh \
+  estenrye/ansible:latest \
+  ansible-playbook \
+    -e @/secrets/creds.yml \
+    --vault-password-file /secrets/secret.key \
+    -i localhost, \
+    /ansible/tf-apply.yml
+```
+
+# Running the terraform destroy
+
+```bash
+docker run --rm \
+  --mount type=bind,source=`readlink -f ~/src/slides/terraform`,target=/ansible \
+  --mount type=bind,source=`readlink -f ~/.ansible/secrets`,target=/secrets \
+  --mount type=bind,source=`readlink -f ~/.ssh`,target=/home/automation-user/.ssh \
+  estenrye/ansible:latest \
+  ansible-playbook \
+    -e @/secrets/creds.yml \
+    --vault-password-file /secrets/secret.key \
+    -i localhost, \
+    /ansible/tf-destroy.yml
+```
 
 # Proxmox Package Repositories
 
