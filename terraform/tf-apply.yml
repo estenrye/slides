@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: login to azure
+      ansible.builtin.command:
+        argv:
+          - az
+          - login
+          - --service-principal
+          - --username
+          - "{{ azure_service_principal.appId }}"
+          - --tennant
+          - "{{ azure_service_principal.tennantId }}"
+          - --password
+          - "{{ azure_service_principal.password }}"
+
+    - name: apply terraform
+      ansible.builtin.command:
+        arg:
+          - terraform
+          - apply
+          - -auto-approve
