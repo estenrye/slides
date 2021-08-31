@@ -21,4 +21,11 @@ ansible-vault create --vault-password-file=~/.ansible/secrets/secret.key ~/.ansi
 proxmox_host: proxmox01.example.com
 proxmox_user: root@pam
 proxmox_pass: your-pass-here
+cloudflare_api_token: your-token-here
+azure-service_principal:
+  appId: your-id-here
+  displayName: sp_name_here
+  name: your-id-here
+  password: your-password-here
+  tenant: your-tennant-here
 ```
