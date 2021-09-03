@@ -59,7 +59,7 @@ I selected: `Debian:debian-11-daily:11-gen2:0.20210819.739`
 # Running the terraform init
 
 ```bash
-docker run --rm \
+docker run --rm -t \
   --mount type=bind,source=`readlink -f ~/src/slides/terraform`,target=/ansible \
   --mount type=bind,source=`readlink -f ~/.ansible/secrets`,target=/secrets \
   --mount type=bind,source=`readlink -f ~/.ssh`,target=/home/automation-user/.ssh \
@@ -74,7 +74,7 @@ docker run --rm \
 # Running the terraform plan
 
 ```bash
-docker run --rm \
+docker run --rm -t \
   --mount type=bind,source=`readlink -f ~/src/slides/terraform`,target=/ansible \
   --mount type=bind,source=`readlink -f ~/.ansible/secrets`,target=/secrets \
   --mount type=bind,source=`readlink -f ~/.ssh`,target=/home/automation-user/.ssh \
@@ -89,16 +89,16 @@ docker run --rm \
 # See the output of the terraform plan
 
 ```bash
-docker run --rm \
+docker run --rm -t \
   --mount type=bind,source=`readlink -f ~/src/slides/terraform`,target=/ansible \
   estenrye/ansible:latest \
-  terraform show tf.plan
+  terraform show /ansible/tf.plan
 ```
 
 # Running the terraform apply
 
 ```bash
-docker run --rm \
+docker run --rm -t \
   --mount type=bind,source=`readlink -f ~/src/slides/terraform`,target=/ansible \
   --mount type=bind,source=`readlink -f ~/.ansible/secrets`,target=/secrets \
   --mount type=bind,source=`readlink -f ~/.ssh`,target=/home/automation-user/.ssh \
