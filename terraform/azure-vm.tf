@@ -61,7 +61,7 @@ resource "azurerm_subnet_network_security_group_association" "example" {
 }
 
 resource "azurerm_public_ip" "example" {
-  name                = "proxmox_public_ip"
+  name                = "example-public-ip"
   resource_group_name = azurerm_resource_group.example.name
   location            = azurerm_resource_group.example.location
   allocation_method   = "Static"
@@ -102,8 +102,8 @@ resource "azurerm_linux_virtual_machine" "example" {
 
   source_image_reference {
     publisher = "Debian"
-    offer     = "debian-11-daily"
-    sku       = "11"
+    offer     = "debian-10-daily"
+    sku       = "10"
     version   = "latest"
   }
 }

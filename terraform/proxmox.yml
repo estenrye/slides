@@ -1,0 +1,33 @@
+- hosts: proxmox
+  tasks:
+    - name: Download Proxmox Repository GPG Key
+      ansible.builtin.get_url:
+        url: http://download.proxmox.com/debian/proxmox-ve-release-6.x.gpg
+        dest: /etc/apt/trusted.gpg.d/proxmox-ve-release-6.x.gpg
+        mode: 0644
+      become: true
+
+    - name: Add Proxmox Repository Lists
+      ansible.builtin.apt_repository:
+        repo: deb [arch=amd64] http://download.proxmox.com/debian/pve buster pve-no-subscription
+        filename: /etc/apt/sources.list.d/pve-install-repo.list
+        mode: 0644
+        update_cache: yes
+      become: true
+
+    - name: Full Apt Upgrade
+      ansible.builtin.apt:
+        upgrade: full
+      become: true
+
+    - name: add host file entries
+      ansible.builtin.lineinfile:
+        line: "{{ ansible_host }} proxmox-az.ryezone.com"
+        path: /etc/hosts
+      become: true
+
+    - name: add host file entries
+      ansible.builtin.lineinfile:
+        line: "{{ internal_host }} proxmox-az.ryezone.com"
+        path: /etc/hosts
+      become: true
