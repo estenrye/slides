@@ -125,6 +125,7 @@ docker run --rm \
     /ansible/tf-destroy.yml
 ```
 
-# Proxmox Package Repositories
+# Install Proxmox
 
+- https://pve.proxmox.com/wiki/Install_Proxmox_VE_on_Debian_Buster
 - https://pve.proxmox.com/wiki/Package_Repositories
