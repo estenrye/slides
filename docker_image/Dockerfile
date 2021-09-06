@@ -24,6 +24,7 @@ RUN apt update \
     docker-ce-cli \
     genisoimage \
     mkisofs \
+    openssh-client \
     packer \
     python3 \
     python3-pip \
