@@ -1,3 +1,8 @@
+---
+haproxy_user: haproxy
+haproxy_group: haproxy
+haproxy_role: default
+haproxy_global_vars: []
 haproxy_frontends:
   - name: api-server
     bind_address: "*"
@@ -57,7 +62,7 @@ haproxy_backends:
       - httpchk GET /healthz
     http_checks:
       - expect status 200
-    servers: "{{ rke2_controlplane_servers }}"
+    servers: "{{ rke2_ingress_servers }}"
   - name: https-ingress
     mode: tcp
     port: 443
@@ -67,4 +72,5 @@ haproxy_backends:
       - ssl-hello-chk
     http_checks:
       - expect status 200
-    servers: "{{ rke2_controlplane_servers }}"
+    servers: "{{ rke2_ingress_servers }}"
+

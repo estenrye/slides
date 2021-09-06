@@ -1,13 +1,14 @@
 # Install RKE2 and Load Balancer
 
 ```bash
-docker run --rm \
+docker run --rm -t \
   -e PROXMOX_PASSWORD="${PROXMOX_PASSWORD}" \
   -e PROXMOX_USER="${PROXMOX_USERNAME}" \
   -e PROXMOX_URL='https://proxmox01.ryezone.com:8006' \
   -e ANSIBLE_CONFIG=/ansible/ansible.cfg \
   --mount type=bind,source=`readlink -f ~/src/slides/ansible`,target=/ansible,readonly \
   --mount type=bind,source=`readlink -f ~/.ansible/secrets`,target=/secrets \
+  --mount type=bind,source=`readlink -f ~/.ssh`,target=/home/automation-user/.ssh \
   estenrye/ansible:latest \
   ansible-playbook \
     -e @/secrets/creds.yml \

@@ -1,4 +1,15 @@
 ---
+- ansible.builtin.set_fact:
+    rke2_ingress_servers: "{{ groups['node'] | map('extract', hostvars ) | json_query(jmespath_query_string) }}"
+    rke2_controlplane_servers: "{{ groups['controlplane'] | map('extract', hostvars ) | json_query(jmespath_query_string) }}"
+  vars:
+    jmespath_query_string: '[].{ name: proxmox_name, address: proxmox_ipconfig0.ip }'
+
+- ansible.builtin.assert:
+    that:
+      - rke2_ingress_servers | length >= 1
+      - rke2_controlplane_servers | length >= 1
+
 - name: set facts
   ansible.builtin.include_vars:
     file: "{{ haproxy_role }}.yml"

@@ -1,0 +1,14 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - ansible.builtin.set_fact:
+        rke2_ingress_servers: "{{ groups['node'] | map('extract', hostvars ) | json_query(jmespath_query_string) }}"
+        rke2_controlplane_servers: "{{ groups['controlplane'] | map('extract', hostvars ) | json_query(jmespath_query_string) }}"
+      vars:
+        jmespath_query_string: '[].{ name: proxmox_name, address: proxmox_ipconfig0.ip }'
+
+    - ansible.builtin.debug:
+        var: rke2_controlplane_servers
+
+    - ansible.builtin.debug:
+        var: rke2_ingress_servers

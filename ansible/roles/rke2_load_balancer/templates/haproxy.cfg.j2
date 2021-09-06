@@ -62,7 +62,7 @@ backend {{ backend.name }}
     http-check {{ check }}
 {% endfor %}
 {% for server in backend.servers %}
-    server {{ server.name }} {{ server.address }}:{{ backend.port }} check {% if backend.check_options is defined %}{{ backend.check_options }}{% endif %}
+    server {{ server.name }} {{ server.address | ansible.netcommon.ipv4('host') }}:{{ backend.port }} check {% if backend.check_options is defined %}{{ backend.check_options }}{% endif %}
 
 {% endfor %}
 {% endfor %}

@@ -12,13 +12,13 @@ all:
     proxmox_gateway: '10.5.0.1'
     guest_vms:
       - name: haproxy01
-        platform_role: external_node_balancer
+        platform_role: external_load_balancer
         node: proxmox02
         cpu: 2
         memory: 4096
         ipv4: '10.5.15.10/16'
       - name: haproxy02
-        platform_role: external_node_balancer
+        platform_role: external_load_balancer
         node: proxmox02
         cpu: 2
         memory: 4096

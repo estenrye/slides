@@ -38,3 +38,7 @@
 - hosts: all_cluster_vms
   roles:
     - firewall
+
+- hosts: external_load_balancer
+  roles:
+    - rke2_load_balancer
