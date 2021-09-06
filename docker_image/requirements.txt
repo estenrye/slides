@@ -1,7 +1,7 @@
 ansible ==4.5.0
 ansible-lint == 5.1.2
 cookiecutter == 1.7.3
-docker == 5.0.0
+docker ==5.0.2
 jmespath == 0.10.0
 molecule ==3.4.0
 molecule-docker ==1.0.2
