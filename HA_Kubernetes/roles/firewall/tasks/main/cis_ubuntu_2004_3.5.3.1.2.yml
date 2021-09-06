@@ -1,5 +1,0 @@
-- name: uninstall nftables
-  ansible.builtin.package:
-    name: nftables
-    state: absent
-  become: true

@@ -1,5 +1,0 @@
-- name: uninstall ufw
-  ansible.builtin.package:
-    name: ufw
-    state: absent
-  become: true
