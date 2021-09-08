@@ -3,7 +3,7 @@
     rke2_ingress_servers: "{{ groups['node'] | map('extract', hostvars ) | json_query(jmespath_query_string) }}"
     rke2_controlplane_servers: "{{ groups['controlplane'] | map('extract', hostvars ) | json_query(jmespath_query_string) }}"
   vars:
-    jmespath_query_string: '[].{ name: proxmox_name, address: proxmox_ipconfig0.ip }'
+    jmespath_query_string: '[].{ name: proxmox_name, address: proxmox_name }'
 
 - ansible.builtin.assert:
     that:

@@ -28,7 +28,7 @@
     src: rules.v4.j2
     dest: /etc/iptables/rules.v4
     mode: 0644
-    validate: iptables-restore -c --test %s
+    validate: iptables-restore --counters --verbose --test %s
     backup: true
   notify: reload ipv4 rules
   become: true
@@ -38,7 +38,7 @@
     src: rules.v6.j2
     dest: /etc/iptables/rules.v6
     mode: 0644
-    validate: ip6tables-restore -c --test %s
+    validate: ip6tables-restore --counters --verbose --test %s
     backup: true
   notify: reload ipv6 rules
   become: true

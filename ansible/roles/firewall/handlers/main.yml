@@ -2,7 +2,7 @@
   ansible.builtin.command:
     argv:
       - iptables-restore
-      - -c
+      - --counters
       - --verbose
       - --table=filter
       - /etc/iptables/rules.v4
@@ -13,7 +13,7 @@
   ansible.builtin.command:
     argv:
       - ip6tables-restore
-      - -c
+      - --counters
       - --verbose
       - --table=filter
       - /etc/iptables/rules.v6
