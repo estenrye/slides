@@ -3,9 +3,9 @@
 *filter
 
 # Ensure Default Deny is enabled.
-:INPUT DROP
-:FORWARD DROP
-:OUTPUT DROP
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT DROP [0:0]
 
 {% if firewall_ipv6_enabled %}
 # Ensure Internal Loopback is configured.

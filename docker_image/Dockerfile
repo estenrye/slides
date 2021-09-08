@@ -1,5 +1,9 @@
 FROM ubuntu:focal
 
+ENV VAULT_AUTH_METHOD="--vault-password-file=/secrets/secret.key" \
+  VAULT_FILE="/secrets/creds.yml" \
+  SSH_KEY=/home/automation-user/.ssh/id_rsa
+
 # Install Packages
 RUN apt update \
   && apt install -y \
@@ -35,8 +39,10 @@ RUN apt update \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /tmp/* \
   && apt clean
+ADD https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 /usr/bin/jq
 
-RUN groupadd --gid 10000 docker \
+RUN chmod 755 /usr/bin/jq \
+  && groupadd --gid 10000 docker \
   && groupadd --gid 1000 automation-user \
   && useradd --shell /bin/bash --home-dir /home/automation-user --create-home --groups docker --groups sudo --gid 1000 --uid 1000 automation-user \
   && mkdir -p /install /ansible \
@@ -55,3 +61,4 @@ RUN pip3 install --no-warn-script-location -r /install/requirements.txt
 COPY requirements.yml /install/requirements.yml
 
 RUN /home/automation-user/.local/bin/ansible-galaxy install -r /install/requirements.yml
+COPY 02-profile-config.sh /etc/profile.d/02-profile-config.sh
