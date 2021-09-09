@@ -1,7 +1,7 @@
 # Install RKE2 and Load Balancer
 
 ```bash
-docker run --rm -t \
+docker run --rm -it \
   -e PROXMOX_PASSWORD="${PROXMOX_PASSWORD}" \
   -e PROXMOX_USER="${PROXMOX_USERNAME}" \
   -e PROXMOX_URL='https://proxmox01.ryezone.com:8006' \

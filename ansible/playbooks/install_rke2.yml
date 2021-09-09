@@ -42,3 +42,20 @@
 - hosts: external_load_balancer
   roles:
     - rke2_load_balancer
+
+- hosts: initial_controlplane
+  roles:
+    - rke2
+    # - helm
+    # - kubectl_plugins
+
+- hosts: additional_controlplane
+  roles:
+    - rke2
+    # - helm
+    # - kubectl_plugins
+  serial: 1
+
+- hosts: nodes
+  roles:
+    - rke2

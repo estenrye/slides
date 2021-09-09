@@ -1,3 +1,6 @@
+is_initial_node: false
+is_agent_node: true
+
 firewall_rules_allow_inbound_v4:
   - name: HTTP
     protocol: tcp

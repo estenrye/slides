@@ -1,0 +1,24 @@
+{% if not is_initial_node or is_agent_node %}
+server: https://{{ mgmt_fqdn }}:9345
+{% endif %}
+token: {{ join_token }}
+node-name: {{ node_name }}
+
+node-label:
+  - platform.{{ cloudflare_zone }}/node-name={{ inventory_hostname }}
+  - platform.{{ cloudflare_zone }}/cluster-name={{ kubernetes_zone }}
+  - platform.{{ cloudflare_zone }}/environment={{ platform_environment }}
+
+{% if not is_agent_node %}
+tls-san:
+  - {{ lookup('community.general.dig', mgmt_fqdn) }}
+  - {{ mgmt_fqdn }}
+
+{% if taint_server_nodes and not is_agent_node %}
+node-taint:
+  - "CriticalAddonsOnly=true:NoExecute"
+{% endif %}
+
+# replace canal with calio
+#rke2-canal: disable
+{% endif %}

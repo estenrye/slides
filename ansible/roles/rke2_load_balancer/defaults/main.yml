@@ -1,4 +1,13 @@
 ---
+keepalived_router_id: your-router-id
+keepalived_state: BACKUP
+keepalived_interface: eth0
+keepalived_virtual_router_id: 50
+keepalived_priority: 101
+keepalived_auth_pass: 42
+keepalived_vip: "{{ cluster_wildcard_vip }}"
+keepalived_check_port: 6443
+
 haproxy_user: haproxy
 haproxy_group: haproxy
 haproxy_role: default

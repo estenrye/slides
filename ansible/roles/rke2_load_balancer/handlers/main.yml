@@ -4,3 +4,9 @@
     name: haproxy
     state: restarted
   become: true
+
+- name: restart keepalived
+  service:
+    name: keepalived
+    state: restarted
+  become: true

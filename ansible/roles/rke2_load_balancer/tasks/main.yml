@@ -1,9 +1,55 @@
 ---
+- name: Create Configuration Directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    group: root
+    owner: root
+    state: directory
+  loop:
+    - /etc/keepalived
+  become: true
+
+- name: Create Configuration Files
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    mode: "644"
+    owner: root
+    group: root
+  notify: restart keepalived
+  become: true
+
+- name: Create Check File
+  ansible.builtin.template:
+    src: check_apiserver.sh.j2
+    dest: /etc/keepalived/check_apiserver.sh
+    mode: "755"
+    owner: root
+    group: root
+  become: true
+
+- name: Install Packages
+  ansible.builtin.package:
+    name: keepalived
+  become: true
+
+- name: Ensure keepalived is enabled on boot.
+  ansible.builtin.service:
+    name: keepalived
+    enabled: yes
+  become: true
+
+- name: Ensure keepalived is started.
+  ansible.builtin.service:
+    name: keepalived
+    state: started
+  become: true
+
 - ansible.builtin.set_fact:
     rke2_ingress_servers: "{{ groups['node'] | map('extract', hostvars ) | json_query(jmespath_query_string) }}"
     rke2_controlplane_servers: "{{ groups['controlplane'] | map('extract', hostvars ) | json_query(jmespath_query_string) }}"
   vars:
-    jmespath_query_string: '[].{ name: proxmox_name, address: proxmox_name }'
+    jmespath_query_string: 'sort_by([].{ name: proxmox_name, address: proxmox_name }, &name)[]'
 
 - ansible.builtin.assert:
     that:

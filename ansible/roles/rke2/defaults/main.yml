@@ -1,0 +1,25 @@
+cloudflare_zone: example.com
+platform_environment: dev
+kubernetes_zone: "{{ platform_environment }}.{{ cloudflare_zone }}"
+mgmt_fqdn: kube-api.{{ kubernetes_zone }}
+join_token: totallynotmytoken
+is_initial_node: false
+is_agent_node: false
+taint_server_nodes: false
+node_type: "{% if is_agent_node %}agent{% else %}server{% endif %}"
+node_ready_timeout: 3
+node_name: "{{ inventory_hostname }}"
+
+install_kubectl: false
+kubectl_version: v1.21.4
+install_rke2_channel: latest
+install_rke2_type: "{% if is_agent_node %}agent{% else %}server{% endif %}"
+install_rke2_version: v1.21.4+rke2r2
+
+rke2_ingress_nginx_controller_metrics_enabled: true
+rke2_ingress_nginx_controller_metrics_serviceMonitor_enabled: true
+rke2_ingress_nginx_service_external_dns_hostname: "{{ kubernetes_zone }}"
+rke2_ingress_nginx_service_external_dns_ttl: "120"
+rke2_ingress_nginx_service_external_dns_cloudflare_proxied: false
+rke2_enable_nfs_csi: true
+rke2_enable_iscsi_csi: true

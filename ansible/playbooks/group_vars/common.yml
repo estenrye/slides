@@ -5,3 +5,6 @@ cluster_vips:
     cloudflare_record: kube-api.common
   - cloudflare_value: "{{ cluster_wildcard_vip }}"
     cloudflare_record: "*.common"
+join_token: "{{ common_cluster.join_token }}"
+keepalived_virtual_router_id: 50
+keepalived_auth_pass: 42
