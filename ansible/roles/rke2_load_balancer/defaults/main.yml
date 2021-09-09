@@ -1,5 +1,5 @@
 ---
-keepalived_router_id: your-router-id
+keepalived_router_id: "{{ platform_environment }}"
 keepalived_state: BACKUP
 keepalived_interface: eth0
 keepalived_virtual_router_id: 50
