@@ -132,6 +132,7 @@
     dest: /etc/rancher/rke2/config.yaml
     mode: 0600
   become: true
+  notify: restart rke2-{{ node_type }}
   tags:
     - rke2
 
@@ -145,15 +146,6 @@
   tags:
     - rke2
 
-- name: restart rke2-{{ node_type }}
-  ansible.builtin.systemd:
-    name: rke2-{{ node_type }}
-    state: restarted
-  when: not is_initial_node
-  become: true
-  tags:
-    - rke2
-
 - name: pause for {{ node_ready_timeout }} minutes for node to initialize.
   ansible.builtin.pause:
     minutes: "{{ node_ready_timeout }}"
@@ -161,49 +153,3 @@
   tags:
     - rke2
 
-- name: download kubectl binary
-  get_url:
-    url: https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl
-    dest: /usr/local/bin/kubectl
-    mode: 0755
-  become: true
-  when:
-    - install_kubectl
-    - not is_agent_node
-
-- name: add a link to kubectl binary
-  ansible.builtin.file:
-    state: link
-    path: /usr/local/bin/kubectl
-    src: /var/lib/rancher/rke2/bin/kubectl
-  become: true
-  tags:
-    - rke2
-  when:
-    - not install_kubectl
-    - not is_agent_node
-
-- name: create .kube directory
-  ansible.builtin.file:
-    state: directory
-    path: /home/automation-user/.kube
-    owner: automation-user
-    group: automation-user
-    mode: 0700
-  become: true
-  when: not is_agent_node
-  tags:
-    - rke2
-
-- name: copy kubeconfig to ansible user directory
-  ansible.builtin.copy:
-    dest: /home/automation-user/.kube/config
-    remote_src: true
-    src: /etc/rancher/rke2/rke2.yaml
-    owner: automation-user
-    group: automation-user
-    mode: 0600
-  become: true
-  when: not is_agent_node
-  tags:
-    - rke2

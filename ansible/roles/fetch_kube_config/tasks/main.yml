@@ -1,0 +1,49 @@
+- name: Ensure .kube directory is present
+  local_action:
+    module: ansible.builtin.file
+    path: /home/automation-user/.kube
+    mode: 0700
+    owner: automation-user
+    group: automation-user
+    state: directory
+  run_once: true
+
+- name: Fetch kube config file
+  ansible.builtin.fetch:
+    src: /etc/rancher/rke2/rke2.yaml
+    dest: /tmp/.kube/
+    flat: true
+  become: true
+
+- name: Set File permissions
+  local_action:
+    module: ansible.builtin.file
+    path: /tmp/.kube/rke2.yaml
+    mode: 0600
+    owner: automation-user
+    group: automation-user
+    state: file
+  become: true
+  run_once: true
+
+- name: Replace localhost with fully qualified domain in kube config file
+  local_action:
+    module: ansible.builtin.replace
+    regexp: 127\.0\.0\.1
+    replace: kube-api.{{ kubernetes_zone }}
+    path: /tmp/.kube/rke2.yaml
+  run_once: true
+
+- name: Replace localhost with fully qualified domain in kube config file
+  local_action:
+    module: ansible.builtin.replace
+    regexp: default
+    replace: "{{ platform_environment }}"
+    path: /tmp/.kube/rke2.yaml
+  run_once: true
+
+- name: rename rke2.yaml to config
+  local_action:
+    module: ansible.builtin.command
+    cmd: mv /tmp/.kube/rke2.yaml /home/automation-user/.kube/config
+  run_once: true

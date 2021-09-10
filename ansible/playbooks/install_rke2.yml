@@ -46,16 +46,18 @@
 - hosts: initial_controlplane
   roles:
     - rke2
-    # - helm
-    # - kubectl_plugins
+    - fetch_kube_config
 
 - hosts: additional_controlplane
   roles:
     - rke2
-    # - helm
-    # - kubectl_plugins
   serial: 1
 
 - hosts: node
   roles:
     - rke2
+
+- hosts: localhost
+  connection: local
+  roles:
+    - rancher_monitoring

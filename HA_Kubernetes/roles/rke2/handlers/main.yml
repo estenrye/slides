@@ -1,6 +1,0 @@
----
-- name: restart multipath-tools
-  service:
-    name: multipath-tools
-    state: restarted
-  become: true
