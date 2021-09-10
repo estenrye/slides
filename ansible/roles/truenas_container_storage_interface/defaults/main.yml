@@ -1,4 +1,4 @@
-truenas_backend: nas.{{ cloudflare.zone }}
+truenas_backend: nas.{{ cloudflare_zone }}
 truenas_api_key: "{{ lookup('file', 'files/secrets/truenas_api_key') }}"
 truenas_ssh_key: "{{ lookup('file', 'files/secrets/truenas_ssh_key') }}"
 truenas_dataset_root: main/k8s
@@ -10,5 +10,3 @@ democratic_csi:
     version: 0.8.1
     name: democratic-csi
     namespace: democratic-csi
-
-kube_config_file: ~/.kube/config

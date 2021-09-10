@@ -12,7 +12,6 @@
     chart_version: "{{ rancher_monitoring_version }}"
     release_namespace: cattle-monitoring-system
     create_namespace: true
-    kubeconfig: "{{ kube_config_file }}"
   tags:
     - rancher_monitoring
 
@@ -23,7 +22,6 @@
     chart_version: "{{ rancher_monitoring_version }}"
     release_namespace: cattle-monitoring-system
     create_namespace: true
-    kubeconfig: "{{ kube_config_file }}"
     values: "{{ rancher_monitoring_helm_values }}"
   tags:
     - rancher_monitoring

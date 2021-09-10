@@ -12,7 +12,6 @@
     chart_version: "{{ democratic_csi.helm.version }}"
     release_namespace: "{{ democratic_csi.helm.namespace }}"
     create_namespace: true
-    kubeconfig: "{{ kube_config_file }}"
     values:
       driver:
         config:

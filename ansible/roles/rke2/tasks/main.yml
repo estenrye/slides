@@ -146,10 +146,26 @@
   tags:
     - rke2
 
+- name: Populate service facts
+  ansible.builtin.service_facts:
+  when:
+    - not is_agent_node
+
+- name: confirm rke2.yaml exists
+  ansible.builtin.stat:
+    path: /etc/rancher/rke2/rke2.yaml
+  register: rke2_yaml_stat
+  become: true
+  when:
+    - not is_agent_node
+
 - name: pause for {{ node_ready_timeout }} minutes for node to initialize.
   ansible.builtin.pause:
     minutes: "{{ node_ready_timeout }}"
-  when: not is_agent_node
+  when:
+    - not is_agent_node
+    - ansible_facts.services.rke2-{{ node_type }}.service.state != 'running'
+    - not rke2_yaml_stat.stat.exists
   tags:
     - rke2
 
