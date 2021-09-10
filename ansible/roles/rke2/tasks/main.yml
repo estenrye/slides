@@ -164,7 +164,7 @@
     minutes: "{{ node_ready_timeout }}"
   when:
     - not is_agent_node
-    - ansible_facts.services.rke2-{{ node_type }}.service.state != 'running'
+    - ansible_facts.services.rke2-server.service.state != 'running'
     - not rke2_yaml_stat.stat.exists
   tags:
     - rke2
