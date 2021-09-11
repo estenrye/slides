@@ -8,10 +8,11 @@ COPY install /install
 
 # Install Packages
 RUN apt update \
-  && apt install -y \
+  && apt install -y --no-install-recommends\
     apt-transport-https \
     ca-certificates \
     curl \
+    git \
     gnupg \
     lsb-release \
   && /install/add-repos.sh \
@@ -19,7 +20,7 @@ RUN apt update \
   && /install/get-cert-manager-plugin.sh \
   && /install/get-jq.sh \
   && apt update \
-  && apt install -y \
+  && apt install -y --no-install-recommends \
     azure-cli \
     docker-ce-cli \
     genisoimage \
@@ -49,4 +50,5 @@ ENV PATH /home/automation-user/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sb
 WORKDIR /ansible
 
 RUN pip3 install --no-warn-script-location -r /install/requirements.txt \
-  && /home/automation-user/.local/bin/ansible-galaxy install -r /install/requirements.yml
+  && /home/automation-user/.local/bin/ansible-galaxy install -r /install/requirements.yml \
+  && helm plugin install https://github.com/databus23/helm-diff
