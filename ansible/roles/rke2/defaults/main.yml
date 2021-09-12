@@ -23,3 +23,6 @@ rke2_ingress_nginx_service_external_dns_ttl: "120"
 rke2_ingress_nginx_service_external_dns_cloudflare_proxied: false
 rke2_enable_nfs_csi: true
 rke2_enable_iscsi_csi: true
+rke2_nameservers:
+  - 1.1.1.1
+  - 1.0.0.1

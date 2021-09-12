@@ -1,0 +1,14 @@
+cert_manager_helm_chart_version: 1.3.0
+cert_manager_crd_uri: https://github.com/jetstack/cert-manager/releases/download/v{{ cert_manager_helm_chart_version }}/cert-manager.crds.yaml
+cert_manager_enable_prometheus: false
+
+kubernetes_zone: "{{ platform_environment }}.{{ cloudflare_zone }}"
+cloudflare_api_token: not-my-token
+cert_manager_acme_email: no-reply@example.com
+cert_manager_acme_tls_key: |-
+  -----BEGIN RSA PRIVATE KEY-----
+  your key content
+  -----END RSA PRIVATE KEY-----
+
+public_acme_server: https://acme-v02.api.letsencrypt.org/directory
+private_acme_server: https://ca.{{ kubernetes_zone }}/acme/acme/directory

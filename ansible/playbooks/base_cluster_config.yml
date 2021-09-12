@@ -7,3 +7,4 @@
   roles:
     - rancher_monitoring
     - truenas_container_storage_interface
+    - cert_manager

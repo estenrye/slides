@@ -20,7 +20,7 @@ RUN apt update \
   && /install/get-cert-manager-plugin.sh \
   && /install/get-jq.sh \
   && apt update \
-  && apt install -y --no-install-recommends \
+  && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
     azure-cli \
     certbot \
     docker-ce-cli \

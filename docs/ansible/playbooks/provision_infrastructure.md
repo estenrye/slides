@@ -17,6 +17,7 @@ docker run --rm -t \
   estenrye/ansible:latest \
   ansible-playbook \
     -e @/secrets/creds.yml \
+    -e @/ansible/playbooks/extra_vars/${CLUSTER}.yml \
     --vault-password-file /secrets/secret.key \
     -i /ansible/inventories/${CLUSTER}/infrastructure.yml \
     /ansible/playbooks/infrastructure_provision.yml

@@ -3,6 +3,7 @@ server: https://{{ mgmt_fqdn }}:9345
 {% endif %}
 token: {{ join_token }}
 node-name: {{ node_name }}
+resolv-conf: /etc/rancher/rke2/resolv.conf
 
 node-label:
   - platform.{{ cloudflare_zone }}/node-name={{ inventory_hostname }}

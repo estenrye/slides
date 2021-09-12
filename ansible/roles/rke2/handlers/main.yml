@@ -5,7 +5,7 @@
     state: restarted
   become: true
 
-- name: restart rke2-{{ node_type }}
+- name: restart rke2
   ansible.builtin.systemd:
     name: rke2-{{ node_type }}
     state: restarted

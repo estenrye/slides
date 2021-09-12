@@ -128,13 +128,20 @@
 
 - name: deploy rke2 config
   ansible.builtin.template:
-    src: rke2_config.yaml.j2
-    dest: /etc/rancher/rke2/config.yaml
+    src: "{{ rke2_config_file.src }}"
+    dest: "{{ rke2_config_file.dest }}"
     mode: 0600
   become: true
-  notify: restart rke2-{{ node_type }}
+  notify: restart rke2
   tags:
     - rke2
+  loop_control:
+    loop_var: rke2_config_file
+  loop:
+    - src: rke2_config.yaml.j2
+      dest: /etc/rancher/rke2/config.yaml
+    - src: rke2_resolv.conf.j2
+      dest: /etc/rancher/rke2/resolv.conf
 
 - name: enable rke2-{{ node_type }}
   ansible.builtin.systemd:
@@ -168,4 +175,3 @@
     - not rke2_yaml_stat.stat.exists
   tags:
     - rke2
-

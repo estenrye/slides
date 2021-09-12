@@ -31,5 +31,5 @@ azure-service_principal:
 common_cluster:
   join_token: join-token-here
 truenas_api_key: your-api-key-here
-truenas_ssh_key: your-truenas-ssh-key-here
+cert_manager_acme_email: your-email-address-here
 ```
