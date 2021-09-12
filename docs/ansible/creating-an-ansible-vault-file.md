@@ -28,4 +28,8 @@ azure-service_principal:
   name: your-id-here
   password: your-password-here
   tenant: your-tennant-here
+common_cluster:
+  join_token: join-token-here
+truenas_api_key: your-api-key-here
+truenas_ssh_key: your-truenas-ssh-key-here
 ```
