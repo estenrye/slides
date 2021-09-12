@@ -1,0 +1,9 @@
+- hosts: initial_controlplane
+  roles:
+    - fetch_kube_config
+
+- hosts: localhost
+  connection: local
+  roles:
+    - rancher_monitoring
+    - truenas_container_storage_interface

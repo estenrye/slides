@@ -46,7 +46,6 @@
 - hosts: initial_controlplane
   roles:
     - rke2
-    - fetch_kube_config
 
 - hosts: additional_controlplane
   roles:
@@ -57,8 +56,5 @@
   roles:
     - rke2
 
-- hosts: localhost
-  connection: local
-  roles:
-    - rancher_monitoring
-    - truenas_container_storage_interface
+- name: install base cluster configuration
+  import_playbook: base_cluster_config.yml

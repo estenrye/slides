@@ -1,6 +1,5 @@
 truenas_backend: nas.{{ cloudflare_zone }}
 truenas_api_key: "{{ truenas_api_key }}"
-truenas_ssh_key: "{{ truenas_ssh_key }}"
 truenas_dataset_root: main/k8s
 
 democratic_csi:

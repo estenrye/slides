@@ -1,1 +1,2 @@
 cloudflare_zone: ryezone.com
+kubernetes_zone: "{{ platform_environment }}.{{ cloudflare_zone }}"
