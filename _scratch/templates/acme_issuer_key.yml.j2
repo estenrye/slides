@@ -1,7 +1,0 @@
-acmeDisableAccountKeyGeneration: true
-acmeEmail: {{ cert_manager_acme_email }}
-acmePrivateKeySecret: |-
-  {{ acme_issuer_key.privatekey | indent(2) }}
-cloudflareApiToken: {{ cloudflare.api_token }}
-dnsZones:
-  - {{ kubernetes_zone }}
