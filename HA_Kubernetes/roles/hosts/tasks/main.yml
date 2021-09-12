@@ -1,9 +1,0 @@
-- name: find several related variables
-  ansible.builtin.lineinfile:
-    path: /etc/hosts
-    line: "{{ item.value }} {{ item.record }}.{{ kubernetes_zone }} {{ item.record }}"
-  loop: "{{ lookup('vars', 'dns_entries') }}"
-  when: 
-    - item.record != inventory_hostname
-    - item.record != "*"
-  become: true
