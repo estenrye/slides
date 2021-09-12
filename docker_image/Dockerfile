@@ -22,6 +22,7 @@ RUN apt update \
   && apt update \
   && apt install -y --no-install-recommends \
     azure-cli \
+    certbot \
     docker-ce-cli \
     genisoimage \
     kubectl \
