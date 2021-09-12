@@ -33,6 +33,7 @@ RUN apt update \
     p7zip-full \
     sudo \
     terraform \
+    vim \
     xorriso \
   && rm -rf /var/lib/apt/lists/* \
   && rm -rf /tmp/* \
