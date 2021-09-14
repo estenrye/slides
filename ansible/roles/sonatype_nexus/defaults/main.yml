@@ -2,12 +2,13 @@ kubernetes_zone: "{{ platform_environment }}.{{ cloudflare_zone }}"
 sonatype_chart_repo_url: https://sonatype.github.io/helm3-charts/
 sonatype_nexus_chart_version: 34.0.0
 sonatype_nexus_release_namespace: sonatype-nexus
-sonatype_nexus_cert_manager_issuer: ClusterIssuer
-sonatype_nexus_cert_manager_issuer_kind: letsencrypt-cloudflare-dns01
+sonatype_nexus_cert_manager_issuer: letsencrypt-cloudflare-dns01
+sonatype_nexus_cert_manager_issuer_kind: ClusterIssuer
 
 sonatype_nexus_helm_values:
   ingress:
     enabled: true
+    hostRepo: nexus.{{ kubernetes_zone }}
     annotations:
       kubernetes.io/ingress.class: nginx
       cert-manager.io/issuer: "{{ sonatype_nexus_cert_manager_issuer }}"
@@ -16,9 +17,6 @@ sonatype_nexus_helm_values:
     - secretName: nexus-tls
       hosts:
         - nexus.{{ kubernetes_zone }}
-        - nexus.{{ sonatype_nexus_release_namespace }}.svc.cluster.local
-        - nexus.svc.cluster.local
-        - nexus
   service:
     name: nexus
     enabled: true
@@ -31,3 +29,12 @@ sonatype_nexus_helm_values:
     # annotations:
     #  "helm.sh/resource-policy": keep
     storageSize: 500Gi
+  resources:
+    requests:
+      cpu: 4
+      memory: 4800Mi
+    env:
+      - name: install4jAddVmParams
+        value: "-Xms1200M -Xmx1200M -XX:MaxDirectMemorySize=2G -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+      - name: NEXUS_SECURITY_RANDOMPASSWORD
+        value: "true"

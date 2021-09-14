@@ -1,0 +1,5 @@
+sonatype_nexus_uri: "{{ nexus_uri }}"
+sonatype_nexus_user: "{{ nexus_user }}"
+sonatype_nexus_password: "{{ nexus_password }}"
+sonatype_nexus_local_packages_gpg_keypair: "{{ local_packages_gpg_keypair }}"
+sonatype_nexus_local_packages_gpg_passphrase: "{{ local_packages_gpg_passphrase }}"

@@ -5,3 +5,4 @@
   connection: local
   roles:
     - sonatype_nexus
+    - configure_sonatype_nexus
