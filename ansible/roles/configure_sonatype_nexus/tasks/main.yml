@@ -11,6 +11,9 @@
   tags:
     - sonatype_nexus_configuration
     - sonatype_nexus_apt_proxy_repo
+  loop_control:
+    loop_var: proxied_repo
+  loop: "{{ sonatype_nexus_proxied_apt_repositories }}"
 
 - name: configure raw hosted repos
   ansible.builtin.include_tasks:

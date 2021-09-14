@@ -8,9 +8,9 @@
     - sonatype_nexus_configuration
     - sonatype_nexus_apt_hosted_repo
 
-- name: check if ubuntu-focal proxied apt repository exists
+- name: check if {{ proxied_repo.nexus_repo }} proxied apt repository exists
   ansible.builtin.uri:
-    url: "{{ sonatype_nexus_uri }}/service/rest/v1/repositories/apt/proxy/ubuntu-focal"
+    url: "{{ sonatype_nexus_uri }}/service/rest/v1/repositories/apt/proxy/{{ proxied_repo.nexus_repo }}"
     method: GET
     user: "{{ sonatype_nexus_user }}"
     password: "{{ sonatype_nexus_password }}"
@@ -18,12 +18,12 @@
     status_code:
       - 200
       - 404
-  register: get_ubuntu_result
+  register: get_result
   tags:
     - sonatype_nexus_configuration
     - sonatype_nexus_apt_proxy_repo
 
-- name: create ubuntu proxied apt repository
+- name: create {{ proxied_repo.nexus_repo }} proxied apt repository
   ansible.builtin.uri:
     url: "{{ sonatype_nexus_uri }}/service/rest/v1/repositories/apt/proxy"
     method: POST
@@ -34,7 +34,7 @@
       - 201
     body_format: json
     body:
-      name: ubuntu-focal
+      name: "{{ proxied_repo.nexus_repo }}"
       online: true
       storage:
         blobStoreName: default
@@ -42,7 +42,7 @@
       cleanup:
         policyNames: []
       proxy:
-        remoteUrl: http://us.archive.ubuntu.com/ubuntu
+        remoteUrl: "{{ proxied_repo.repo_uri }}"
         contentMaxAge: -1
         metadataMaxAge: 1440
       negativeCache:
@@ -52,10 +52,10 @@
         blocked: false
         autoBlock: true
       apt:
-        distribution: focal
+        distribution: "{{ proxied_repo.distribution }}"
         flat: false
   when:
-    - get_ubuntu_result.status == 404
+    - get_result.status == 404
   tags:
     - sonatype_nexus_configuration
     - sonatype_nexus_apt_proxy_repo
