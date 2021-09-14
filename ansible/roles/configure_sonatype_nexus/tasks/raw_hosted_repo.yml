@@ -1,0 +1,77 @@
+- name: assert parameters
+  ansible.builtin.assert:
+    that:
+      - sonatype_nexus_uri is defined
+      - sonatype_nexus_user is defined
+      - sonatype_nexus_password is defined
+      - sonatype_nexus_local_packages_gpg_keypair_publickey is defined
+  tags:
+    - sonatype_nexus_configuration
+    - sonatype_nexus_raw_hosted_repo
+
+- name: check if apt-keys hosted raw repository exists
+  ansible.builtin.uri:
+    url: "{{ sonatype_nexus_uri }}/service/rest/v1/repositories/raw/hosted/apt-keys"
+    method: GET
+    user: "{{ sonatype_nexus_user }}"
+    password: "{{ sonatype_nexus_password }}"
+    force_basic_auth: true
+    status_code:
+      - 200
+      - 404
+  register: get_apt_keys_result
+  tags:
+    - sonatype_nexus_configuration
+    - sonatype_nexus_raw_hosted_repo
+
+- name: create apt-keys hosted raw repository
+  ansible.builtin.uri:
+    url: "{{ sonatype_nexus_uri }}/service/rest/v1/repositories/raw/hosted"
+    method: POST
+    user: "{{ sonatype_nexus_user }}"
+    password: "{{ sonatype_nexus_password }}"
+    force_basic_auth: true
+    status_code:
+      - 201
+    body_format: json
+    body:
+      name: apt-keys
+      online: true
+      storage:
+        blobStoreName: default
+        strictContentTypeValidation: true
+        writePolicy: allow
+      cleanup:
+        policyNames: []
+      component:
+        proprietaryComponents: true
+  when:
+    - get_apt_keys_result.status == 404
+  tags:
+    - sonatype_nexus_configuration
+    - sonatype_nexus_raw_hosted_repo
+
+# TODO: Add logic to support updating the raw repository configuration
+#       This logic would interogate the GET response and perform a PUT
+#       Operation if any element in the configuration has changed.
+
+- name: upload local-packages gpg public key
+  ansible.builtin.uri:
+    url: "{{ sonatype_nexus_uri }}/service/rest/v1/components?repository=apt-keys"
+    method: POST
+    user: "{{ sonatype_nexus_user }}"
+    password: "{{ sonatype_nexus_password }}"
+    force_basic_auth: true
+    status_code:
+      - 204
+    body_format: form-multipart
+    body:
+      raw.asset1:
+        content: "{{ sonatype_nexus_local_packages_gpg_keypair_publickey }}"
+        filename: local-packages.gpg
+        mimetype: text/plain
+      raw.asset1.filename: local-packages.gpg
+      raw.directory: /hosted
+  tags:
+    - sonatype_nexus_configuration
+    - sonatype_nexus_raw_hosted_repo

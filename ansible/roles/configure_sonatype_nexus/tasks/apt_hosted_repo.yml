@@ -1,0 +1,66 @@
+- name: assert parameters
+  ansible.builtin.assert:
+    that:
+      - sonatype_nexus_uri is defined
+      - sonatype_nexus_user is defined
+      - sonatype_nexus_password is defined
+      - sonatype_nexus_local_packages_gpg_keypair_publickey is defined
+      - sonatype_nexus_local_packages_gpg_keypair_privatekey is defined
+      - sonatype_nexus_local_packages_gpg_passphrase is defined
+  tags:
+    - sonatype_nexus_configuration
+    - sonatype_nexus_apt_hosted_repo
+
+- name: check if local-packages hosted apt repository exists
+  ansible.builtin.uri:
+    url: "{{ sonatype_nexus_uri }}/service/rest/v1/repositories/apt/hosted/local-packages"
+    method: GET
+    user: "{{ sonatype_nexus_user }}"
+    password: "{{ sonatype_nexus_password }}"
+    force_basic_auth: true
+    status_code:
+      - 200
+      - 404
+  register: get_local_packages_result
+  tags:
+    - sonatype_nexus_configuration
+    - sonatype_nexus_apt_hosted_repo
+
+- name: create local-packages hosted apt repository
+  ansible.builtin.uri:
+    url: "{{ sonatype_nexus_uri }}/service/rest/v1/repositories/apt/hosted"
+    method: POST
+    user: "{{ sonatype_nexus_user }}"
+    password: "{{ sonatype_nexus_password }}"
+    force_basic_auth: true
+    status_code:
+      - 201
+    body_format: json
+    body:
+      name: local-packages
+      online: true
+      storage:
+        blobStoreName: default
+        strictContentTypeValidation: true
+        writePolicy: allow_once
+      cleanup:
+        policyNames: []
+      component:
+        proprietaryComponents: true
+      apt:
+        distribution: focal
+      aptSigning:
+        keypair: |
+          {{ sonatype_nexus_local_packages_gpg_keypair_publickey }}
+          {{ sonatype_nexus_local_packages_gpg_keypair_privatekey }}
+        passphrase: "{{ sonatype_nexus_local_packages_gpg_passphrase }}"
+  when:
+    - get_local_packages_result.status == 404
+  tags:
+    - sonatype_nexus_configuration
+    - sonatype_nexus_apt_hosted_repo
+
+# TODO: Add logic to support updating the apt repository configuration
+#       This logic would interogate the GET response and perform a PUT
+#       Operation if any element in the configuration has changed.
+

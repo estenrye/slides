@@ -1,55 +1,20 @@
-- name: assert parameters
-  ansible.builtin.assert:
-    that:
-      - sonatype_nexus_uri is defined
-      - sonatype_nexus_user is defined
-      - sonatype_nexus_password is defined
-      - sonatype_nexus_local_packages_gpg_keypair is defined
-      - sonatype_nexus_local_packages_gpg_passphrase is defined
+- name: configure apt hosted repos
+  ansible.builtin.include_tasks:
+    file: apt_hosted_repo.yml
   tags:
     - sonatype_nexus_configuration
+    - sonatype_nexus_apt_hosted_repo
 
-- name: check if local-packages hosted apt repository exists
-  ansible.builtin.uri:
-    url: "{{ sonatype_nexus_uri }}/service/rest/v1/repositories/apt/hosted/local-packages"
-    method: GET
-    user: "{{ sonatype_nexus_user }}"
-    password: "{{ sonatype_nexus_password }}"
-    force_basic_auth: true
-    status_code:
-      - 200
-      - 404
-  register: get_local_packages_result
+- name: configure apt proxy repos
+  ansible.builtin.include_tasks:
+    file: apt_proxy_repo.yml
   tags:
     - sonatype_nexus_configuration
+    - sonatype_nexus_apt_proxy_repo
 
-- name: create local-packages hosted apt repository
-  ansible.builtin.uri:
-    url: "{{ sonatype_nexus_uri }}/service/rest/v1/repositories/apt/hosted"
-    method: POST
-    user: "{{ sonatype_nexus_user }}"
-    password: "{{ sonatype_nexus_password }}"
-    force_basic_auth: true
-    status_code:
-      - 201
-    body_format: json
-    body:
-      name: local-packages
-      online: true
-      storage:
-        blobStoreName: default
-        strictContentTypeValidation: true
-        writePolicy: allow_once
-      cleanup:
-        policyNames: []
-      component:
-        proprietaryComponents: true
-      apt:
-        distribution: focal
-      aptSigning:
-        keypair: "{{ sonatype_nexus_local_packages_gpg_keypair }}"
-        passphrase: "{{ sonatype_nexus_local_packages_gpg_passphrase }}"
-  when:
-    - get_local_packages_result.status == 404
+- name: configure raw hosted repos
+  ansible.builtin.include_tasks:
+    file: raw_hosted_repo.yml
   tags:
     - sonatype_nexus_configuration
+    - sonatype_nexus_raw_hosted_repo

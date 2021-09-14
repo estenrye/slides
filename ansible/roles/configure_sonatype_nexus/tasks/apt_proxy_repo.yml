@@ -1,0 +1,66 @@
+- name: assert parameters
+  ansible.builtin.assert:
+    that:
+      - sonatype_nexus_uri is defined
+      - sonatype_nexus_user is defined
+      - sonatype_nexus_password is defined
+  tags:
+    - sonatype_nexus_configuration
+    - sonatype_nexus_apt_hosted_repo
+
+- name: check if ubuntu-focal proxied apt repository exists
+  ansible.builtin.uri:
+    url: "{{ sonatype_nexus_uri }}/service/rest/v1/repositories/apt/proxy/ubuntu-focal"
+    method: GET
+    user: "{{ sonatype_nexus_user }}"
+    password: "{{ sonatype_nexus_password }}"
+    force_basic_auth: true
+    status_code:
+      - 200
+      - 404
+  register: get_ubuntu_result
+  tags:
+    - sonatype_nexus_configuration
+    - sonatype_nexus_apt_proxy_repo
+
+- name: create ubuntu proxied apt repository
+  ansible.builtin.uri:
+    url: "{{ sonatype_nexus_uri }}/service/rest/v1/repositories/apt/proxy"
+    method: POST
+    user: "{{ sonatype_nexus_user }}"
+    password: "{{ sonatype_nexus_password }}"
+    force_basic_auth: true
+    status_code:
+      - 201
+    body_format: json
+    body:
+      name: ubuntu-focal
+      online: true
+      storage:
+        blobStoreName: default
+        strictContentTypeValidation: true
+      cleanup:
+        policyNames: []
+      proxy:
+        remoteUrl: http://us.archive.ubuntu.com/ubuntu
+        contentMaxAge: -1
+        metadataMaxAge: 1440
+      negativeCache:
+        enabled: true
+        timeToLive: 1440
+      httpClient:
+        blocked: false
+        autoBlock: true
+      apt:
+        distribution: focal
+        flat: false
+  when:
+    - get_ubuntu_result.status == 404
+  tags:
+    - sonatype_nexus_configuration
+    - sonatype_nexus_apt_proxy_repo
+
+# TODO: Add logic to support updating the apt repository configuration
+#       This logic would interogate the GET response and perform a PUT
+#       Operation if any element in the configuration has changed.
+
