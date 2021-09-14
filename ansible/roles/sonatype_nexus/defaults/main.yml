@@ -1,0 +1,33 @@
+kubernetes_zone: "{{ platform_environment }}.{{ cloudflare_zone }}"
+sonatype_chart_repo_url: https://sonatype.github.io/helm3-charts/
+sonatype_nexus_chart_version: 34.0.0
+sonatype_nexus_release_namespace: sonatype-nexus
+sonatype_nexus_cert_manager_issuer: ClusterIssuer
+sonatype_nexus_cert_manager_issuer_kind: letsencrypt-cloudflare-dns01
+
+sonatype_nexus_helm_values:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/issuer: "{{ sonatype_nexus_cert_manager_issuer }}"
+      cert-manager.io/issuer-kind: "{{ sonatype_nexus_cert_manager_issuer_kind }}"
+    tls:
+    - secretName: nexus-tls
+      hosts:
+        - nexus.{{ kubernetes_zone }}
+        - nexus.{{ sonatype_nexus_release_namespace }}.svc.cluster.local
+        - nexus.svc.cluster.local
+        - nexus
+  service:
+    name: nexus
+    enabled: true
+    serviceType: ClusterIP
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    storageClass: truenas-iscsi-csi
+    # existingClaim:
+    # annotations:
+    #  "helm.sh/resource-policy": keep
+    storageSize: 500Gi

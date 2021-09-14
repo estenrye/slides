@@ -1,0 +1,17 @@
+- name: Add chart repos.
+  community.kubernetes.helm_repository:
+    name: sonatype
+    repo_url: "{{ sonatype_chart_repo_url }}"
+  tags:
+    - sonatype_nexus
+
+- name: Install Sonatype Nexus Repository Manager Chart
+  community.kubernetes.helm:
+    name: nexus-repo
+    chart_ref: sonatype/nexus-repository-manager
+    chart_version: "{{ sonatype_nexus_chart_version }}"
+    release_namespace: "{{ sonatype_nexus_release_namespace }}"
+    create_namespace: true
+    values: "{{ sonatype_nexus_helm_values }}"
+  tags:
+    - sonatype_nexus

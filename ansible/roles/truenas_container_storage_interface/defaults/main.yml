@@ -6,6 +6,6 @@ democratic_csi:
   helm:
     repo: https://democratic-csi.github.io/charts/
     chart: democratic-csi
-    version: 0.8.1
+    version: 0.8.3
     name: democratic-csi
     namespace: democratic-csi

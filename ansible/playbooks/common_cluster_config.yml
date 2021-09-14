@@ -1,0 +1,7 @@
+- name: install base cluster configuration
+  import_playbook: base_cluster_config.yml
+
+- hosts: localhost
+  connection: local
+  roles:
+    - sonatype_nexus
