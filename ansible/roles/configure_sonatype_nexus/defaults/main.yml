@@ -8,7 +8,16 @@ sonatype_nexus_local_packages_gpg_passphrase: "{{ local_packages_gpg_passphrase 
 sonatype_nexus_proxied_apt_repositories:
   - nexus_repo: ubuntu-focal
     distribution: focal
-    repo_uri: http://us.archive.ubuntu.com/ubuntu
+    repo_uri: http://archive.ubuntu.com/ubuntu
+  - nexus_repo: ubuntu-focal-updates
+    distribution: focal-updates
+    repo_uri: http://archive.ubuntu.com/ubuntu
+  - nexus_repo: ubuntu-focal-backports
+    distribution: focal-backports
+    repo_uri: http://archive.ubuntu.com/ubuntu
+  - nexus_repo: ubuntu-focal-security
+    distribution: focal-security
+    repo_uri: http://security.ubuntu.com/ubuntu
   - nexus_repo: azure-cli-ubuntu-focal
     distribution: focal
     key_checksum:
