@@ -38,6 +38,7 @@ RUN apt update \
     python3-pip \
     p7zip-full \
     squashfs-tools \
+    schroot \
     sudo \
     terraform \
     vim \
