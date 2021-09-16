@@ -1,0 +1,94 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    distribution: focal
+    debootstrap_mirror: https://nexus.common.ryezone.com/repository/ubuntu-{{distribution}}
+    chroot_environment: /ansible/packer_cache/live-ubuntu-from-scratch/chroot/
+    # preseed_host: "http://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+    # preseed_port: 10080
+    # iso_url: https://releases.ubuntu.com/20.04.2/ubuntu-20.04.2-live-server-amd64.iso
+    # iso_checksum: sha256:d1f2bf834bbe9bb43faf16f9be992a6f3935e65be0edece1dee2aa6eb1767423
+    # iso_path: ubuntu-20.04.2-live-server-amd64.iso
+    # iso_extract_path: ubuntu_iso
+  tasks:
+    - name: Install packages we need in the build system required by our scripts.
+      ansible.builtin.package:
+        name:
+          - binutils
+          - debootstrap
+          - genisoimage
+          - grub-pc-bin
+          - grub-efi-amd64-bin
+          - mkisofs
+          - mtools
+          - p7zip-full
+          - squashfs-tools
+          - xorriso
+      become: true
+      tags: install_prerequisites
+
+    - name: Clean the working directories
+      ansible.builtin.file:
+        path: /ansible/packer_cache
+        state: absent
+      become: true
+      tags: install_prerequisites
+
+    - name: Create the working directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - "{{ chroot_environment }}/dev"
+        - "{{ chroot_environment }}/run"
+      tags: install_prerequisites
+
+    - name: prepare debootstrap chroot environment
+      ansible.builtin.command:
+        argv:
+          - debootstrap
+          - --arch=amd64
+          - --variant=minbase
+          - "{{ distribution }}"
+          - "{{ chroot_environment }}"
+          - "{{ debootstrap_mirror }}"
+      become: true
+      tags: install_prerequisites
+
+    - name: add sources list
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      loop:
+        - src: templates/sources.list.j2
+          dest: "{{ chroot_environment }}/etc/apt/sources.list"
+        - src: templates/hosts.j2
+          dest: "{{ chroot_environment }}/etc/hosts"
+
+    - name: update package cache in chroot environment
+      ansible.builtin.command:
+        cmd: chroot {{ chroot_environment }} apt update
+
+    - name: update package cache in chroot environment
+      ansible.builtin.command:
+        cmd: chroot {{ chroot_environment }} apt install python3 -y --no-install-recommends
+
+
+- hosts: chroot
+  connection: chroot
+  vars:
+    ansible_host: /ansible/packer_cache/live-ubuntu-from-scratch/chroot/
+    ansible_user: root
+  tasks:
+    - name: list root
+      ansible.builtin.command:
+        cmd: ls
+      register: output
+      become: true
+
+    - name: output root
+      ansible.builtin.debug:
+        var: output
+      become: true
+

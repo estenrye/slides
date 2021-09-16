@@ -50,7 +50,8 @@ RUN apt update \
   && groupadd --gid 1000 automation-user \
   && useradd --shell /bin/bash --home-dir /home/automation-user --create-home --groups docker --groups sudo --gid 1000 --uid 1000 automation-user \
   && mkdir -p /ansible \
-  && chown -R automation-user /install /ansible
+  && chown -R automation-user /install /ansible \
+  && pip3 install --no-warn-script-location -r /install/requirements.txt
 
 COPY sudoers /etc/sudoers
 
@@ -58,6 +59,5 @@ USER automation-user
 ENV PATH /home/automation-user/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 WORKDIR /ansible
 
-RUN pip3 install --no-warn-script-location -r /install/requirements.txt \
-  && /home/automation-user/.local/bin/ansible-galaxy install -r /install/requirements.yml \
+RUN ansible-galaxy install -r /install/requirements.yml \
   && helm plugin install https://github.com/databus23/helm-diff
