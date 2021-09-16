@@ -6,6 +6,7 @@ ubuntu_2004_cis_section1_rule_1_1_2: false
 ubuntu_2004_cis_section1_rule_1_1_3: false
 ubuntu_2004_cis_section1_rule_1_1_4: false
 ubuntu_2004_cis_section1_rule_1_1_5: false
+ubuntu_2004_cis_section1_rule_1_1_7: false
 
 disk_src_var_lib: /dev/vdc
 disk_src_var_log: /dev/vdd
