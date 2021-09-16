@@ -34,8 +34,8 @@ docker run --rm \
   -e PKR_VAR_proxmox_vm_name=packer-ubuntu-2004-minimal-base-`date '+%Y%m%d'` \
   estenrye/ansible:latest \
   packer build \
-    -var-file packer_cache/custom-ubuntu-20.04.2-live-server-amd64.iso.pkvars.hcl \
-    -var-file packer_cache/cidata-proxmox.iso.pkvars.hcl \
+    -var-file /ansible/packer_cache/custom-ubuntu-20.04.2-live-server-amd64.iso.pkvars.hcl \
+    -var-file /ansible/packer_cache/cidata-proxmox.iso.pkvars.hcl \
     ubuntu-20.04-amd64.proxmox.pkr.hcl
 ```
 
