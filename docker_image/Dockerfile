@@ -26,6 +26,7 @@ RUN apt update \
     certbot \
     debootstrap \
     docker-ce-cli \
+    dosfstools \
     genisoimage \
     grub-pc-bin \
     grub-efi-amd64-bin \
