@@ -1,8 +1,0 @@
-collections:
-  - name: ansible.posix
-    version: 1.3.0
-  - name: community.general
-    version: 3.6.0
-roles:
-  - name: darkwizard242.cis_ubuntu_2004
-    version: 1.0.2

@@ -1,10 +1,12 @@
+# Inspired by https://github.com/mvallim/live-custom-ubuntu-from-scratch
+
 ---
 - hosts: localhost
   connection: local
   vars:
     distribution: focal
     debootstrap_mirror: https://nexus.common.ryezone.com/repository/ubuntu-{{distribution}}
-    chroot_environment: /ansible/packer_cache/live-ubuntu-from-scratch/chroot/
+    chroot_environment: /ansible/packer_cache/live-ubuntu-from-scratch/chroot
     # preseed_host: "http://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
     # preseed_port: 10080
     # iso_url: https://releases.ubuntu.com/20.04.2/ubuntu-20.04.2-live-server-amd64.iso
@@ -26,14 +28,16 @@
           - squashfs-tools
           - xorriso
       become: true
-      tags: install_prerequisites
+      tags:
+        - apt_install_prerequisites
 
     - name: Clean the working directories
       ansible.builtin.file:
         path: /ansible/packer_cache
         state: absent
       become: true
-      tags: install_prerequisites
+      tags:
+        - clean
 
     - name: Create the working directories
       ansible.builtin.file:
@@ -42,7 +46,8 @@
       loop:
         - "{{ chroot_environment }}/dev"
         - "{{ chroot_environment }}/run"
-      tags: install_prerequisites
+      tags:
+        - create_debootstrap
 
     - name: prepare debootstrap chroot environment
       ansible.builtin.command:
@@ -54,7 +59,8 @@
           - "{{ chroot_environment }}"
           - "{{ debootstrap_mirror }}"
       become: true
-      tags: install_prerequisites
+      tags:
+         - create_debootstrap
 
     - name: add sources list
       ansible.builtin.template:
@@ -65,15 +71,22 @@
           dest: "{{ chroot_environment }}/etc/apt/sources.list"
         - src: templates/hosts.j2
           dest: "{{ chroot_environment }}/etc/hosts"
+        - src: templates/hostname.j2
+          dest: "{{ chroot_environment }}/etc/hostname"
+      tags:
+         - create_debootstrap
 
     - name: update package cache in chroot environment
       ansible.builtin.command:
         cmd: chroot {{ chroot_environment }} apt update
+      tags:
+         - create_debootstrap
 
-    - name: update package cache in chroot environment
+    - name: install python3 in chroot environment
       ansible.builtin.command:
         cmd: chroot {{ chroot_environment }} apt install python3 -y --no-install-recommends
-
+      tags:
+         - create_debootstrap
 
 - hosts: chroot
   connection: chroot
@@ -81,14 +94,200 @@
     ansible_host: /ansible/packer_cache/live-ubuntu-from-scratch/chroot/
     ansible_user: root
   tasks:
-    - name: list root
+    - name: Configure proc mount point
+      ansible.posix.mount:
+        path: /proc
+        fstype: proc
+        src: none
+        state: mounted
+
+    - name: Configure sysfs mount point
+      ansible.posix.mount:
+        path: /sys
+        fstype: sysfs
+        src: none
+        state: mounted
+
+    - name: Configure devpts mount point
+      ansible.posix.mount:
+        path: /dev/pts
+        fstype: devpts
+        src: none
+        state: mounted
+
+    - name: Install systemd
+      ansible.builtin.package:
+        name:
+          - libterm-readline-gnu-perl
+          - systemd-sysv
+
+    - name: Configure machine-id and divert
       ansible.builtin.command:
-        cmd: ls
-      register: output
-      become: true
+        cmd: dbus-uuidgen
+        creates: /etc/machine-id
+      register: machine_id
 
-    - name: output root
-      ansible.builtin.debug:
-        var: output
-      become: true
+    - name: Write /etc/machine-id
+      ansible.builtin.copy:
+        content: "{{ machine_id.stdout }}"
+        dest: /etc/machine-id
+      when:
+        - machine_id.changed
 
+    - name: Link /etc/machine-id to /var/lib/dbus/machine-id
+      ansible.builtin.file:
+        path: /var/lib/dbus/machine-id
+        state: link
+        force: true
+        src: /etc/machine-id
+
+    - name: Upgrade Packages
+      ansible.builtin.apt:
+        upgrade: full
+
+    - name: Install packages needed for live system
+      ansible.builtin.package:
+        name:
+          - sudo
+          - ubuntu-standard
+          - casper
+          - lupin-casper
+          - discover
+          - laptop-detect
+          - os-prober
+          - network-manager
+          - resolvconf
+          - net-tools
+          - wireless-tools
+          - wpagui
+          - locales
+          - grub-common
+          - grub-gfxpayload-lists
+          - grub-pc
+          - grub-pc-bin
+          - grub2-common
+
+    - name: Install linux-generic kernel
+      ansible.builtin.apt:
+        install_recommends: false
+        name:
+          - linux-generic
+
+    - name: Install the graphical installer
+      ansible.builtin.package:
+        name:
+          - ubiquity
+          - ubiquity-casper
+          - ubiquity-frontend-gtk
+          - ubiquity-slideshow-ubuntu
+          - ubiquity-ubuntu-artwork
+
+    - name: Configure locales
+      ansible.builtin.command:
+        cmd: locale-gen --purge en_US.UTF-8
+
+    - name: select locales
+      ansible.builtin.template:
+        src: templates/locale.j2
+        dest: /etc/default/locale
+
+    - name: reconfigure resolv.conf
+      ansible.builtin.command:
+        cmd: dpkg-reconfigure resolvconf
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+        DEBCONF_NONINTERACTIVE_SEEN: true
+
+    - name: reconfigure networkmanager
+      ansible.builtin.command:
+        cmd: dpkg-reconfigure network-manager
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+        DEBCONF_NONINTERACTIVE_SEEN: true
+
+    - name: cleanup chroot environment
+      ansible.builtin.command:
+        cmd: truncate -s 0 /etc/machine-id
+
+    - name: remove the diversion
+      ansible.builtin.file:
+        path: /sbin/initctl
+        state: absent
+
+    - name: remove the diversion
+      ansible.builtin.command:
+        cmd: dpkg-divert --rename --remove /sbin/initctl
+
+    - name: clean apt packages
+      ansible.builtin.command:
+        cmd: apt-get clean
+
+    - name: clean tmp directory
+      ansible.builtin.command:
+        cmd: rm -rf /tmp/* ~/.bash_history
+
+    - name: Configure proc mount point
+      ansible.posix.mount:
+        path: /proc
+        state: unmounted
+
+    - name: Configure sysfs mount point
+      ansible.posix.mount:
+        path: /sys
+        state: unmounted
+
+    - name: Configure devpts mount point
+      ansible.posix.mount:
+        path: /dev/pts
+        state: unmounted
+  tags:
+    - configure_chroot
+
+- hosts: localhost
+  connection: local
+  vars:
+    iso_build_environment: /ansible/packer_cache/live-ubuntu-from-scratch
+    chroot_environment: /ansible/packer_cache/live-ubuntu-from-scratch/chroot
+  tasks:
+    - ansible.builtin.file:
+        path: "{{ iso_build_environment }}/image/{{ item }}"
+        state: directory
+      loop:
+        - casper
+        - isolinux
+        - install
+
+    - ansible.builtin.find:
+        patterns:
+          - vmlinuz-**-**-generic
+        paths:
+          - "{{ iso_build_environment }}/chroot/boot"
+        use_regex: false
+        file_type: file
+      register: vmlinuz
+
+    - ansible.builtin.copy:
+        src: "{{ item.path }}"
+        remote_src: true
+        dest: "{{ iso_build_environment }}/image/casper/vmlinuz"
+      loop: "{{ vmlinuz.files }}"
+
+    - ansible.builtin.find:
+        patterns:
+          - initrd.img-**-**-generic
+        paths:
+          - "{{ iso_build_environment }}/chroot/boot"
+        use_regex: false
+        file_type: file
+      register: initrd
+
+    - ansible.builtin.copy:
+        src: "{{ item.path }}"
+        remote_src: true
+        dest: "{{ iso_build_environment }}/image/casper/vmlinuz"
+      loop: "{{ initrd.files }}"
+
+    - ansible.builtin.copy:
+        src: "{{ iso_build_environment }}/chroot/boot/memtest86+"
+        remote_src: true
+        dest: "{{ iso_build_environment }}/image/install/memtest86"
