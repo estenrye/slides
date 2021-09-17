@@ -26,6 +26,7 @@
           - mtools
           - p7zip-full
           - squashfs-tools
+          - unzip
           - xorriso
       become: true
       tags:
@@ -182,6 +183,15 @@
           - ubiquity-slideshow-ubuntu
           - ubiquity-ubuntu-artwork
 
+    - name: Install useful applications
+      ansible.builtin.package:
+        name:
+          - vim
+          - curl
+          - less
+          - apt-transport-https
+          - memtest86+
+
     - name: Configure locales
       ansible.builtin.command:
         cmd: locale-gen --purge en_US.UTF-8
@@ -249,15 +259,18 @@
     iso_build_environment: /ansible/packer_cache/live-ubuntu-from-scratch
     chroot_environment: /ansible/packer_cache/live-ubuntu-from-scratch/chroot
   tasks:
-    - ansible.builtin.file:
+    - name: create image directories
+      ansible.builtin.file:
         path: "{{ iso_build_environment }}/image/{{ item }}"
         state: directory
       loop:
         - casper
         - isolinux
         - install
+        - install/memtest86
 
-    - ansible.builtin.find:
+    - name: find vmlinuz binaries
+      ansible.builtin.find:
         patterns:
           - vmlinuz-**-**-generic
         paths:
@@ -266,13 +279,15 @@
         file_type: file
       register: vmlinuz
 
-    - ansible.builtin.copy:
+    - name: copy vmlinuz to image/casper
+      ansible.builtin.copy:
         src: "{{ item.path }}"
         remote_src: true
         dest: "{{ iso_build_environment }}/image/casper/vmlinuz"
       loop: "{{ vmlinuz.files }}"
 
-    - ansible.builtin.find:
+    - name: Find initrd binaries
+      ansible.builtin.find:
         patterns:
           - initrd.img-**-**-generic
         paths:
@@ -281,13 +296,31 @@
         file_type: file
       register: initrd
 
-    - ansible.builtin.copy:
+    - name: Copy initrd to image/casper
+      ansible.builtin.copy:
         src: "{{ item.path }}"
         remote_src: true
-        dest: "{{ iso_build_environment }}/image/casper/vmlinuz"
+        dest: "{{ iso_build_environment }}/image/casper/initrd"
       loop: "{{ initrd.files }}"
 
-    - ansible.builtin.copy:
-        src: "{{ iso_build_environment }}/chroot/boot/memtest86+"
+    - name: copy memtest86+ BIOS to image/install
+      ansible.builtin.copy:
+        src: "{{ iso_build_environment }}/chroot/boot/memtest86+.bin"
+        remote_src: true
+        dest: "{{ iso_build_environment }}/image/install/memtest86+"
+
+    - name: download memtest86 binaries
+      ansible.builtin.get_url:
+        url: https://www.memtest86.com/downloads/memtest86-usb.zip
+        dest: "{{ iso_build_environment }}/image/install/memtest86-usb.zip"
+
+    - name: extract memtest86 binaries
+      ansible.builtin.unarchive:
+        src: "{{ iso_build_environment }}/image/install/memtest86-usb.zip"
         remote_src: true
         dest: "{{ iso_build_environment }}/image/install/memtest86"
+
+    - name: remove memtest86 zip file
+      ansible.builtin.file:
+        path: "{{ iso_build_environment }}/image/install/memtest86-usb.zip"
+        state: absent

@@ -41,6 +41,7 @@ RUN apt update \
     schroot \
     sudo \
     terraform \
+    unzip \
     vim \
     xorriso \
   && rm -rf /var/lib/apt/lists/* \
