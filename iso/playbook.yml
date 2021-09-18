@@ -1,0 +1,258 @@
+- hosts: host_system
+  connection: local
+  vars:
+    arch: amd64
+    release: focal
+  tasks:
+    - name: clean work/chroot folder
+      ansible.builtin.file:
+        path: work/chroot
+        state: absent
+      tags:
+        - clean
+
+    - name: install prerequisite packages
+      ansible.builtin.package:
+        name:
+          - syslinux
+          - squashfs-tools
+          - genisoimage
+          - debootstrap
+          - mkisofs
+      tags:
+        - install_packages
+
+    - name: create the chroot environment directory
+      ansible.builtin.file:
+        path: work
+        state: directory
+      tags:
+        - prepare_chroot
+
+    - name: create chroot environment
+      ansible.builtin.command:
+        chdir: work
+        argv:
+          - debootstrap
+          - --arch={{ arch }}
+          - "{{ release }}"
+          - chroot
+          - https://nexus.common.ryezone.com/repository/ubuntu-{{ release }}
+        creates: chroot
+      become: true
+      tags:
+        - prepare_chroot
+
+    - name: mount /dev to work/chroot/dev
+      ansible.posix.mount:
+        src: /dev
+        path: work/chroot/dev
+        fstype: none
+        state: present
+      tags:
+        - prepare_chroot
+
+    - name: copy system files to enable internet access in chroot
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        remote_src: true
+        dest: "{{ item.dest }}"
+      loop:
+        - src: /etc/hosts
+          dest: work/chroot/hosts
+        - src: /etc/resolv.conf
+          dest: work/chroot/resolv.conf
+      tags:
+        - prepare_chroot
+
+    - name: add sources list
+      ansible.builtin.template:
+        src: templates/sources.list.j2
+        dest: work/chroot/etc/apt/sources.list
+      tags:
+        - prepare_chroot
+
+- hosts: chroot_environment
+  connection: chroot
+  vars:
+    ansible_host: work/chroot
+  environment:
+    HOME: /root
+    LC_ALL: C
+  tasks:
+    - name: Configure mount points
+      ansible.posix.mount:
+        path: "{{ item.path }}"
+        fstype: "{{ item.fstype }}"
+        src: none
+        state: mounted
+      loop:
+        - path: /proc
+          fstype: proc
+        - path: /sys
+          fstype: sysfs
+        - path: /dev/pts
+          fstype: devpts
+      tags:
+        - prepare_chroot
+
+    - name: update apt packages
+      ansible.builtin.apt:
+        update_cache: true
+      tags:
+        - prepare_chroot
+
+    - name: install dbus
+      ansible.builtin.package:
+        name:
+          - dbus
+      tags:
+        - prepare_chroot
+
+    - name: Configure machine-id and divert
+      ansible.builtin.command:
+        cmd: dbus-uuidgen
+      register: machine_id
+      tags:
+        - prepare_chroot
+
+    - name: Write /etc/machine-id
+      ansible.builtin.copy:
+        content: "{{ machine_id.stdout }}"
+        dest: /var/lib/dbus/machine-id
+      when:
+        - machine_id.changed
+      tags:
+        - prepare_chroot
+
+    - name: add dpkg diversion
+      ansible.builtin.command:
+        cmd: dpkg-divert --local --rename --add /sbin/initctl
+      tags:
+        - prepare_chroot
+
+    - name: link /bin/true to /sbin/initctl
+      ansible.builtin.file:
+        src: /bin/true
+        path: /sbin/initctl
+        state: link
+      tags:
+        - prepare_chroot
+
+    - name: upgrade packages
+      ansible.builtin.apt:
+        upgrade: true
+      tags:
+        - prepare_chroot
+
+    - name: install packages needed for live system
+      ansible.builtin.package:
+        name:
+          - ubuntu-minimal
+          - casper
+          - lupin-casper
+          - discover
+          - laptop-detect
+          - os-prober
+          - linux-generic
+      tags:
+        - prepare_chroot
+
+    # - name: install grub
+    #   ansible.builtin.package:
+    #     name:
+    #       - grub-common
+    #       - grub-gfxpayload-lists
+    #       - grub-pc
+    #       - grub-pc-bin
+    #       - grub2-common
+      # tags:
+      #   - prepare_chroot
+
+    # - name: install network manager
+    #   ansible.builtin.apt:
+    #     install_recommends: false
+    #     name:
+    #       - network-manager
+      # tags:
+      #   - prepare_chroot
+
+    - name: Install the graphical installer
+      ansible.builtin.package:
+        name:
+          - ubiquity
+          - ubiquity-casper
+          - ubiquity-frontend-gtk
+          - ubiquity-slideshow-ubuntu
+          - ubiquity-ubuntu-artwork
+      tags:
+        - prepare_chroot
+
+    - name: chroot cleanup | remove files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/dbus/machine-id
+        - /sbin/initctl
+        - /etc/resolv.conf
+      tags:
+        - prepare_chroot
+
+    - name: chroot cleanup | remove diversion
+      ansible.builtin.command:
+        cmd: dpkg-divert --rename --remove /sbin/initctl
+      tags:
+        - prepare_chroot
+
+    # TODO: remove upgraded old linux kernels if more than one
+
+    - name: clean apt cache
+      ansible.builtin.command:
+        cmd: apt-get clean
+      tags:
+        - prepare_chroot
+
+    - name: find all files in tmp directory
+      ansible.builtin.find:
+        paths:
+          - /tmp
+        patterns:
+          - '*'
+        recurse: true
+      register: find_result
+      tags:
+        - prepare_chroot
+
+    - name: remove tmp files
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ find_result.files }}"
+      tags:
+        - prepare_chroot
+
+    - name: unmount points
+      ansible.posix.mount:
+        path: "{{ item.path }}"
+        state: unmounted
+      loop:
+        - path: /proc
+        - path: /sys
+        - path: /dev/pts
+      tags:
+        - prepare_chroot
+
+- hosts: host_system
+  connection: local
+  vars:
+    arch: amd64
+    release: focal
+  tasks:
+    - name: unmount /dev from work/chroot/dev
+      ansible.posix.mount:
+        path: work/chroot/dev
+        state: unmounted
+      tags:
+        - prepare_chroot
+
