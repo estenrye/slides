@@ -348,7 +348,19 @@
 
     - name: get filesystem size
       ansible.builtin.command:
-        cmd: du -sx --block-size=1 work/chroot | cut -f1 > work/image/casper/filesystem.size
+        cmd: du -sx --block-size=1 work/chroot
+      register: filesystem_size_raw
+
+    - name: cut filesystem size
+      ansible.builtin.command:
+        cmd: cut -f1
+        stdin: "{{ filesystem_size_raw.stdout }}"
+      register: filesystem_size
+
+    - name: write filesystem size
+      ansible.builtin.copy:
+        content: "{{ filesystem_size.stdout }}"
+        dest: work/image/casper/filesystem.size
 
     - name: create diskdefines
       ansible.builtin.template:
