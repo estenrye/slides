@@ -469,6 +469,7 @@
 
     - name: create iso
       ansible.builtin.command:
+        chdir: work/image
         argv:
           - mkisofs
           -  -r
@@ -478,15 +479,15 @@
           - -J
           - -l
           - -b
-          - work/image/isolinux/isolinux.bin
+          - isolinux/isolinux.bin
           - -c
-          - work/image/isolinux/boot.cat
+          - isolinux/boot.cat
           - -no-emul-boot
           - -boot-load-size
           - 4
           - -boot-info-table
           - -o
-          - work/ubuntu-remix.iso
-          - work/image
+          - ../ubuntu-remix.iso
+          - '.'
       tags:
         - create_iso
