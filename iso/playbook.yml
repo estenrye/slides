@@ -448,15 +448,15 @@
 
     - name: clean up find results
       ansible.builtin.set_fact:
-        var: image_files_for_md5_raw.files | map(attribute='path') | join(' ') | replace('work/image','.')
-      register: image_files_for_md5
+        image_files_for_md5: "{{ image_files_for_md5_raw.files | map(attribute='path') | join(' ') | replace('work/image','.') }}"
       tags:
         - calculate_md5
 
     - name: calculate md5
       ansible.builtin.command:
         chdir: work/image
-        cmd: md5sum {{ image_files_for_md5 }}
+        cmd: xargs -0 md5sum
+        stdin: "{{ image_files_for_md5 }}"
       register: md5sum_txt
       tags:
         - calculate_md5
