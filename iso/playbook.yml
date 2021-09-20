@@ -423,7 +423,7 @@
     - name: recognition as an ubuntu remix | write content
       ansible.builtin.copy:
         content: "{{ item.content }}"
-        path: "{{ item.path }}"
+        dest: "{{ item.path }}"
       loop:
         - path: work/image/.disk/cd_type
           content: full_cd/single
