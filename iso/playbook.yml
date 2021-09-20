@@ -325,9 +325,9 @@
         dest: "{{ item.dest }}"
       loop:
         - src: isolinux.txt.j2
-          dest: work/image/install/isolinux.txt
+          dest: work/image/isolinux/isolinux.txt
         - src: isolinux.cfg.j2
-          dest: work/image/install/isolinux.cfg
+          dest: work/image/isolinux/isolinux.cfg
       tags:
         - prepare_isolinux
 
