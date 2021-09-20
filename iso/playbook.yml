@@ -239,6 +239,8 @@
       loop:
         - work/image
         - work/ubuntu-remix.iso
+      tags:
+        - clean_image
 
     - name: create iso directories
       ansible.builtin.file:
@@ -248,6 +250,8 @@
         - work/image/casper
         - work/image/isolinux
         - work/image/install
+      tags:
+        - prepare_image_dirs
 
     - name: find vmlinuz binaries
       ansible.builtin.find:
@@ -258,6 +262,8 @@
         use_regex: false
         file_type: file
       register: vmlinuz
+      tags:
+        - prepare_vmlinuz
 
     - name: copy vmlinuz to image/casper
       ansible.builtin.copy:
@@ -265,6 +271,8 @@
         remote_src: true
         dest: work/image/casper/vmlinuz
       loop: "{{ vmlinuz.files }}"
+      tags:
+        - prepare_vmlinuz
 
     - name: Find initrd binaries
       ansible.builtin.find:
@@ -275,6 +283,8 @@
         use_regex: false
         file_type: file
       register: initrd
+      tags:
+        - prepare_initrd
 
     - name: Copy initrd to image/casper
       ansible.builtin.copy:
@@ -282,24 +292,32 @@
         remote_src: true
         dest: work/image/casper/initrd.lz
       loop: "{{ initrd.files }}"
+      tags:
+        - prepare_initrd
 
     - name: Copy isolinux.bin to image/isolinux
       ansible.builtin.copy:
         src: /usr/lib/ISOLINUX/isolinux.bin
         remote_src: true
         dest: work/image/isolinux/isolinux.bin
+      tags:
+        - prepare_isolinux
 
     - name: Copy ldlinux.c32
       ansible.builtin.copy:
         src: /usr/lib/syslinux/modules/bios/ldlinux.c32
         remote_src: true
         dest: work/image/isolinux/ldlinux.c32
+      tags:
+        - prepare_isolinux
 
     - name: copy memtest86+ BIOS to image/install
       ansible.builtin.copy:
         src: /boot/memtest86+.bin
         remote_src: true
         dest: work/image/install/memtest
+      tags:
+        - prepare_isolinux
 
     - name: write isolinux files
       ansible.builtin.template:
@@ -310,11 +328,15 @@
           dest: work/image/install/isolinux.txt
         - src: isolinux.cfg.j2
           dest: work/image/install/isolinux.cfg
+      tags:
+        - prepare_isolinux
 
     - name: collect manifest
       ansible.builtin.command:
         cmd: chroot work/chroot dpkg-query -W --showformat='${Package} ${Version}\n'
       register: manifest_raw
+      tags:
+        - filesystem_manifest
 
     - name: write manifest
       ansible.builtin.copy:
@@ -323,6 +345,8 @@
       loop:
         - work/image/casper/filesystem.manifest
         - work/image/casper/filesystem.manifest-desktop
+      tags:
+        - filesystem_manifest
 
     - name: remove lines from filesystem.manifest-desktop
       ansible.builtin.lineinfile:
@@ -341,10 +365,14 @@
         - xresprobe
         - os-prober
         - libdebian-installer4
+      tags:
+        - filesystem_manifest
 
     - name: compress the chroot
       ansible.builtin.command:
         cmd: mksquashfs work/chroot work/image/casper/filesystem.squashfs
+      tags:
+        - make_squahsfs_filesystem
 
     - name: get filesystem size
       ansible.builtin.command:
@@ -372,11 +400,15 @@
       ansible.builtin.template:
         src: templates/README.diskdefines.j2
         dest: work/image/README.diskdefines
+      tags:
+        - disk_defines
 
     - name: recognition as an ubuntu remix | image/.disk/
       ansible.builtin.file:
         path: work/image/.disk
         state: directory
+      tags:
+        - ubuntu_remix_recognition
 
     - name: recognition as an ubuntu remix | touch files
       ansible.builtin.file:
@@ -385,6 +417,8 @@
       loop:
         - work/image/ubuntu
         - work/image/.disk/base_installable
+      tags:
+        - ubuntu_remix_recognition
 
     - name: recognition as an ubuntu remix | write content
       ansible.builtin.copy:
@@ -397,11 +431,15 @@
           content: Ubuntu Remix 20.04
         - path: work/image/.disk/release_notes_url
           content: https://github.com/estenrye/slides
+      tags:
+        - ubuntu_remix_recognition
 
     - name: calculate md5
       ansible.builtin.command:
         chdir: work/image
         cmd: find . -type f -print0 | xargs -0 md5sum | grep -v "\./md5sum.txt" > md5sum.txt
+      tags:
+        - calculate_md5
 
     - name: create iso
       ansible.builtin.command:
@@ -424,3 +462,5 @@
           - -o
           - work/ubuntu-remix.iso
           - work/image
+      tags:
+        - create_iso
