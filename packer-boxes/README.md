@@ -13,21 +13,21 @@ cd slides
 
 ```bash
 # Customize the ubuntu installer iso.
-docker run --rm \
-  --mount type=bind,source=`pwd`/packer-boxes/ubuntu/20.04,target=/ansible \
+docker run --rm -it \
+  --mount type=bind,source=`readlink -f ~/src/slides/packer-boxes/ubuntu/20.04`,target=/ansible \
   estenrye/ansible:latest \
   ansible-playbook -i localhost, ansible/customize-iso.yml
 
 # Create a cidata iso.
-docker run --rm \
-  --mount type=bind,source=`pwd`/packer-boxes/ubuntu/20.04,target=/ansible \
+docker run --rm -it \
+  --mount type=bind,source=`readlink -f ~/src/slides/packer-boxes/ubuntu/20.04`,target=/ansible \
   estenrye/ansible:latest \
   ansible-playbook -i localhost, ansible/cidata-iso.yml
 
 # Provision the template.
 # Note that in this example we override the existing values for proxmox_vm_id and proxmox_vm_name
-docker run --rm \
-  --mount type=bind,source=`pwd`/packer-boxes/ubuntu/20.04,target=/ansible \
+docker run --rm -it \
+  --mount type=bind,source=`readlink -f ~/src/slides/packer-boxes/ubuntu/20.04`,target=/ansible \
   -e PKR_VAR_proxmox_username=${PROXMOX_USERNAME} \
   -e PKR_VAR_proxmox_password=${PROXMOX_PASSWORD} \
   -e PKR_VAR_proxmox_vm_id=516 \
