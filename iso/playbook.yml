@@ -442,20 +442,30 @@
           - work/image
         patterns:
           - '*'
-      register: image_files_for_md5
+      register: image_files_for_md5_raw
       tags:
         - calculate_md5
 
-    - name: debug | list find result
-      ansible.builtin.debug:
-        var: image_files_for_md5.files | map(attribute='path') | join(' ') | replace('work/image','.')
+    - name: clean up find results
+      ansible.builtin.set_fact:
+        var: image_files_for_md5_raw.files | map(attribute='path') | join(' ') | replace('work/image','.')
+      register: image_files_for_md5
       tags:
         - calculate_md5
 
     - name: calculate md5
       ansible.builtin.command:
         chdir: work/image
-        cmd: find . -type f -print0 | xargs -0 md5sum | grep -v "\./md5sum.txt" > md5sum.txt
+        cmd: xargs -0 md5sum > md5sum.txt
+        stdin: "{{ image_files_for_md5 }}"
+      register: md5sum_txt
+      tags:
+        - calculate_md5
+
+    - name: write md5
+      ansible.builtin.copy:
+        content: "{{ md5sum_txt.stdout }}"
+        dest: work/image/md5sum.txt
       tags:
         - calculate_md5
 
