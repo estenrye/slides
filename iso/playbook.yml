@@ -438,6 +438,17 @@
       ansible.builtin.find:
         recurse: true
         file_type: file
+        paths:
+          - work/image
+        patterns:
+          - '*'
+      register: image_files_for_md5
+      tags:
+        - calculate_md5
+
+    - name: debug | list find result
+      ansible.builtin.debug:
+        var: image_files_for_md5.files
       tags:
         - calculate_md5
 
