@@ -448,7 +448,7 @@
 
     - name: debug | list find result
       ansible.builtin.debug:
-        var: image_files_for_md5.files.path
+        var: image_files_for_md5.files | map(attribute='path') | join(' ')
       tags:
         - calculate_md5
 
