@@ -1,16 +1,25 @@
 - hosts: host_system
   connection: local
+  tags:
+    - clean
+  tasks:
+    - name: clean work/chroot folder
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - work/chroot
+        - work/image
+        - work/ubuntu-remix.iso
+
+- hosts: host_system
+  connection: local
+  tags:
+    - install_packages
   vars:
     arch: amd64
     release: focal
   tasks:
-    - name: clean work/chroot folder
-      ansible.builtin.file:
-        path: work/chroot
-        state: absent
-      tags:
-        - clean
-
     - name: install prerequisite packages
       ansible.builtin.package:
         name:
@@ -19,15 +28,22 @@
           - genisoimage
           - debootstrap
           - mkisofs
-      tags:
-        - install_packages
+          - isolinux
+          - memtest86+
+          - coreutils
 
+- hosts: host_system
+  connection: local
+  tags:
+    - prepare_chroot
+  vars:
+    arch: amd64
+    release: focal
+  tasks:
     - name: create the chroot environment directory
       ansible.builtin.file:
         path: work
         state: directory
-      tags:
-        - prepare_chroot
 
     - name: create chroot environment
       ansible.builtin.command:
@@ -40,8 +56,6 @@
           - https://nexus.common.ryezone.com/repository/ubuntu-{{ release }}
         creates: chroot
       become: true
-      tags:
-        - prepare_chroot
 
     - name: mount /dev to work/chroot/dev
       ansible.posix.mount:
@@ -49,8 +63,6 @@
         path: work/chroot/dev
         fstype: none
         state: present
-      tags:
-        - prepare_chroot
 
     - name: copy system files to enable internet access in chroot
       ansible.builtin.copy:
@@ -62,18 +74,16 @@
           dest: work/chroot/hosts
         - src: /etc/resolv.conf
           dest: work/chroot/resolv.conf
-      tags:
-        - prepare_chroot
 
     - name: add sources list
       ansible.builtin.template:
         src: templates/sources.list.j2
         dest: work/chroot/etc/apt/sources.list
-      tags:
-        - prepare_chroot
 
 - hosts: chroot_environment
   connection: chroot
+  tags:
+    - prepare_chroot
   vars:
     ansible_host: work/chroot
   environment:
@@ -93,28 +103,20 @@
           fstype: sysfs
         - path: /dev/pts
           fstype: devpts
-      tags:
-        - prepare_chroot
 
     - name: update apt packages
       ansible.builtin.apt:
         update_cache: true
-      tags:
-        - prepare_chroot
 
     - name: install dbus
       ansible.builtin.package:
         name:
           - dbus
-      tags:
-        - prepare_chroot
 
     - name: Configure machine-id and divert
       ansible.builtin.command:
         cmd: dbus-uuidgen
       register: machine_id
-      tags:
-        - prepare_chroot
 
     - name: Write /etc/machine-id
       ansible.builtin.copy:
@@ -122,28 +124,20 @@
         dest: /var/lib/dbus/machine-id
       when:
         - machine_id.changed
-      tags:
-        - prepare_chroot
 
     - name: add dpkg diversion
       ansible.builtin.command:
         cmd: dpkg-divert --local --rename --add /sbin/initctl
-      tags:
-        - prepare_chroot
 
     - name: link /bin/true to /sbin/initctl
       ansible.builtin.file:
         src: /bin/true
         path: /sbin/initctl
         state: link
-      tags:
-        - prepare_chroot
 
     - name: upgrade packages
       ansible.builtin.apt:
         upgrade: true
-      tags:
-        - prepare_chroot
 
     - name: install packages needed for live system
       ansible.builtin.package:
@@ -155,8 +149,6 @@
           - laptop-detect
           - os-prober
           - linux-generic
-      tags:
-        - prepare_chroot
 
     # - name: install grub
     #   ansible.builtin.package:
@@ -166,16 +158,12 @@
     #       - grub-pc
     #       - grub-pc-bin
     #       - grub2-common
-      # tags:
-      #   - prepare_chroot
 
     # - name: install network manager
     #   ansible.builtin.apt:
     #     install_recommends: false
     #     name:
     #       - network-manager
-      # tags:
-      #   - prepare_chroot
 
     - name: Install the graphical installer
       ansible.builtin.package:
@@ -185,8 +173,6 @@
           - ubiquity-frontend-gtk
           - ubiquity-slideshow-ubuntu
           - ubiquity-ubuntu-artwork
-      tags:
-        - prepare_chroot
 
     - name: chroot cleanup | remove files
       ansible.builtin.file:
@@ -196,22 +182,16 @@
         - /var/lib/dbus/machine-id
         - /sbin/initctl
         - /etc/resolv.conf
-      tags:
-        - prepare_chroot
 
     - name: chroot cleanup | remove diversion
       ansible.builtin.command:
         cmd: dpkg-divert --rename --remove /sbin/initctl
-      tags:
-        - prepare_chroot
 
     # TODO: remove upgraded old linux kernels if more than one
 
     - name: clean apt cache
       ansible.builtin.command:
         cmd: apt-get clean
-      tags:
-        - prepare_chroot
 
     - name: find all files in tmp directory
       ansible.builtin.find:
@@ -221,16 +201,12 @@
           - '*'
         recurse: true
       register: find_result
-      tags:
-        - prepare_chroot
 
     - name: remove tmp files
       ansible.builtin.file:
         path: "{{ item.path }}"
         state: absent
       loop: "{{ find_result.files }}"
-      tags:
-        - prepare_chroot
 
     - name: unmount points
       ansible.posix.mount:
@@ -240,19 +216,193 @@
         - path: /proc
         - path: /sys
         - path: /dev/pts
-      tags:
-        - prepare_chroot
 
 - hosts: host_system
   connection: local
-  vars:
-    arch: amd64
-    release: focal
+  tags:
+    - prepare_chroot
   tasks:
     - name: unmount /dev from work/chroot/dev
       ansible.posix.mount:
         path: work/chroot/dev
         state: unmounted
-      tags:
-        - prepare_chroot
 
+- hosts: host_system
+  connection: local
+  tags:
+    - prepare_iso
+  tasks:
+    - name: clean work/chroot folder
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - work/image
+        - work/ubuntu-remix.iso
+
+    - name: create iso directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - work/image/casper
+        - work/image/isolinux
+        - work/image/install
+
+    - name: find vmlinuz binaries
+      ansible.builtin.find:
+        patterns:
+          - vmlinuz-**-**-generic
+        paths:
+          - work/chroot/boot
+        use_regex: false
+        file_type: file
+      register: vmlinuz
+
+    - name: copy vmlinuz to image/casper
+      ansible.builtin.copy:
+        src: "{{ item.path }}"
+        remote_src: true
+        dest: work/image/casper/vmlinuz
+      loop: "{{ vmlinuz.files }}"
+
+    - name: Find initrd binaries
+      ansible.builtin.find:
+        patterns:
+          - initrd.img-**-**-generic
+        paths:
+          - work/chroot/boot
+        use_regex: false
+        file_type: file
+      register: initrd
+
+    - name: Copy initrd to image/casper
+      ansible.builtin.copy:
+        src: "{{ item.path }}"
+        remote_src: true
+        dest: work/image/casper/initrd.lz
+      loop: "{{ initrd.files }}"
+
+    - name: Copy isolinux.bin to image/isolinux
+      ansible.builtin.copy:
+        src: /usr/lib/ISOLINUX/isolinux.bin
+        remote_src: true
+        dest: work/image/isolinux/isolinux.bin
+
+    - name: Copy ldlinux.c32
+      ansible.builtin.copy:
+        src: /usr/lib/syslinux/modules/bios/ldlinux.c32
+        remote_src: true
+        dest: work/image/isolinux/ldlinux.c32
+
+    - name: copy memtest86+ BIOS to image/install
+      ansible.builtin.copy:
+        src: /boot/memtest86+.bin
+        remote_src: true
+        dest: work/image/install/memtest
+
+    - name: write isolinux files
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      loop:
+        - src: isolinux.txt.j2
+          dest: work/image/install/isolinux.txt
+        - src: isolinux.cfg.j2
+          dest: work/image/install/isolinux.cfg
+
+    - name: collect manifest
+      ansible.builtin.command:
+        cmd: chroot work/chroot dpkg-query -W --showformat='${Package} ${Version}\n'
+      register: manifest_raw
+
+    - name: write manifest
+      ansible.builtin.copy:
+        content: "{{ manifest_raw.stdout }}"
+        dest: "{{ item }}"
+      loop:
+        - work/image/casper/filesystem.manifest
+        - work/image/casper/filesystem.manifest-desktop
+
+    - name: remove lines from filesystem.manifest-desktop
+      ansible.builtin.lineinfile:
+        regexp: ^{{item}}
+        path: work/image/casper/filesystem.manifest-desktop
+        state: absent
+      loop:
+        - ubiquity
+        - ubiquity-frontend-gtk
+        - ubiquity-frontend-kde
+        - casper
+        - lupin-casper
+        - live-initramfs
+        - user-setup
+        - discover1
+        - xresprobe
+        - os-prober
+        - libdebian-installer4
+
+    - name: compress the chroot
+      ansible.builtin.command:
+        cmd: mksquashfs work/chroot work/image/casper/filesystem.squashfs
+
+    - name: get filesystem size
+      ansible.builtin.command:
+        cmd: du -sx --block-size=1 work/chroot | cut -f1 > work/image/casper/filesystem.size
+
+    - name: create diskdefines
+      ansible.builtin.template:
+        src: templates/README.diskdefines.j2
+        dest: work/image/README.diskdefines
+
+    - name: recognition as an ubuntu remix | image/.disk/
+      ansible.builtin.file:
+        path: work/image/.disk
+        state: directory
+
+    - name: recognition as an ubuntu remix | touch files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: touch
+      loop:
+        - work/image/ubuntu
+        - work/image/.disk/base_installable
+
+    - name: recognition as an ubuntu remix | write content
+      ansible.builtin.copy:
+        content: "{{ item.content }}"
+        path: "{{ item.path }}"
+      loop:
+        - path: work/image/.disk/cd_type
+          content: full_cd/single
+        - path: work/image/.disk/info
+          content: Ubuntu Remix 20.04
+        - path: work/image/.disk/release_notes_url
+          content: https://github.com/estenrye/slides
+
+    - name: calculate md5
+      ansible.builtin.command:
+        chdir: work/image
+        cmd: find . -type f -print0 | xargs -0 md5sum | grep -v "\./md5sum.txt" > md5sum.txt
+
+    - name: create iso
+      ansible.builtin.command:
+        argv:
+          - mkisofs
+          -  -r
+          -  -V
+          - ubuntu-remix
+          - -cache-inodes
+          - -J
+          - -l
+          - -b
+          - work/image/isolinux/isolinux.bin
+          - -c
+          - work/image/isolinux/boot.cat
+          - -no-emul-boot
+          - -boot-load-size
+          - 4
+          - -boot-info-table
+          - -o
+          - work/ubuntu-remix.iso
+          - work/image
