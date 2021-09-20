@@ -456,7 +456,7 @@
     - name: calculate md5
       ansible.builtin.command:
         chdir: work/image
-        cmd: xargs -0 md5sum > md5sum.txt
+        cmd: xargs -0 md5sum
         stdin: "{{ image_files_for_md5 }}"
       register: md5sum_txt
       tags:
