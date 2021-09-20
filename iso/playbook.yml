@@ -434,6 +434,13 @@
       tags:
         - ubuntu_remix_recognition
 
+    - name: find all files
+      ansible.builtin.find:
+        recurse: true
+        file_type: file
+      tags:
+        - calculate_md5
+
     - name: calculate md5
       ansible.builtin.command:
         chdir: work/image
