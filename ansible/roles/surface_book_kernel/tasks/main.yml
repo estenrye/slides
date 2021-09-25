@@ -1,0 +1,41 @@
+- name: install required repos
+  ansible.builtin.include_role:
+    name: add_apt_repos
+
+- name: install kernel packages
+  ansible.builtin.package:
+    name:
+      - linux-image-surface
+      - linux-headers-surface 
+      - iptsd
+      - libwacom-surface
+      - linux-surface-secureboot-mok
+  become: true
+  tags:
+    - kernel
+
+- name: enable iptsd
+  ansible.builtin.systemd:
+    name: iptsd
+    state: started
+    enabled: true
+  tags:
+    - kernel
+
+- name: update grub configuration
+  ansible.builtin.command:
+    cmd: update-grub
+  become: true
+  tags:
+    - kernel
+  
+- name: install microcode
+  ansible.builtin.package:
+    name: 
+      - intel-microcode
+      - linux-firmware
+      - surface-dtx-daemon
+      - surface-control
+  become: true
+  tags:
+    - modules
