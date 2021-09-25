@@ -11,6 +11,10 @@ all:
         repo: http://ppa.launchpad.net/yubico/stable/ubuntu focal main
         arch: amd64
         key_url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3653e21064b19d134466702e43d5c49532cba1a9
+      - name: docker
+        repo: https://download.docker.com/linux/ubuntu bionic stable
+        arch: amd64
+        key_url: https://download.docker.com/linux/ubuntu/gpg
     firewall_ipv6_enabled: true
     firewall_rules_allow_inbound_v4: []
     firewall_rules_allow_outbound_v4: []

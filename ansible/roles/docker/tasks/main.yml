@@ -1,0 +1,38 @@
+- name: install required repos
+  ansible.builtin.include_role:
+    name: add_apt_repos
+
+- name: Add Docker Group
+  ansible.builtin.group:
+    name: docker
+    gid: 10000
+    state: present
+  become: true
+
+- name: Add Docker Group to User
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    append: true
+    groups:
+      - docker
+    state: present
+  become: true
+
+- name: remove old docker packages
+  ansible.builtin.package:
+    name:
+      - docker
+      - docker-engine
+      - docker.io
+      - containerd
+      - runc
+    state: absent
+  become: true
+
+- name: install new docker packages
+  ansible.builtin.package:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+  become: true

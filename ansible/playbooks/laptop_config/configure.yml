@@ -6,6 +6,7 @@
     - python_packages
     - terminal
     - discord
+    - docker
     - firewall
     - git
     - microsoft_teams

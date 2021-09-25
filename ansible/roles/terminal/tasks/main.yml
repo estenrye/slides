@@ -17,12 +17,10 @@
   loop_control:
     loop_var: config_file
   loop:
-    # - .p10k.zsh
-    - .profile
+    # - .profile
     - .profile.ssh-agent
     - .tmux.conf
     - .vimrc
-    # - .zshrc
 
 - name: install apt packages
   ansible.builtin.package:
@@ -36,18 +34,18 @@
   ansible.builtin.include_role:
     name: gantsign.antigen
 
-- name: add source links
-  ansible.builtin.lineinfile:
-    line: "{{ sourced_file }}"
-    insertafter: EOF
-    path: ~/.zshrc
-  loop_control:
-    loop_var: sourced_file
-  loop:
-    - source ~/.profile
+# - name: add source links
+#   ansible.builtin.lineinfile:
+#     line: "{{ sourced_file }}"
+#     insertafter: EOF
+#     path: ~/.zshrc
+#   loop_control:
+#     loop_var: sourced_file
+#   loop:
+#     - source ~/.profile
     
 - name: Set the user's default shell to zsh
   ansible.builtin.user:
     name: "{{ primary_user }}"
-    shell: /user/bin/zsh
+    shell: /usr/bin/zsh
   become: true

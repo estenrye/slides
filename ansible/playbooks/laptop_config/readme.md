@@ -4,9 +4,9 @@
 
 ```bash
 ./prepare.sh
-ANSIBLE_CONFIG=~/src/slides/ansible/ansible.cfg ansible-playbook \
+ANSIBLE_CONFIG=~/src/slides/ansible/ansible-localhost.cfg ansible-playbook \
   -e @~/.ansible/secrets/creds.yml \
-  --vault-password-file ~/.ansible/secrets/secret.yml \
+  --vault-password-file ~/.ansible/secrets/secret.key \
   --ask-become-pass \
   -i ~/src/slides/ansible/inventories/surface_book/inventory.yml \
   ~/src/slides/ansible/playbooks/laptop_config/install_surfacebook_kernel.yml
@@ -35,9 +35,9 @@ just enrolled, from inside Linux via the 'mokutil' tool.
 ## Configure Laptop Software
 
 ```bash
-ANSIBLE_CONFIG=~/src/slides/ansible/ansible.cfg ansible-playbook \
-  -e @~/.ansible/secrets/creds.key \
-  --vault-password-file ~/.ansible/secrets/secret.yml \
+ANSIBLE_CONFIG=~/src/slides/ansible/ansible-localhost.cfg ansible-playbook \
+  -e @~/.ansible/secrets/creds.yml \
+  --vault-password-file ~/.ansible/secrets/secret.key \
   --ask-become-pass \
   -i ~/src/slides/ansible/inventories/surface_book/inventory.yml \
   ~/src/slides/ansible/playbooks/laptop_config/configure.yml

@@ -1,0 +1,5 @@
+apt_repos:
+  - name: docker
+    repo: https://download.docker.com/linux/ubuntu bionic stable
+    arch: amd64
+    key_url: https://download.docker.com/linux/ubuntu/gpg
