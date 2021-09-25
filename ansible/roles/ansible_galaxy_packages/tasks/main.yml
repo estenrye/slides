@@ -1,0 +1,3 @@
+- name: update galaxy dependencies
+  ansible.builtin.command:
+    cmd: ansible-galaxy install -r {{ ansible_galaxy_requirements_path }} --force

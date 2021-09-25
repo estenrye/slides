@@ -1,0 +1,7 @@
+- name: ensure python3-pip is installed
+  ansible.builtin.package:
+    name: python3-pip
+
+- name: ensure python packages are installed
+  ansible.builtin.pip:
+    requirements: "{{ python_requirements_txt_path }}"

@@ -1,0 +1,20 @@
+- name: install git
+  ansible.builtin.package:
+    name: git
+  become: true
+
+- name: Set git config
+  ansible.builtin.git_config:
+    name: "{{ item.name }}"
+    scope: "{{ item.scope }}"
+    value: "{{ item.value }}"
+  loop:
+    - name: user.name
+      scope: global
+      value: "{{ git_user_name }}"
+    - name: user.email
+      scope: global
+      value: "{{ git_user_email }}"
+    - name: core.editor
+      scope: global
+      value: "{{ git_core_editor }}"

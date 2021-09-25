@@ -4,4 +4,5 @@ sudo apt install -y \
   git \
   python3-pip \
   python3-virtualenv
-sudo pip3 install -r requirements.txt
+pip3 install -r ~/src/slides/docker_image/install/requirements.txt
+ansible-galaxy install -r ~/src/slides/docker_image/install/requirements.yml

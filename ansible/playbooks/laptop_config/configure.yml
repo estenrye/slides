@@ -2,8 +2,11 @@
   connection: local
   roles:
     - add_apt_repos
+    - ansible_galaxy_packages
+    - python_packages
     - discord
     - firewall
+    - git
     - microsoft_teams
     - slack
     - visual_studio_code
