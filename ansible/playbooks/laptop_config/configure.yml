@@ -2,6 +2,9 @@
   connection: local
   roles:
     - add_apt_repos
+    - discord
     - firewall
+    - microsoft_teams
+    - slack
     - visual_studio_code
     - yubikey

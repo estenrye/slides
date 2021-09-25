@@ -1,0 +1,7 @@
+- name: install classic snaps
+  community.general.snap:
+    channel: stable
+    classic: true
+    name:
+      - slack
+  become: true

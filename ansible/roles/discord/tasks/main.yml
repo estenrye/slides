@@ -1,0 +1,7 @@
+- name: install snaps
+  community.general.snap:
+    channel: stable
+    state: present
+    name:
+      - discord
+  become: true

@@ -1,0 +1,10 @@
+- name: Download Microsoft Teams
+  ansible.builtin.get_url:
+    url: https://go.microsoft.com/fwlink/p/?LinkID=2112886&clcid=0x409&culture=en-us&country=US
+    dest: /tmp/teams.deb
+    mode: 0644
+
+- name: Install Microsoft Teams
+  ansible.builtin.apt:
+    deb: /tmp/teams.deb
+  become: true
