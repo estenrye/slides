@@ -1,0 +1,25 @@
+auto lo
+iface lo inet loopback
+
+iface eno1 inet manual
+# MANAGEMENT
+
+auto eno1.61
+iface eno1.61 inet manual
+vlan_raw_device eno1
+
+auto vmbr0
+iface vmbr0 inet static
+	address 10.5.10.1
+	netmask 255.255.255.0
+	gateway 10.5.0.1
+	bridge_ports eno1.61
+        bridge_vlan_aware yes
+	bridge_stp off
+	bridge_fd 0
+
+iface eno2 inet manual
+
+iface eno3 inet manual
+
+iface eno4 inet manual
