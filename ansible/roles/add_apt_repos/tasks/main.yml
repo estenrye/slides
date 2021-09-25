@@ -1,0 +1,56 @@
+- name: create keyrings directory
+  ansible.builtin.file:
+    path: /usr/local/share/keyrings
+    state: directory
+    mode: 0755
+  become: true
+  tags:
+    - repos
+
+- name: download gpg package signing keys
+  ansible.builtin.get_url:
+    url: "{{ repo.key_url }}"
+    dest: /tmp/{{ repo.name }}.asc
+    mode: 0644
+  loop: "{{ apt_repos }}"
+  loop_control:
+    loop_var: repo
+  tags:
+    - repos
+  
+- name: dearmor gpg package signing keys
+  ansible.builtin.command:
+    argv:
+      - gpg
+      - --batch
+      - --yes
+      - --dearmor
+      - -o
+      - /usr/local/share/keyrings/{{ repo.name }}.gpg
+      - /tmp/{{ repo.name }}.asc
+    creates: /usr/local/share/keyrings/{{ repo.name }}.gpg
+  become: true
+  loop: "{{ apt_repos }}"
+  loop_control:
+    loop_var: repo
+  tags:
+    - repos
+
+- name: add apt repositories
+  ansible.builtin.apt_repository:
+    repo: deb [arch={{ repo.arch }} signed-by=/usr/local/share/keyrings/{{ repo.name }}.gpg] {{ repo.repo }}
+    state: present
+    filename: "{{ repo.name }}"
+  become: true
+  loop: "{{ apt_repos }}"
+  loop_control:
+    loop_var: repo
+  tags:
+    - repos
+
+- name: update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  tags:
+    - repos
