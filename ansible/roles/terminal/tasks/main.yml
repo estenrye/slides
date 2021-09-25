@@ -1,0 +1,53 @@
+- name: write profile configuration files
+  ansible.builtin.template:
+    src: templates/{{ config_file }}.j2
+    dest: ~/{{ config_file }}
+    mode: 0600
+  loop_control:
+    loop_var: config_file
+  loop:
+    - .profile.env
+    - .profile.aliases
+
+- name: copy profile configuration files
+  ansible.builtin.copy:
+    src: "{{ config_file }}"
+    dest: ~/{{ config_file }}
+    mode: 0600
+  loop_control:
+    loop_var: config_file
+  loop:
+    # - .p10k.zsh
+    - .profile
+    - .profile.ssh-agent
+    - .tmux.conf
+    - .vimrc
+    # - .zshrc
+
+- name: install apt packages
+  ansible.builtin.package:
+    name:
+      - fonts-powerline
+      - tmux
+      - vim
+  become: true
+  
+- name: install zsh
+  ansible.builtin.include_role:
+    name: gantsign.antigen
+
+- name: add source links
+  ansible.builtin.lineinfile:
+    line: "{{ sourced_file }}"
+    insertafter: EOF
+    path: ~/.zshrc
+  loop_control:
+    loop_var: sourced_file
+  loop:
+    - source ~/.profile
+    
+- name: Set the user's default shell to zsh
+  ansible.builtin.user:
+    name: "{{ primary_user }}"
+    shell: /user/bin/zsh
+  become: true

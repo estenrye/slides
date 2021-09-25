@@ -1,0 +1,45 @@
+profile:
+  editor: vim
+  visual: vim
+
+primary_user: ubuntu
+
+# Antigen version number
+antigen_version: '2.2.3'
+
+# SHA256 sum for the redistributable package
+antigen_redis_sha256sum: 'bd3f1077050d52f459bc30fa3f025c44c528d625b4924a2f487fd2bacb89d61e'
+
+# Should Oh-My-Zsh be installed with Antigen (doesn't call `antigen use`)
+antigen_install_oh_my_zsh: yes
+
+# Mirror location for Antigen download
+antigen_redis_mirror: 'https://github.com/zsh-users/antigen/releases/download/v{{ antigen_version }}'
+
+# Directory to store files downloaded for Antigen installation on the remote box
+antigen_download_dir: "{{ x_ansible_download_dir | default(ansible_env.HOME + '/.ansible/tmp/downloads') }}"
+
+# Antigen is installed per user so you need to specify the users to install it for
+users:
+  - username: "{{ primary_user }}" # The username of the user to install Antigen for
+    antigen_libraries:
+      - name: oh-my-zsh
+    antigen_theme:
+      name: agnoster
+    antigen_bundles:
+      - name: ansible
+      - name: command-not-found
+      - name: docker
+      - name: docker-compose
+      - name: dotnet
+      - name: git
+      - name: golang
+      - name: helm
+      - name: kubectl
+      - name: pip
+      - name: sudo
+      - name: terraform
+      - name: tmux
+      - name: zsh-syntax-highlighting
+        url: zsh-users/zsh-syntax-highlighting
+        tag: 0.7.1

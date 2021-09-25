@@ -4,6 +4,7 @@
     - add_apt_repos
     - ansible_galaxy_packages
     - python_packages
+    - terminal
     - discord
     - firewall
     - git
