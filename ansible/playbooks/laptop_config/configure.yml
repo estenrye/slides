@@ -3,3 +3,4 @@
   roles:
     - add_apt_repos
     - firewall
+    - yubikey

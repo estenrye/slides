@@ -1,0 +1,46 @@
+- name: install snaps
+  community.general.snap:
+    channel: stable
+    state: present
+    name:
+      - yubioath-desktop
+  become: true
+
+- name: install apt packages
+  ansible.builtin.package:
+    name:
+      - yubikey-manager
+      - yubikey-personalization-gui
+      - libpam-yubico
+      - libpam-u2f
+  become: true
+
+- name: make configuration directories
+  ansible.builtin.file:
+    path: /etc/yubico
+    state: directory
+    mode: 0750
+  become: true
+
+- name: Add yubico u2fpam configuration
+  ansible.builtin.template:
+    src: u2f_keys.j2
+    dest: /etc/yubico/u2f_keys
+    mode: 0640
+  become: true
+
+- name: Enable yubikey in pam.d/sudo
+  ansible.builtin.lineinfile:
+    path: "{{ auth_file }}"
+    firstmatch: true
+    insertafter: "@include common-auth"
+    line: "auth       required   pam_u2f.so   authfile=/etc/yubico/u2f_keys"
+    state: present
+  become: true
+  loop_control:
+    loop_var: auth_file
+  loop:
+    - /etc/pam.d/sudo
+    - /etc/pam.d/gdm-password
+    - /etc/pam.d/login
+

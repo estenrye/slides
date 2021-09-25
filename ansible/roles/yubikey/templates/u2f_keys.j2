@@ -1,0 +1,3 @@
+{%- for u2f in u2fpam_devices %}
+{{ u2f.user }}{% for key in u2f['keys'] %}{{ key }}{% endfor %}
+{%- endfor %}
