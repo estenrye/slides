@@ -1,0 +1,27 @@
+all:
+  hosts:
+    localhost:
+  vars:
+    apt_repos:
+      - name: linux-surface
+        repo: https://pkg.surfacelinux.com/debian release main
+        arch: amd64
+        key_url: https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc
+      - name: yubico
+        repo: http://ppa.launchpad.net/yubico/stable/ubuntu focal main
+        arch: amd64
+        key_url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3653e21064b19d134466702e43d5c49532cba1a9
+    firewall_ipv6_enabled: true
+    firewall_rules_allow_inbound_v4: []
+    firewall_rules_allow_outbound_v4: []
+    firewall_rules_allow_inbound_v6: []
+    firewall_rules_allow_outbound_v6: []
+    primary_user: ubuntu
+    profile:
+      editor: vim
+      visual: vim
+    u2fpam_enable: false
+    u2fpam_devices: []
+    vs_code_extensions:
+      - samuelcolvin.jinjahtml
+      - github.vscode-pull-request-github
