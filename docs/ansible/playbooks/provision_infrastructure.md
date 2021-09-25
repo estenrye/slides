@@ -20,5 +20,5 @@ docker run --rm -t \
     -e @/ansible/playbooks/extra_vars/${CLUSTER}.yml \
     --vault-password-file /secrets/secret.key \
     -i /ansible/inventories/${CLUSTER}/infrastructure.yml \
-    /ansible/playbooks/infrastructure_provision.yml
+    /ansible/playbooks/kubernetes/infrastructure_provision.yml
 ```

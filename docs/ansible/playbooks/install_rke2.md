@@ -14,5 +14,5 @@ docker run --rm -it \
     -e @/secrets/creds.yml \
     --vault-password-file /secrets/secret.key \
     -i /ansible/inventories/${CLUSTER}/rke2.proxmox.yml \
-    /ansible/playbooks/install_rke2.yml
+    /ansible/playbooks/kubernetes/install_rke2.yml
 ```
