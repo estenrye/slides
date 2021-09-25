@@ -1,0 +1,6 @@
+u2fpam_devices: []
+# u2fpam_devices:
+#   - user: ubuntu
+#     keys:
+#       - :key1
+#       - :key2

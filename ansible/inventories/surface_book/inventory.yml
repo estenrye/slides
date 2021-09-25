@@ -17,8 +17,3 @@ all:
     firewall_rules_allow_inbound_v6: []
     firewall_rules_allow_outbound_v6: []
     primary_user: ubuntu
-    profile:
-      editor: vim
-      visual: vim
-    u2fpam_enable: false
-    u2fpam_devices: []
