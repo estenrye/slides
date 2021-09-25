@@ -1,0 +1,14 @@
+- name: install classic snaps
+  community.general.snap:
+    channel: stable
+    classic: true
+    name:
+      - code
+  become: true
+
+- name: Install VS Code Extensions
+  ansible.builtin.command:
+    cmd: code --install-extension {{ extension }}
+  loop_control:
+    loop_var: extension
+  loop: "{{ vs_code_extensions }}"

@@ -22,6 +22,3 @@ all:
       visual: vim
     u2fpam_enable: false
     u2fpam_devices: []
-    vs_code_extensions:
-      - samuelcolvin.jinjahtml
-      - github.vscode-pull-request-github

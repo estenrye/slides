@@ -3,4 +3,5 @@
   roles:
     - add_apt_repos
     - firewall
+    - visual_studio_code
     - yubikey
