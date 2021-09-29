@@ -34,15 +34,16 @@
   ansible.builtin.include_role:
     name: gantsign.antigen
 
-# - name: add source links
-#   ansible.builtin.lineinfile:
-#     line: "{{ sourced_file }}"
-#     insertafter: EOF
-#     path: ~/.zshrc
-#   loop_control:
-#     loop_var: sourced_file
-#   loop:
-#     - source ~/.profile
+- name: add source links
+  ansible.builtin.lineinfile:
+    line: "{{ sourced_file }}"
+    insertafter: EOF
+    path: ~/.zshrc
+  loop_control:
+    loop_var: sourced_file
+  loop:
+    - source ~/.profile.env
+    - source ~/.profile.aliases
     
 - name: Set the user's default shell to zsh
   ansible.builtin.user:

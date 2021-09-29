@@ -1,0 +1,50 @@
+- name: Install OpenSC Package for managing PKCS11 devices.
+  ansible.builtin.package:
+    name:
+      - opensc
+      - opensc-pkcs11
+      - pcscd
+      - pcsc-tools
+  become: true
+
+- name: enable pcscd service
+  ansible.builtin.service:
+    name: pcscd
+    state: started
+    enabled: true
+  become: true
+
+# - name: Get HSM Status to determine initialization status
+#   ansible.builtin.command:
+#     cmd: sc-hsm-tool
+#   register: hsm_status
+
+# - name: set initialization status
+#   ansible.builtin.set_fact:
+#     hsm_init_status: "{{ hsm_status | regex_search('SmartCard-HSM has never been initialized') == 'SmartCard-HSM has never been initialized' }}"
+
+# - name: display status
+#   ansible.builtin.debug:
+#     var: hsm_init_status
+
+# - name: Assert values are defined
+#   ansible.builtin.assert:
+#     that:
+#       - nitrokey_hsm_sopin is defined
+#       - nitrokey_hsm_pin is defined
+#       - nitrokey_hsm_label is defined
+
+# - name: Initialize HSM
+#   ansible.builtin.command:
+#     argv:
+#       - sc-hsm-tool
+#       - --initialize
+#       - --so-pin
+#       - "{{ nitrokey_hsm_sopin }}"
+#       - --pin
+#       - "{{ nitrokey_hsm_pin }}"
+#   when:
+#     - hsm_init_status
+
+# TODO: initialize HSM2
+# https://github.com/OpenSC/OpenSC/wiki/SmartCardHSM#initialize-the-device

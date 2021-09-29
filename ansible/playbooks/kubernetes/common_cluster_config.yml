@@ -1,6 +1,12 @@
 - name: install base cluster configuration
   import_playbook: base_cluster_config.yml
 
+- hosts: node
+  roles:
+    - nitrokey_hsm
+  tags:
+    - hsm
+
 - hosts: localhost
   connection: local
   roles:

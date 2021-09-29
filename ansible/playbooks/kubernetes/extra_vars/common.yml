@@ -8,3 +8,4 @@ cluster_vips:
 join_token: "{{ common_cluster.join_token }}"
 keepalived_virtual_router_id: 50
 keepalived_auth_pass: 42
+nitrokey_hsm_label: lab_hsm
