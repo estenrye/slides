@@ -1,11 +1,11 @@
 - name: Add chart repo for Rancher
-  community.kubernetes.helm_repository:
+  kubernetes.core.helm_repository:
     name: "{{ rancher_helm_chart_repo_name }}"
     repo_url: "{{ rancher_helm_chart_repo_uri }}"
   when: install_rancher
 
 - name: Deploy Rancher chart
-  community.kubernetes.helm:
+  kubernetes.core.helm:
     name: rancher
     chart_ref: "{{ rancher_helm_chart_repo_name }}/rancher"
     chart_version: "{{ rancher_helm_chart_version }}"

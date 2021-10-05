@@ -12,7 +12,7 @@
 - hosts: initial_controlplane
   tasks:
     - name: list kube-proxy pods
-      community.kubernetes.k8s_info:
+      kubernetes.core.k8s_info:
         api_version: v1
         kind: Pod
         namespace: kube-system
@@ -21,7 +21,7 @@
       register: kube_proxy_pod_list
     
     - name: delete kube-proxy pods
-      community.kubernetes.k8s:
+      kubernetes.core.k8s:
         state: absent
         api_version: "{{ item.apiVersion }}"
         kind: "{{ item.kind }}"

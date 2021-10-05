@@ -1,12 +1,12 @@
 - name: Add chart repo for democratic-csi
-  community.kubernetes.helm_repository:
+  kubernetes.core.helm_repository:
     name: democratic-csi
     repo_url: "{{ democratic_csi.helm.repo }}"
   tags:
     - container_storage_interface
 
 - name: Deploy democratic-csi chart
-  community.kubernetes.helm:
+  kubernetes.core.helm:
     name: "{{ democratic_csi.helm.name }}"
     chart_ref: democratic-csi/{{ democratic_csi.helm.chart }}
     chart_version: "{{ democratic_csi.helm.version }}"

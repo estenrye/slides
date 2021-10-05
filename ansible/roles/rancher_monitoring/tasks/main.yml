@@ -1,12 +1,12 @@
 - name: Add chart repos.
-  community.kubernetes.helm_repository:
+  kubernetes.core.helm_repository:
     name: rancher
     repo_url: "{{ rancher_chart_repo_url }}"
   tags:
     - rancher_monitoring
 
 - name: Install Rancher Monitoring CRD Chart
-  community.kubernetes.helm:
+  kubernetes.core.helm:
     name: rancher-monitoring-crd
     chart_ref: rancher/rancher-monitoring-crd
     chart_version: "{{ rancher_monitoring_version }}"
@@ -16,7 +16,7 @@
     - rancher_monitoring
 
 - name: Install Rancher Monitoring Chart
-  community.kubernetes.helm:
+  kubernetes.core.helm:
     name: rancher-monitoring
     chart_ref: rancher/rancher-monitoring
     chart_version: "{{ rancher_monitoring_version }}"

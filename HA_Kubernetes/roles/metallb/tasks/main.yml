@@ -1,5 +1,5 @@
 - name: Add chart repos.
-  community.kubernetes.helm_repository:
+  kubernetes.core.helm_repository:
     name: "{{ metallb.helm.repo_name }}"
     repo_url: "{{ metallb.helm.repo_url }}"
   tags:
@@ -12,7 +12,7 @@
     - metallb
 
 - name: Deploy metallb chart
-  community.kubernetes.helm:
+  kubernetes.core.helm:
     name: "{{ metallb.helm.chart_name }}"
     chart_ref: "{{ metallb.helm.repo_name }}/{{ metallb.helm.chart_name }}"
     chart_version: "{{ metallb.helm.chart_version }}"
