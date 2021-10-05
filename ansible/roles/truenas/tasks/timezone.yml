@@ -1,0 +1,20 @@
+######################################################
+# Set Timezone and Language Settings
+######################################################
+
+- name: Set TrueNAS Scale timezone to UTC
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/system/general"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    body_format: json
+    body:
+      timezone: "{{ truenas_timezone }}"
+      language: "{{ truenas_language }}"
+    method: PUT
+    status_code:
+      - 200
+  tags:
+    - truenas
+    - timezone

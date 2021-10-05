@@ -1,0 +1,14 @@
+- name: Include tasks
+  ansible.builtin.include_tasks:
+    file: "{{ item }}"
+  loop:
+    - assert_extra_vars.yml
+    - network.yml
+    - root_email_address.yml
+    - timezone.yml
+    - acme_dns_authenticator.yml
+    - acme_certificate.yml
+    - iscsi.yml
+  tags:
+    - truenas
+    - main

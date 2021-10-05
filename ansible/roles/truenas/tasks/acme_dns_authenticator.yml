@@ -1,0 +1,95 @@
+- name: Assert All Variables are defined
+  ansible.builtin.assert:
+    that:
+      - truenas_url is defined
+      - truenas_trust_cert is defined
+      - truenas_api_key is defined
+  tags:
+    - truenas
+    - acme_certificate
+    - acme_dns_authenticator
+
+- name: Assert All Variables are defined
+  ansible.builtin.assert:
+    that:
+      - cloudflare_api_token is defined
+  tags:
+    - truenas
+    - acme_dns_authenticator
+
+######################################################
+# Set Cloudflare DNS Authenticator
+######################################################
+
+- name: Get ACME DNS Authenticator - cloudflare
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/acme/dns/authenticator"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: GET
+    status_code:
+      - 200
+  register: acme_dns_authenticator
+  tags:
+    - truenas
+    - acme_certificate
+    - acme_dns_authenticator
+
+- name: debug acme_dns_authenticator
+  ansible.builtin.debug:
+    var: acme_dns_authenticator
+  tags:
+    - truenas
+    - acme_certificate
+    - acme_dns_authenticator
+
+- name: Get DNS Authenticator Id
+  ansible.builtin.set_fact:
+    acme_dns_authenticator_id: "{{ acme_dns_authenticator.json | json_query(\"([?name=='cloudflare'].id)[0]\") }}"
+    acme_dns_authenticator_api_token: "{{ acme_dns_authenticator.json | json_query(\"([?name=='cloudflare'].attributes.api_token)[0]\") }}"
+  tags:
+    - truenas
+    - acme_certificate
+    - acme_dns_authenticator
+
+- name: Configure ACME DNS Authenticator - Create Cloudflare for ACME DNS-01 Challenge
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/acme/dns/authenticator"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    body_format: json
+    body:
+      name: cloudflare
+      authenticator: cloudflare
+      attributes:
+        api_token: "{{ cloudflare_api_token }}"
+    method: POST
+    status_code:
+      - 200
+  when:
+    - not acme_dns_authenticator_id
+  tags:
+    - truenas
+    - acme_dns_authenticator
+
+- name: Configure ACME DNS Authenticator - Update Cloudflare for ACME DNS-01 Challenge
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/acme/dns/authenticator/id/{{ acme_dns_authenticator_id }}"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    body_format: json
+    body:
+      attributes:
+        api_token: "{{ cloudflare_api_token }}"
+    method: PUT
+    status_code:
+      - 200
+  when:
+    - acme_dns_authenticator_id
+    - acme_dns_authenticator_api_token != cloudflare_api_token
+  tags:
+    - truenas
+    - acme_dns_authenticator

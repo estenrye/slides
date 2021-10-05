@@ -1,0 +1,50 @@
+######################################################
+# Set Root Email Address
+######################################################
+
+- name: Assert All Variables are defined
+  ansible.builtin.assert:
+    that:
+      - truenas_url is defined
+      - truenas_trust_cert is defined
+      - truenas_api_key is defined
+      - truenas_root_email is defined
+  tags:
+    - truenas
+    - root_email_address
+
+- name: Get users
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/user"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: GET
+    status_code:
+      - 200
+  register: truenas_users
+  tags:
+    - truenas
+    - root_email_address
+
+- ansible.builtin.set_fact:
+    truenas_root_userid: "{{ truenas_users.json | json_query(\"([?username=='root'].id)[0]\") }}"
+  tags:
+    - truenas
+    - root_email_address
+
+- name: Set TrueNAS Scale Root email address
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/user/id/{{ truenas_root_userid }}"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    body_format: json
+    body:
+      email: "{{ truenas_root_email }}"
+    method: PUT
+    status_code:
+      - 200
+  tags:
+    - truenas
+    - root_email_address

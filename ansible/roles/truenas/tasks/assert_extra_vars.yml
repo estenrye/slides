@@ -1,0 +1,39 @@
+- name: Fail when TrueNAS Scale URI is not defined
+  ansible.builtin.fail:
+    msg:
+      - Extra Variable `truenas_url` must be set
+      - -e truenas_url=https://your-truenas-scale-uri
+  when:
+    - truenas_url is not defined
+  tags:
+    - truenas
+
+- name: Fail when TrueNAS Scale trust certificates is not defined
+  ansible.builtin.fail:
+    msg:
+      - Extra Variable `truenas_trust_cert` must be set
+      - -e truenas_trust_cert=false
+  when:
+    - truenas_trust_cert is not defined
+  tags:
+    - truenas
+
+- name: Fail when TrueNAS Scale api key is not defined
+  ansible.builtin.fail:
+    msg:
+      - Extra Variable `truenas_api_key` must be set
+      - -e truenas_api_key=your-key-here
+  when:
+    - truenas_api_key is not defined
+  tags:
+    - truenas
+
+- name: Fail when Cloudflare API Token is not defined
+  ansible.builtin.fail:
+    msg:
+      - Extra Variable `truenas_api_key` must be set
+      - -e cloudflare_api_token=your-token-here
+  when:
+    - cloudflare_api_token is not defined
+  tags:
+    - truenas

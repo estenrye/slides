@@ -1,0 +1,169 @@
+######################################################
+# Create Acme Certificate
+######################################################
+
+- name: Assert All Variables are defined
+  ansible.builtin.assert:
+    that:
+      - truenas_url is defined
+      - truenas_url
+      - truenas_trust_cert is defined
+      - truenas_api_key is defined
+      - truenas_api_key
+      - truenas_hostname is defined
+      - truenas_hostname
+      - truenas_domain is defined
+      - truenas_domain
+      - acme_dns_authenticator_id is defined
+      - acme_dns_authenticator_id
+  tags:
+    - truenas
+    - acme_certificate
+
+- name: Get certificates
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/certificate"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: GET
+    status_code:
+      - 200
+  register: acme_csr
+  tags:
+    - truenas
+    - acme_certificate
+
+- ansible.builtin.set_fact:
+    truenas_csr_id: "{{ acme_csr.json | json_query(\"([?name=='acme-csr'].id)[0]\") }}"
+  tags:
+    - truenas
+    - acme_certificate
+
+- name: Create ACME Certificate Request
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/certificate"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    body_format: json
+    body:
+      create_type: CERTIFICATE_CREATE_CSR
+      key_type: RSA
+      key_length: 2048
+      digest_algorithm: SHA1
+      city: "{{ truenas_csr_city }}"
+      country: "{{ truenas_csr_country }}"
+      email: "{{ truenas_root_email }}"
+      name: acme-csr
+      organization: "{{ truenas_csr_organization }}"
+      state: "{{ truenas_csr_state }}"
+      common: "{{ truenas_hostname }}.{{ truenas_domain }}"
+      san:
+        - "{{ truenas_hostname }}.{{ truenas_domain }}"
+    method: POST
+  when:
+    - not truenas_csr_id
+  tags:
+    - truenas
+    - acme_certificate
+
+- name: Get certificates
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/certificate"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: GET
+    status_code:
+      - 200
+  register: acme_certs
+  tags:
+    - truenas
+    - acme_certificate
+
+- ansible.builtin.set_fact:
+    truenas_csr_id: "{{ acme_certs.json | json_query(\"([?name=='acme-csr'].id)[0]\") }}"
+    truenas_cert_id: "{{ acme_certs.json | json_query(\"([?name=='acme-cert'].id)[0]\") }}"
+  tags:
+    - truenas
+    - acme_certificate
+
+- name: Create ACME Certificate Request
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/certificate"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    body_format: json
+    body: |
+      {
+        "create_type": "CERTIFICATE_CREATE_ACME",
+        "name": "acme-cert",
+        "tos": true,
+        "dns_mapping": {
+          "{{ truenas_hostname }}.{{ truenas_domain }}": {{ acme_dns_authenticator_id | int }},
+          "DNS:{{ truenas_hostname }}.{{ truenas_domain }}": {{ acme_dns_authenticator_id | int }}
+        },
+        "renew_days": 30,
+        "csr_id": {{ truenas_csr_id | int }},
+        "acme_directory_uri": "{{ truenas_acme_uri }}"
+      }
+    return_content: true
+    method: POST
+  when:
+    - not truenas_cert_id
+  tags:
+    - truenas
+    - acme_certificate
+
+- name: Get System General Configuration
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/system/general"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: GET
+    status_code:
+      - 200
+  tags:
+    - truenas
+    - acme_certificate
+  register: truenas_system_general_config
+
+- name: Set Web UI Certificate to acme-cert
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/system/general"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    body_format: json
+    body:
+      ui_certificate: "{{ truenas_cert_id }}"
+    method: PUT
+    status_code:
+      - 200
+  when:
+    - truenas_cert_id is defined
+    - truenas_cert_id | int != truenas_system_general_config.json.ui_certificate.id | int
+  tags:
+    - truenas
+    - acme_certificate
+
+- name: Restart Web UI
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/system/general/ui_restart"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    body_format: json
+    body: 5
+    method: POST
+    status_code:
+      - 200
+  when:
+    - truenas_cert_id is defined
+    - truenas_cert_id | int != truenas_system_general_config.json.ui_certificate.id | int
+  tags:
+    - truenas
+    - acme_certificate

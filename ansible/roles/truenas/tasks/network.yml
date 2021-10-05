@@ -1,0 +1,95 @@
+######################################################
+# Set Network Configuration
+######################################################
+
+- name: Assert All Variables are defined
+  ansible.builtin.assert:
+    that:
+      - truenas_url is defined
+      - truenas_trust_cert is defined
+      - truenas_api_key is defined
+      - truenas_ipv4gateway is defined
+      - truenas_hostname is defined
+      - truenas_domain is defined
+      - truenas_nameserver1 is defined
+      - truenas_nameserver2 is defined
+      - truenas_nameserver3 is defined
+      - truenas_physical_interface is defined
+      - truenas_physical_interface.id is defined
+      - truenas_physical_interface.ipv4_address is defined
+      - truenas_physical_interface.ipv4_netmask is defined
+  tags:
+    - truenas
+    - network
+
+- name: Set TrueNAS Scale Network Global Configuration
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/network/configuration"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    body_format: json
+    body:
+      ipv4gateway: "{{ truenas_ipv4gateway }}"
+      hostname: "{{ truenas_hostname }}"
+      domain: "{{ truenas_domain }}"
+      nameserver1: "{{ truenas_nameserver1 }}"
+      nameserver2: "{{ truenas_nameserver2 }}"
+      nameserver3: "{{ truenas_nameserver3 }}"
+    method: PUT
+    status_code:
+      - 200
+  tags:
+    - truenas
+    - network
+
+- name: Set TrueNAS Scale Interface to Static IP
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/interface/id/{{ truenas_physical_interface.id }}"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    body_format: json
+    body:
+      ipv4_dhcp: false
+      ipv6_auto: false
+      aliases:
+        - type: INET
+          address: "{{ truenas_physical_interface.ipv4_address }}"
+          netmask: "{{ truenas_physical_interface.ipv4_netmask }}"
+    method: PUT
+    status_code:
+      - 200
+  tags:
+    - truenas
+    - network
+
+- name: Commit Networking Changes - Starts 60 second revert timer
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/interface/commit"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    body_format: json
+    body:
+      rollback: true
+      checkin_timeout: 60
+    method: POST
+    status_code:
+      - 200
+  tags:
+    - truenas
+    - network
+
+- name: Checkin Networking Changes - Stops revert timer and saves changes
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/interface/checkin"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: GET
+    status_code:
+      - 200
+  tags:
+    - truenas
+    - network

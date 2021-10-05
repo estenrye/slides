@@ -1,0 +1,21 @@
+truenas_timezone: Etc/UTC
+truenas_language: en
+truenas_ipv4gateway: 10.5.0.1
+truenas_hostname: nas
+truenas_domain: ryezone.com
+truenas_nameserver1: 10.5.0.1
+truenas_nameserver2: 1.1.1.1
+truenas_nameserver3: 1.0.0.1
+truenas_root_email: "{{ git_user_email }}"
+truenas_physical_interface:
+  id: ens18
+  ipv4_address: 10.5.1.65
+  ipv4_netmask: 16
+truenas_csr_organization: Ryezone Labs
+truenas_csr_city: Bloomington
+truenas_csr_state: MN
+truenas_csr_country: US
+truenas_acme_uri: https://acme-v02.api.letsencrypt.org/directory
+truenas_iscsi_initiators: []
+truenas_iscsi_auth_network:
+  - 10.5.0.0/16

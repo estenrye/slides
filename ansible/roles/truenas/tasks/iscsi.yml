@@ -1,0 +1,207 @@
+- name: Assert All Variables are defined
+  ansible.builtin.assert:
+    that:
+      - truenas_url is defined
+      - truenas_url
+      - truenas_trust_cert is defined
+      - truenas_api_key is defined
+      - truenas_api_key
+  tags:
+    - truenas
+    - iscsi
+
+- name: Get services
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/service"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: GET
+    return_content: true
+    status_code:
+      - 200
+  register: truenas_service_list
+  tags:
+    - truenas
+    - iscsi
+
+- name: Get iSCSI service id
+  ansible.builtin.set_fact:
+    truenas_iscsi_service_id: "{{ truenas_service_list.json | json_query(\"([?service=='iscsitarget'].id)[0]\") }}"
+  tags:
+    - truenas
+    - iscsi
+
+- ansible.builtin.debug:
+    var: truenas_iscsi_service_id
+  tags:
+    - truenas
+    - iscsi
+
+- name: Get services
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/service/id/{{ truenas_iscsi_service_id }}"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: PUT
+    body_format: json
+    body:
+      enable: true
+    status_code:
+      - 200
+  register: truenas_service_list
+  tags:
+    - truenas
+    - iscsi
+
+- name: Start iscsi service
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/service/start"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: POST
+    body_format: json
+    body:
+      service: iscsitarget
+    status_code:
+      - 200
+  register: truenas_service_list
+  tags:
+    - truenas
+    - iscsi
+
+- name: Get iscsi portals
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/iscsi/portal"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: GET
+    return_content: true
+    status_code:
+      - 200
+  register: truenas_iscsi_portal_list
+  tags:
+    - truenas
+    - iscsi
+
+- name: Get iscsi portal id
+  ansible.builtin.set_fact:
+    truenas_iscsi_portal_id: "{{ truenas_iscsi_portal_list.json | json_query(\"([?comment=='kubernetes-csi-isci-portal'].id)[0]\") }}"
+  tags:
+    - truenas
+    - iscsi
+
+- name: Create iscsi portal
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/iscsi/portal"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: POST
+    body_format: json
+    body:
+      comment: kubernetes-csi-isci-portal
+      discovery_authmethod: NONE
+      listen:
+        - ip: "0.0.0.0"
+          port: 3260
+    status_code:
+      - 200
+  register: truenas_service_list
+  when:
+    - not truenas_iscsi_portal_id
+  tags:
+    - truenas
+    - iscsi
+
+- name: Update iscsi portal
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/iscsi/portal/id/{{ truenas_iscsi_portal_id }}"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: PUT
+    body_format: json
+    body:
+      comment: kubernetes-csi-isci-portal
+      discovery_authmethod: NONE
+      listen:
+        - ip: "0.0.0.0"
+          port: 3260
+    status_code:
+      - 200
+  register: truenas_service_list
+  when:
+    - truenas_iscsi_portal_id is defined
+    - truenas_iscsi_portal_id
+  tags:
+    - truenas
+    - iscsi
+
+- name: Get iscsi initiators
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/iscsi/initiator"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: GET
+    return_content: true
+    status_code:
+      - 200
+  register: truenas_iscsi_initiator_list
+  tags:
+    - truenas
+    - iscsi
+
+- name: Get iscsi initiator id
+  ansible.builtin.set_fact:
+    truenas_iscsi_initiator_id: "{{ truenas_iscsi_initiator_list.json | json_query(\"([?comment=='kubernetes-csi-isci-initiator'].id)[0]\") }}"
+  tags:
+    - truenas
+    - iscsi
+
+- name: Create iscsi initiator
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/iscsi/initiator"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: POST
+    body_format: json
+    body:
+      initiators: "{{ truenas_iscsi_initiators }}"
+      auth_network: "{{ truenas_iscsi_auth_network }}"
+      comment: kubernetes-csi-isci-initiator
+    status_code:
+      - 200
+  register: truenas_service_list
+  when:
+    - not truenas_iscsi_initiator_id
+  tags:
+    - truenas
+    - iscsi
+
+- name: Update iscsi initiator
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/iscsi/initiator/id/{{ truenas_iscsi_initiator_id }}"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: PUT
+    body_format: json
+    body:
+      initiators: "{{ truenas_iscsi_initiators }}"
+      auth_network: "{{ truenas_iscsi_auth_network }}"
+      comment: kubernetes-csi-isci-initiator
+    status_code:
+      - 200
+  register: truenas_service_list
+  when:
+    - truenas_iscsi_initiator_id is defined
+    - truenas_iscsi_initiator_id
+  tags:
+    - truenas
+    - iscsi
