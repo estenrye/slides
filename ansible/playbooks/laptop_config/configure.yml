@@ -13,3 +13,13 @@
     - slack
     - visual_studio_code
     - yubikey
+
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Install packages for virtual camera support
+      ansible.builtin.package:
+        name: v4l2loopback-dkms
+  roles:
+    - alvistack.obs_studio
+  become: true

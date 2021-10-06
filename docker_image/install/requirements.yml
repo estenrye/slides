@@ -16,3 +16,5 @@ roles:
     version: 1.2.0
   - name: sicruse.powerline-fonts
     version: v1.2.1
+  - name: alvistack.obs_studio
+    version: 5.2.1
