@@ -33,7 +33,6 @@
   register: acme_dns_authenticator
   tags:
     - truenas
-    - acme_certificate
     - acme_dns_authenticator
 
 - name: debug acme_dns_authenticator
@@ -41,7 +40,6 @@
     var: acme_dns_authenticator
   tags:
     - truenas
-    - acme_certificate
     - acme_dns_authenticator
 
 - name: Get DNS Authenticator Id
@@ -50,7 +48,6 @@
     acme_dns_authenticator_api_token: "{{ acme_dns_authenticator.json | json_query(\"([?name=='cloudflare'].attributes.api_token)[0]\") }}"
   tags:
     - truenas
-    - acme_certificate
     - acme_dns_authenticator
 
 - name: Configure ACME DNS Authenticator - Create Cloudflare for ACME DNS-01 Challenge

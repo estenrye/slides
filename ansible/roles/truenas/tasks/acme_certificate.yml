@@ -10,6 +10,34 @@
       - truenas_trust_cert is defined
       - truenas_api_key is defined
       - truenas_api_key
+  tags:
+    - truenas
+    - acme_certificate
+
+- name: Get ACME DNS Authenticator - cloudflare
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/acme/dns/authenticator"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: GET
+    status_code:
+      - 200
+  register: acme_dns_authenticator
+  tags:
+    - truenas
+    - acme_certificate
+
+- name: Get DNS Authenticator Id
+  ansible.builtin.set_fact:
+    acme_dns_authenticator_id: "{{ acme_dns_authenticator.json | json_query(\"([?name=='cloudflare'].id)[0]\") }}"
+  tags:
+    - truenas
+    - acme_certificate
+
+- name: Assert All Variables are defined
+  ansible.builtin.assert:
+    that:
       - truenas_hostname is defined
       - truenas_hostname
       - truenas_domain is defined
@@ -117,6 +145,39 @@
     - truenas
     - acme_certificate
 
+- name: Pause for ACME
+  ansible.builtin.pause:
+    minutes: 2
+  when:
+  - not truenas_cert_id
+  tags:
+    - truenas
+    - acme_certificate
+
+- name: Get certificates
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/certificate"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: GET
+    status_code:
+      - 200
+  register: acme_certs
+  when:
+    - not truenas_cert_id
+  tags:
+    - truenas
+    - acme_certificate
+
+- ansible.builtin.set_fact:
+    truenas_cert_id: "{{ acme_certs.json | json_query(\"([?name=='acme-cert'].id)[0]\") }}"
+  when:
+    - not truenas_cert_id
+  tags:
+    - truenas
+    - acme_certificate
+
 - name: Get System General Configuration
   ansible.builtin.uri:
     url: "{{ truenas_url }}/api/v2.0/system/general"
@@ -161,6 +222,16 @@
     method: POST
     status_code:
       - 200
+  when:
+    - truenas_cert_id is defined
+    - truenas_cert_id | int != truenas_system_general_config.json.ui_certificate.id | int
+  tags:
+    - truenas
+    - acme_certificate
+
+- name: Pause for Web UI Restart
+  ansible.builtin.pause:
+    minutes: 3
   when:
     - truenas_cert_id is defined
     - truenas_cert_id | int != truenas_system_general_config.json.ui_certificate.id | int

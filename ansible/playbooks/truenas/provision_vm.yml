@@ -1,0 +1,42 @@
+- hosts: localhost
+  connection: local
+  vars:
+    platform_environment: common
+  tasks:
+    # TODO: Create module for creating proxmox pools.
+
+    - name: Create a TrueNAS VM
+      community.general.proxmox_kvm:
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_pass }}"
+        api_host: "{{ proxmox_host }}"
+        proxmox_default_behavior: no_defaults
+        name: "nas-test.ryezone.com"
+        node: "proxmox01"
+        pool: "common"
+        format: qcow2
+        machine: q35
+        cpu: qemu64
+        hotplug: cpu,disk,network,usb
+        kvm: true
+        ostype: l26
+        net: 
+        cores: 4
+        memory: 16384
+        balloon: 0
+        acpi: yes
+        agent: no
+        boot: dcn
+        bootdisk: scsi0
+        timeout: 500
+        state: present
+        tablet: no
+        ide:
+          ide0: local:iso/{{ truenas_iso }},media=cdrom
+        scsi:
+          scsi0: local-lvm:200,ssd=1
+        hostpci:
+          hostpci0: host=04:00.0,pcie=1,rombar=0
+          hostpci1: host=05:00.0,pcie=1,rombar=0
+        net:
+          net0: virtio=0E:FA:50:2D:85:93,bridge=vmbr0

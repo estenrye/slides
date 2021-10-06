@@ -1,0 +1,73 @@
+- name: Assert All Variables are defined
+  ansible.builtin.assert:
+    that:
+      - truenas_url is defined
+      - truenas_url
+      - truenas_trust_cert is defined
+      - truenas_api_key is defined
+      - truenas_api_key
+  tags:
+    - truenas
+    - ssh
+
+- name: Get services
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/service"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: GET
+    return_content: true
+    status_code:
+      - 200
+  register: truenas_service_list
+  tags:
+    - truenas
+    - ssh
+
+- name: Get ssh service id
+  ansible.builtin.set_fact:
+    truenas_ssh_service_id: "{{ truenas_service_list.json | json_query(\"([?service=='ssh'].id)[0]\") }}"
+  tags:
+    - truenas
+    - ssh
+
+- ansible.builtin.debug:
+    var: truenas_ssh_service_id
+  tags:
+    - truenas
+    - ssh
+
+- name: Get services
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/service/id/{{ truenas_ssh_service_id }}"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: PUT
+    body_format: json
+    body:
+      enable: true
+    status_code:
+      - 200
+  register: truenas_service_list
+  tags:
+    - truenas
+    - ssh
+
+- name: Start ssh service
+  ansible.builtin.uri:
+    url: "{{ truenas_url }}/api/v2.0/service/start"
+    validate_certs: "{{ truenas_trust_cert | bool }}"
+    headers:
+      authorization: Bearer {{ truenas_api_key }}
+    method: POST
+    body_format: json
+    body:
+      service: ssh
+    status_code:
+      - 200
+  register: truenas_service_list
+  tags:
+    - truenas
+    - ssh
