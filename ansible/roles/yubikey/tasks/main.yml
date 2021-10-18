@@ -6,6 +6,14 @@
       - yubioath-desktop
   become: true
 
+- name: debug u2fpam_devices
+  ansible.builtin.debug:
+    var: u2fpam_devices
+
+- name: show templating results
+  debug:
+    msg: "{{ lookup('template', './templates/u2f_keys.j2') }}"
+
 - name: install apt packages
   ansible.builtin.package:
     name:
