@@ -20,4 +20,5 @@ all:
     firewall_rules_allow_outbound_v4: []
     firewall_rules_allow_inbound_v6: []
     firewall_rules_allow_outbound_v6: []
+    golang_version: '1.17.2'
     primary_user: ubuntu

@@ -22,4 +22,5 @@
         name: v4l2loopback-dkms
   roles:
     - alvistack.obs_studio
+    - gantsign.golang
   become: true
