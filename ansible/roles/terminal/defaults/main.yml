@@ -1,6 +1,7 @@
 profile:
   editor: vim
   visual: vim
+  gopath: /opt/go/{{ golang_version }}/bin
 
 primary_user: ubuntu
 

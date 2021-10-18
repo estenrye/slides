@@ -1,0 +1,4 @@
+# Add local go path.
+if [ -d "{{ profile.gopath }}" ] ; then
+    PATH="{{ profile.gopath }}:${PATH}"
+fi

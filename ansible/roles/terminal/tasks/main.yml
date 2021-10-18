@@ -8,6 +8,7 @@
   loop:
     - .profile.env
     - .profile.aliases
+    - .profile.path
 
 - name: copy profile configuration files
   ansible.builtin.copy:
@@ -29,7 +30,7 @@
       - tmux
       - vim
   become: true
-  
+
 - name: install zsh
   ansible.builtin.include_role:
     name: gantsign.antigen
@@ -44,7 +45,8 @@
   loop:
     - source ~/.profile.env
     - source ~/.profile.aliases
-    
+    - source ~/.profile.path
+
 - name: Set the user's default shell to zsh
   ansible.builtin.user:
     name: "{{ primary_user }}"
