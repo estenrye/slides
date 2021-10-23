@@ -14,7 +14,7 @@ CLUSTER='common'
 docker run --rm -it \
   --mount type=bind,source=`readlink -f ~/src/slides/ansible`,target=/ansible,readonly \
   --mount type=bind,source=`readlink -f ~/.ansible/secrets`,target=/secrets \
-  -e ANSIBLE_CONFIG=/ansible/ansible.cfg
+  -e ANSIBLE_CONFIG=/ansible/ansible.cfg \
   estenrye/ansible:latest \
   ansible-playbook \
     -e @/secrets/creds.yml \

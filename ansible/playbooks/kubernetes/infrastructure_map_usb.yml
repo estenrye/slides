@@ -1,0 +1,60 @@
+- hosts: all_cluster_vms
+  connection: local
+  tasks:
+    - name: Stop VMs
+      community.general.proxmox_kvm:
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_pass }}"
+        api_host: "{{ proxmox_host }}"
+        vmid: "{{ proxmox_vmid }}"
+        node: "{{ proxmox_node }}"
+        proxmox_default_behavior: no_defaults
+        state: stopped
+        timeout: 500
+      when:
+        - usb is defined
+        - usb[inventory_hostname] is defined
+
+    - name: Get Ticket from Proxmox API
+      ansible.builtin.uri:
+        url: https://{{ proxmox_host }}:8006/api2/json/access/ticket
+        method: POST
+        body_format: json
+        body:
+          password: "{{ proxmox_pass }}"
+          username: "{{ proxmox_user }}"
+        status_code:
+          - 200
+      register: ticket_response
+      when:
+        - usb is defined
+        - usb[inventory_hostname] is defined
+
+    - name: Add USB Hardware
+      ansible.builtin.uri:
+        url: https://{{ proxmox_host }}:8006/api2/json/nodes/{{ proxmox_node }}/qemu/{{ proxmox_vmid }}/config
+        method: PUT
+        body_format: json
+        body: "{{ usb[inventory_hostname] }}"
+        headers:
+          Cookie: "PVEAuthCookie={{ ticket_response.json.data.ticket }}"
+          CSRFPreventionToken: "{{ ticket_response.json.data.CSRFPreventionToken }}"
+        status_code:
+          - 200
+      when:
+        - usb is defined
+        - usb[inventory_hostname] is defined
+
+    - name: Start cloned vm
+      community.general.proxmox_kvm:
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_pass }}"
+        api_host: "{{ proxmox_host }}"
+        vmid: "{{ proxmox_vmid }}"
+        node: "{{ proxmox_node }}"
+        proxmox_default_behavior: no_defaults
+        update: true
+        state: started
+      when:
+        - usb is defined
+        - usb[inventory_hostname] is defined
