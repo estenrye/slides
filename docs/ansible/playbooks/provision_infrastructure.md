@@ -11,7 +11,7 @@ docker pull estenrye/ansible:latest
 ```bash
 CLUSTER='common'
 
-docker run --rm -t \
+docker run --rm -it \
   --mount type=bind,source=`readlink -f ~/src/slides/ansible`,target=/ansible,readonly \
   --mount type=bind,source=`readlink -f ~/.ansible/secrets`,target=/secrets \
   estenrye/ansible:latest \

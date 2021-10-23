@@ -1,7 +1,10 @@
 # Install RKE2 and Load Balancer
 
 ```bash
+CLUSTER='common'
+
 docker run --rm -it \
+  -e ANSIBLE_CONFIG=/ansible/ansible.cfg \
   -e PROXMOX_PASSWORD="${PROXMOX_PASSWORD}" \
   -e PROXMOX_USER="${PROXMOX_USERNAME}" \
   -e PROXMOX_URL='https://proxmox01.ryezone.com:8006' \
@@ -12,6 +15,7 @@ docker run --rm -it \
   estenrye/ansible:latest \
   ansible-playbook \
     -e @/secrets/creds.yml \
+    -e @/ansible/playbooks/kubernetes/extra_vars/${CLUSTER}.yml \
     --vault-password-file /secrets/secret.key \
     -i /ansible/inventories/${CLUSTER}/rke2.proxmox.yml \
     /ansible/playbooks/kubernetes/install_rke2.yml
