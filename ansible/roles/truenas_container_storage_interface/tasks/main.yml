@@ -15,7 +15,7 @@
     values:
       driver:
         config:
-          driver: freenas-iscsi
+          driver: freenas-api-iscsi
           instance_id:
           httpConnection:
             protocol: https
@@ -25,11 +25,6 @@
             username: root
             allowInsecure: false
             apiVersion: 2
-          sshConnection:
-            host: "{{ truenas_backend }}"
-            port: 22
-            username: root
-            privateKey: "{{ truenas_ssh_key }}"
           zfs:
             # total volume name (zvol/<datasetParentName>/<pvc name>) length cannot exceed 63 chars
             # https://www.ixsystems.com/documentation/freenas/11.2-U5/storage.html#zfs-zvol-config-opts-tab
@@ -89,32 +84,26 @@
         volumeBindingMode: Immediate
         allowVolumeExpansion: true
         parameters:
-          # for block-based storage can be ext3, ext4, xfs
-          # for nfs should be nfs
           fsType: ext4
-
-          # if true, volumes created from other snapshots will be
-          # zfs send/received instead of zfs cloned
-          # detachedVolumesFromSnapshots: "false"
-
-          # if true, volumes created from other volumes will be
-          # zfs send/received instead of zfs cloned
-          # detachedVolumesFromVolumes: "false"
-
         mountOptions: []
         secrets:
           provisioner-secret:
           controller-publish-secret:
           node-stage-secret:
-      #      # any arbitrary iscsiadm entries can be add by creating keys starting with node-db.<entry.name>
-      #      # if doing CHAP
-      #      node-db.node.session.auth.authmethod: CHAP
-      #      node-db.node.session.auth.username: foo
-      #      node-db.node.session.auth.password: bar
-      #
-      #      # if doing mutual CHAP
-      #      node-db.node.session.auth.username_in: baz
-      #      node-db.node.session.auth.password_in: bar
+          node-publish-secret:
+          controller-expand-secret:
+      - name: truenas-iscsi-csi-retain
+        defaultClass: false
+        reclaimPolicy: Retain
+        volumeBindingMode: Immediate
+        allowVolumeExpansion: true
+        parameters:
+          fsType: ext4
+        mountOptions: []
+        secrets:
+          provisioner-secret:
+          controller-publish-secret:
+          node-stage-secret:
           node-publish-secret:
           controller-expand-secret:
 
