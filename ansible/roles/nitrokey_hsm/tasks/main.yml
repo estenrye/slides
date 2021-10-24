@@ -10,41 +10,90 @@
 - name: enable pcscd service
   ansible.builtin.service:
     name: pcscd
-    state: started
     enabled: true
   become: true
 
-# - name: Get HSM Status to determine initialization status
-#   ansible.builtin.command:
-#     cmd: sc-hsm-tool
-#   register: hsm_status
+- name: ensure pcscd service is started
+  ansible.builtin.service:
+    name: pcscd
+    state: started
+  changed_when: false
+  become: true
 
-# - name: set initialization status
-#   ansible.builtin.set_fact:
-#     hsm_init_status: "{{ hsm_status | regex_search('SmartCard-HSM has never been initialized') == 'SmartCard-HSM has never been initialized' }}"
+- name: Get HSM Status to determine initialization status
+  ansible.builtin.command:
+    argv:
+      - sc-hsm-tool
+      - --label=lab-hsm
+  changed_when: false
+  register: hsm_status
 
-# - name: display status
-#   ansible.builtin.debug:
-#     var: hsm_init_status
+- name: set initialization status
+  ansible.builtin.set_fact:
+    hsm_init_status: "{{ hsm_status | regex_search('SmartCard-HSM has never been initialized') == 'SmartCard-HSM has never been initialized' }}"
 
-# - name: Assert values are defined
-#   ansible.builtin.assert:
-#     that:
-#       - nitrokey_hsm_sopin is defined
-#       - nitrokey_hsm_pin is defined
-#       - nitrokey_hsm_label is defined
+- name: override initialization status
+  ansible.builtin.set_fact:
+    hsm_init_status: true
+  when:
+    - nitrokey_hsm_init_status_override is defined
+    - nitrokey_hsm_init_status_override
 
-# - name: Initialize HSM
-#   ansible.builtin.command:
-#     argv:
-#       - sc-hsm-tool
-#       - --initialize
-#       - --so-pin
-#       - "{{ nitrokey_hsm_sopin }}"
-#       - --pin
-#       - "{{ nitrokey_hsm_pin }}"
-#   when:
-#     - hsm_init_status
+- name: display status
+  ansible.builtin.debug:
+    var: hsm_init_status
 
-# TODO: initialize HSM2
-# https://github.com/OpenSC/OpenSC/wiki/SmartCardHSM#initialize-the-device
+- name: Assert values are defined
+  ansible.builtin.assert:
+    that:
+      - nitrokey_hsm_sopin is defined
+      - nitrokey_hsm_pin is defined
+      - nitrokey_hsm_label is defined
+      - nitrokey_hsm_dkek_share_password is defined
+      - nitrokey_hsm_dkek_share_b64 is defined
+
+- name: Initialize HSM
+  ansible.builtin.command:
+    argv:
+      - sc-hsm-tool
+      - --initialize
+      - --so-pin={{ nitrokey_hsm_sopin }}
+      - --pin={{ nitrokey_hsm_pin }}
+      - --dkek-shares=1
+      - --label=lab-hsm
+  when:
+    - hsm_init_status
+
+- name: create directory for dkek share
+  ansible.builtin.file:
+    path: /etc/hsm
+    mode: 0750
+    state: directory
+    owner: root
+    group: root
+  become: true
+  when:
+    - hsm_init_status
+
+- name: write dkek share
+  ansible.builtin.copy:
+    content: "{{ nitrokey_hsm_dkek_share_b64 | b64decode }}"
+    dest: /etc/hsm/dkek-share-1.pbe
+    mode: 0640
+    owner: root
+    group: root
+  become: true
+  when:
+    - hsm_init_status
+
+- name: Import dkek share.
+  ansible.builtin.command:
+    argv:
+      - sc-hsm-tool
+      - --so-pin={{ nitrokey_hsm_sopin }}
+      - --pin={{ nitrokey_hsm_pin }}
+      - --import-dkek-share=/etc/hsm/dkek-share-1.pbe
+      - --password={{ nitrokey_hsm_dkek_share_password }}
+  become: true
+  when:
+    - hsm_init_status

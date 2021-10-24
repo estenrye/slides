@@ -1,14 +1,17 @@
 - name: install base cluster configuration
   import_playbook: base_cluster_config.yml
 
-- hosts: node
+- hosts: node01.common.ryezone.com
+  vars:
+    nitrokey_hsm_init_status_override: false
   roles:
     - nitrokey_hsm
+    - nitrokey_hsm_generate_certs
   tags:
     - hsm
 
-- hosts: localhost
-  connection: local
-  roles:
-    - sonatype_nexus
-    - configure_sonatype_nexus
+# - hosts: localhost
+#   connection: local
+#   roles:
+#     - sonatype_nexus
+#     - configure_sonatype_nexus
