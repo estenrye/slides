@@ -104,3 +104,10 @@
       - --key-reference={{ hsm_bank_vaults_key_ref_id }}
     creates: /etc/hsm/wrap-key-1_bank-vaults.bin
   become: true
+
+- name: Fetch extracted key from node.
+  ansible.builtin.fetch:
+    src: /etc/hsm/wrap-key-1_bank-vaults.bin
+    dest: /tmp/pki/wrap-key-1_bank-vaults.bin
+    flat: yes
+  become: true
