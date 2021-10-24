@@ -98,16 +98,16 @@
   ansible.builtin.command:
     argv:
       - sc-hsm-tool
-      - --wrap-key=/etc/hsm/wrap-key-1_bank-vaults.bin
+      - --wrap-key=/etc/hsm/{{ hsm_bank_vaults_key_ref_id }}.bank-vaults.wrap-key.bin
       - --pin={{ nitrokey_hsm_pin }}
       - --label=lab-hsm
       - --key-reference={{ hsm_bank_vaults_key_ref_id }}
-    creates: /etc/hsm/wrap-key-1_bank-vaults.bin
+    creates: /etc/hsm/{{ hsm_bank_vaults_key_ref_id }}.bank-vaults.wrap-key.bin
   become: true
 
 - name: Fetch extracted key from node.
   ansible.builtin.fetch:
-    src: /etc/hsm/wrap-key-1_bank-vaults.bin
-    dest: /tmp/pki/wrap-key-1_bank-vaults.bin
+    src: /etc/hsm/{{ hsm_bank_vaults_key_ref_id }}.bank-vaults.wrap-key.bin
+    dest: /tmp/pki/{{ hsm_bank_vaults_key_ref_id }}.bank-vaults.wrap-key.bin
     flat: yes
   become: true
