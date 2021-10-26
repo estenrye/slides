@@ -7,10 +7,6 @@
     group: root
   become: true
 
-# TODO:
-#  - I need to figure out how nodes 02 and 03 will get hsm_bank_vaults_key_ref_id
-#  - initial thoughts are having node 01 write a json list to a file [ { id: name } ]
-#  - and copy it to the container.
 - name: copy extracted bank-vaults key to node
   ansible.builtin.copy:
     src: /tmp/pki/

@@ -1,1 +1,3 @@
-- 
+# TODO: Retrieve a list of nodes from the inventory group `node`
+
+# TODO: For each node, run patch_hsm.sh.
