@@ -23,3 +23,5 @@ firewall_rules_allow_outbound_v4: []
 firewall_ipv6_enabled: false
 firewall_rules_allow_inbound_v6: []
 firewall_rules_allow_outbound_v6: []
+
+nitrokey_hsm_init_status_override: false

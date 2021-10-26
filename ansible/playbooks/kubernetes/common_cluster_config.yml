@@ -2,8 +2,6 @@
   import_playbook: base_cluster_config.yml
 
 - hosts: node
-  vars:
-    nitrokey_hsm_init_status_override: true
   roles:
     - nitrokey_hsm
   tags:
