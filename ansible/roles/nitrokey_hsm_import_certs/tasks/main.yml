@@ -11,8 +11,21 @@
 #  - I need to figure out how nodes 02 and 03 will get hsm_bank_vaults_key_ref_id
 #  - initial thoughts are having node 01 write a json list to a file [ { id: name } ]
 #  - and copy it to the container.
-
 - name: copy extracted bank-vaults key to node
   ansible.builtin.copy:
-    src: /tmp/pki/{{ hsm_bank_vaults_key_ref_id }}.bank-vaults.wrap-key.bin
-    dest: /etc/hsm/{{ hsm_bank_vaults_key_ref_id }}.bank-vaults.wrap-key.bin
+    src: /tmp/pki/
+    dest: /etc/hsm
+
+- name: find all keys to import
+  ansible.builtin.find:
+    depth: 1
+    file_type: file
+    paths:
+      - /etc/hsm
+    patterns:
+      - '*.wrap-key.bin'
+  register: keys_to_import
+
+- name: debug keys_to_import
+  ansible.builtin.debug:
+    var: keys_to_import
