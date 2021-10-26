@@ -1,0 +1,104 @@
+- name: Query HSM for key object
+  ansible.builtin.command:
+    argv:
+      - pkcs11-tool
+      - --list-objects
+      - --pin={{ nitrokey_hsm_pin }}
+      - --token-label={{ hsm_token_label }}
+      - --label={{ key.label }}
+  changed_when: false
+  register: hsm_key_status_raw
+
+- name: Determine whether key object is present
+  ansible.builtin.set_fact:
+    hsm_key_present: "{{ hsm_key_status_raw.stdout | length > 0 }}"
+
+- name: debug hsm_key_present
+  ansible.builtin.debug:
+    var: hsm_key_present
+
+- name: Generate Key
+  ansible.builtin.command:
+    argv:
+      - pkcs11-tool
+      - --module=opensc-pkcs11.so
+      - --login
+      - --pin={{ nitrokey_hsm_pin }}
+      - --keypairgen
+      - --key-type={{ key.key_type }}
+      - --token-label={{ hsm_token_label }}
+      - --label={{ key.label }}
+  when:
+    - not hsm_key_present
+
+- name: Get Key PKCS11 HSM Data
+  ansible.builtin.command:
+    argv:
+      - pkcs11-tool
+      - --list-objects
+      - --login
+      - --pin={{ nitrokey_hsm_pin }}
+      - --token-label={{ hsm_token_label }}
+      - --label={{ key.label }}
+      - --type=privkey
+  changed_when: false
+  register: hsm_key_pkcs11_data
+
+- name: Get Key ID
+  ansible.builtin.set_fact:
+    hsm_key_id: "{{ hsm_key_pkcs11_data.stdout_lines[2] | replace(' ','') }}"
+    hsm_key_ref_regex: "\tRSA.+{{ hsm_key_pkcs11_data.stdout_lines[2] | replace(' ','') }}.+"
+
+- name: Assert ID starts with 'ID:'
+  ansible.builtin.assert:
+    that:
+      - hsm_key_id.startswith('ID:')
+
+- name: Debug ID
+  ansible.builtin.debug:
+    var: hsm_key_id
+
+- name: Get PKCS15 HSM Data
+  ansible.builtin.command:
+    argv:
+      - pkcs15-tool
+      - --list-keys
+      - --short
+      - --pin={{ nitrokey_hsm_pin }}
+  changed_when: false
+  register: hsm_pkcs15_data
+
+- name: debug hsm_pkcs15_data
+  ansible.builtin.debug:
+    var: hsm_pkcs15_data
+    verbosity: 2
+
+- name: find Key Reference Id
+  ansible.builtin.set_fact:
+    hsm_key_pkcs15: "{{ hsm_pkcs15_data.stdout_lines | select('match', hsm_key_ref_regex)}}"
+
+- name: extract bank-vaults RSA Key Reference Id from PKCS15 output.
+  ansible.builtin.set_fact:
+    hsm_key_ref_id: "{{ (hsm_key_pkcs15[0] | split(' ') | select('match', 'Ref:.+'))[0] | replace('Ref:', '') | int(base=16) }}"
+
+- name: debug hsm_key_ref_id
+  ansible.builtin.debug:
+    var: hsm_key_ref_id
+
+- name: Export Generated bank-vaults RSA Key
+  ansible.builtin.command:
+    argv:
+      - sc-hsm-tool
+      - --wrap-key=/etc/hsm/{{ hsm_key_ref_id }}.{{ key.label }}.wrap-key.bin
+      - --pin={{ nitrokey_hsm_pin }}
+      - --label={{ hsm_token_label }}
+      - --key-reference={{ hsm_key_ref_id }}
+    creates: /etc/hsm/{{ hsm_key_ref_id }}.{{ key.label }}.wrap-key.bin
+  become: true
+
+- name: Fetch extracted key from node.
+  ansible.builtin.fetch:
+    src: /etc/hsm/{{ hsm_key_ref_id }}.{{ key.label }}.wrap-key.bin
+    dest: /tmp/pki/{{ hsm_key_ref_id }}.{{ key.label }}.wrap-key.bin
+    flat: yes
+  become: true

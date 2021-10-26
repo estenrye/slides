@@ -3,7 +3,7 @@
 
 - hosts: node
   vars:
-    nitrokey_hsm_init_status_override: false
+    nitrokey_hsm_init_status_override: true
   roles:
     - nitrokey_hsm
   tags:

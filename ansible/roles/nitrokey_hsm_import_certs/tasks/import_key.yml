@@ -1,0 +1,48 @@
+- name: extract data from filename
+  ansible.builtin.set_fact:
+    hsm_key_reference_id: "{{ (imported_key.path | basename | split('.'))[0] }}"
+    hsm_key_label: "{{ (imported_key.path | basename | split('.'))[1] }}"
+    hsm_key_path: "{{ imported_key.path }}"
+
+- name: debug hsm_key_reference_id
+  ansible.builtin.debug:
+    var: hsm_key_reference_id
+
+- name: debug hsm_key_label
+  ansible.builtin.debug:
+    var: hsm_key_label
+
+- name: debug hsm_key_path
+  ansible.builtin.debug:
+    var: hsm_key_path
+
+- name: Query HSM for key object
+  ansible.builtin.command:
+    argv:
+      - pkcs11-tool
+      - --list-objects
+      - --pin={{ nitrokey_hsm_pin }}
+      - --token-label=lab-hsm
+      - --label={{ hsm_key_label }}
+  changed_when: false
+  register: hsm_key_status_raw
+
+- name: Determine whether key object is present
+  ansible.builtin.set_fact:
+    hsm_key_present: "{{ hsm_key_status_raw.stdout | length > 0 }}"
+
+- name: debug hsm_key_present
+  ansible.builtin.debug:
+    var: hsm_key_present
+
+- name: Import Key
+  ansible.builtin.command:
+    argv:
+      - sc-hsm-tool
+      - --unwrap-key={{ hsm_key_path }}
+      - --pin={{ nitrokey_hsm_pin }}
+      - --label=lab-hsm
+      - --key-reference={{ hsm_key_reference_id }}
+  become: true
+  when:
+    - not hsm_key_present

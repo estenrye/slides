@@ -29,3 +29,10 @@
 - name: debug keys_to_import
   ansible.builtin.debug:
     var: keys_to_import
+
+- name: loop through imported keys
+  ansible.builtin.include_tasks:
+    file: import_key.yml
+  loop_control:
+    loop_var: imported_key
+  loop: "{{ keys_to_import.files }}"
