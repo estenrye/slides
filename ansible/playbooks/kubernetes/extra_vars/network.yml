@@ -1,0 +1,4 @@
+platform_environment: network
+cluster_wildcard_vip: 10.5.15.1
+cluster_vips: []
+usb: {}

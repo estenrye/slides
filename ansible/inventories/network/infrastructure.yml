@@ -1,0 +1,19 @@
+all:
+  children:
+    localhost:
+  vars:
+    platform_environment: network
+    kubernetes_zone: network.ryezone.com
+    proxmox_template: packer-ubuntu-2004-minimal-base-20210824
+    proxmox_bridge: vmbr0
+    proxmox_nameservers:
+      - '1.1.1.1'
+      - '1.0.0.1'
+    proxmox_gateway: '10.5.0.1'
+    guest_vms:
+      - name: uc
+        platform_role: ubiquiti_controller
+        node: proxmox02
+        cpu: 2
+        memory: 4096
+        ipv4: '10.5.9.1/16'

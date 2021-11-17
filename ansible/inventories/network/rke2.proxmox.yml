@@ -1,0 +1,39 @@
+# my.proxmox.yml
+plugin: community.general.proxmox
+
+# url is provided by the environment variable PROXMOX_URL
+# user is provided by the environment variable PROXMOX_USER
+# pasword is provided by the environment variable PROXMOX_PASSWORD
+
+validate_certs: true
+use_extra_vars: true
+want_facts: true
+keyed_groups:
+  - key: proxmox_tags_parsed
+    separator: ""
+    prefix: group
+
+groups:
+  external_load_balancer: >
+    'external_load_balancer' in (proxmox_tags_parsed|list)
+    and 'network' in (proxmox_tags_parsed|list)
+  controlplane: >
+    'controlplane' in (proxmox_tags_parsed|list)
+    and 'network' in (proxmox_tags_parsed|list)
+  initial_controlplane: >
+    'controlplane01' in (proxmox_tags_parsed|list)
+    and 'network' in (proxmox_tags_parsed|list)
+  additional_controlplane: >
+    'controlplane01' not in (proxmox_tags_parsed|list)
+    and 'controlplane' in (proxmox_tags_parsed|list)
+    and 'network' in (proxmox_tags_parsed|list)
+  node: >
+    'node' in (proxmox_tags_parsed|list)
+    and 'network' in (proxmox_tags_parsed|list)
+  ubiquiti_controller: >
+    'ubiquiti_controller' in (proxmox_tags_parsed|list)
+    and 'network' in (proxmox_tags_parsed|list)
+  network: >
+    'network' in (proxmox_tags_parsed|list)
+  all_cluster_vms: >
+    'network' in (proxmox_tags_parsed|list)

@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include ubiquiti"
+      include_role:
+        name: "ubiquiti"

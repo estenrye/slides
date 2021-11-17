@@ -1,0 +1,31 @@
+firewall_rules_allow_inbound_v4:
+  - name: Port used for STUN.
+    port: 3478
+    protocol: udp
+  - name: Port used for remote syslog capture.
+    port: 5514
+    protocol: udp
+  - name: Port used for UniFi mobile speed test.
+    port: 6789
+    protocol: tcp
+  - name: Port used for device and application communication.
+    port: 8080
+    protocol: tcp
+  - name: Port used for application GUI/API as seen in a web browser.
+    port: 8443
+    protocol: tcp
+  - name: Port used for HTTP portal redirection.
+    port: 8880
+    protocol: tcp
+  - name: Port used for HTTPS portal redirection.
+    port: 8843
+    protocol: tcp
+  - name: Port used for device discovery.
+    port: 10001
+    protocol: udp
+
+firewall_rules_allow_outbound_v4: []
+
+firewall_ipv6_enabled: false
+firewall_rules_allow_inbound_v6: []
+firewall_rules_allow_outbound_v6: []

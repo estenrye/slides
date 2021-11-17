@@ -1,0 +1,77 @@
+---
+# tasks file for ubiquiti
+- name: install pre-requisite packages
+  ansible.builtin.package:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+  become: true
+
+- name: create keyrings directory
+  ansible.builtin.file:
+    path: /usr/local/share/keyrings
+    state: directory
+    mode: 0755
+  become: true
+
+- name: Add Apt signing key on remote server to keyring
+  ansible.builtin.apt_key:
+    url: https://dl.ui.com/unifi/unifi-repo.gpg
+    keyring: /usr/local/share/keyrings/unifi.gpg
+    state: present
+  become: true
+
+- name: Add Unifi Apt Repository
+  ansible.builtin.apt_repository:
+    repo: deb [arch=amd64 signed-by=/usr/local/share/keyrings/unifi.gpg] https://www.ui.com/downloads/unifi/debian stable ubiquiti
+    filename: /etc/apt/sources.list.d/100-ubnt.unifi.list
+  become: true
+
+- name: Make Unifi User
+  ansible.builtin.user:
+    create_home: false
+    name: unifi
+    password: '!'
+    uid: "{{ unifi_user_id }}"
+  become: true
+
+- name: Make Unifi Data Directories
+  ansible.builtin.file:
+    group: unifi
+    owner: unifi
+    mode: 0770
+    path: "{{ unifi_data_root }}/{{ unifi_data_folder }}"
+    state: directory
+  become: true
+  loop_control:
+    loop_var: unifi_data_folder
+  loop:
+    - data
+    - logs
+    - run
+
+- name: Link Unifi Data Directories
+  ansible.builtin.file:
+    group: unifi
+    owner: unifi
+    path: /usr/lib/unifi
+    src: "{{ unifi_data_root }}"
+    state: link
+  become: true
+
+- name: Install Unifi
+  ansible.builtin.package:
+    name:
+      - openjdk-8-jre-headless
+      - unifi
+  become: true
+
+- name: Update ownership
+  ansible.builtin.file:
+    group: unifi
+    owner: unifi
+    path: "{{ unifi_data_root }}"
+    recurse: true
+    state: directory
+  become: true
