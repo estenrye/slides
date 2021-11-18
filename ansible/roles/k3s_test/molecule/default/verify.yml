@@ -8,7 +8,7 @@
       ansible.builtin.k8s_info:
         api_version: v1
         kind: Node
-        name: kubernetes
+        name: controlplane
         kubeconfig: "{{ kube_config }}"
       register: node
 
