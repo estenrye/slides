@@ -60,44 +60,18 @@
 - hosts: default
   become: true
   vars:
-    ubuntu_2004_cis_section3_rule_3_5_3_2_1: false
     ubuntu_2004_cis_auditd_maxlogfile: 32
     ubuntu_2004_cis_time_synchronization: chrony
     ubuntu_2004_cis_firewall: iptables
     ubuntu_2004_cis_require_ssh_ciphers: aes256-ctr,aes192-ctr,aes128-ctr
     ubuntu_2004_cis_require_ssh_macs: hmac-sha2-256,hmac-sha2-512
     ubuntu_2004_cis_require_ssh_kexalgorithms: ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256
-    ubuntu_2004_cis_section5_rule_5_2_2_params_permissions_command: find /etc/ssh -xdev -type f -name 'ssh_host_*_key' -exec chmod u-x,go-rwx {} \;
-    ubuntu_2004_cis_section5_rule_5_2_3_params_permissions_command: find /etc/ssh -xdev -type f -name 'ssh_host_*_key.pub' -exec chmod u-x,go-rwx {} \;
-  roles:
-    - darkwizard242.cis_ubuntu_2004
-
-- hosts: default
-  become: true
-  vars:
-    ubuntu_2004_cis_section1: false
-    ubuntu_2004_cis_section2: false
-    ubuntu_2004_cis_section3: true
-    ubuntu_2004_cis_section4: false
-    ubuntu_2004_cis_section5: false
-    ubuntu_2004_cis_section6: false
-    ubuntu_2004_cis_firewall: iptables
   roles:
     - darkwizard242.cis_ubuntu_2004
 
 - hosts: default
   become: true
   tasks:
-    - name: save iptables v4 rules
-      ansible.builtin.shell:
-        cmd: iptables-save > /etc/iptables/rules.v4
-        warn: false
-
-    - name: save iptables v6 rules
-      ansible.builtin.shell:
-        cmd: ip6tables-save > /etc/iptables/rules.v6
-        warn: false
-
     - name: Add fstab entry for tmpfs directories
       ansible.posix.mount:
         state: present
@@ -133,12 +107,6 @@
         - src: "{{ disk_src_home }}"
           path: /home
           options: defaults,nodev
-
-    # Note that this must be removed when installing to systems using UEFI.  UEFI requires the FAT filesystem.
-    - name: 1.1.1.7 Ensure mounting of FAT filesystems is limited
-      ansible.builtin.copy:
-        content: install vfat /bin/true
-        dest: /etc/modprobe.d/vfat.conf
 
     - name: remove files
       ansible.builtin.file:

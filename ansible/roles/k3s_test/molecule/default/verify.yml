@@ -1,0 +1,23 @@
+---
+# This is an example playbook to execute Ansible tests.
+
+- name: Verify
+  hosts: instance
+  tasks:
+    - name: get nodes
+      ansible.builtin.k8s_info:
+        api_version: v1
+        kind: Node
+        name: kubernetes
+        kubeconfig: "{{ kube_config }}"
+      register: node
+
+    - name: debug node
+      ansible.builtin.debug:
+        var: node
+
+    - name: assert
+      ansible.builtin.assert:
+        that:
+          - node.api_found
+          - node.resources[0].spec.podCIDR == '10.50.0.0/24'
