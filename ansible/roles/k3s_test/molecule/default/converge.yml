@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: instance
+  tasks:
+    - name: "Include k3s_test"
+      include_role:
+        name: "k3s_test"

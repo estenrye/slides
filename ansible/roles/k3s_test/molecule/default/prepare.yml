@@ -1,0 +1,39 @@
+- name: Prepare
+  hosts: instance
+  tasks:
+    - name: check if kubeconfig exists
+      ansible.builtin.stat:
+        path: "{{ kube_config }}"
+      register: kube_stat
+
+    - name: wait 10 seconds for kubeconfig to exist
+      ansible.builtin.pause:
+        seconds: 10
+      when:
+        - not kube_stat.stat.exists
+
+    - name: replace 127.0.0.1 with kubernetes
+      ansible.builtin.replace:
+        path: "{{ kube_config }}"
+        regexp: 127\.0\.0\.1
+        replace: controlplane
+
+    - name: wait for controlplane to initialize
+      ansible.builtin.k8s_info:
+        api_version: v1
+        kind: Node
+        name: controlplane
+        wait: yes
+        wait_sleep: 1
+        wait_timeout: 30
+        kubeconfig: "{{ kube_config }}"
+
+    - name: wait for agent to initialize
+      ansible.builtin.k8s_info:
+        api_version: v1
+        kind: Node
+        name: node
+        wait: yes
+        wait_sleep: 1
+        wait_timeout: 30
+        kubeconfig: "{{ kube_config }}"

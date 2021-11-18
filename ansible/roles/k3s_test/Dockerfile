@@ -1,0 +1,13 @@
+FROM ubuntu:20.04
+RUN apt-get update \
+  && apt-get install -y \
+    python3 \
+    sudo \
+    curl \
+    gpg \
+  && mkdir -p /usr/local/share/keyrings \
+  && curl -fsSLo /tmp/kubernetes.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+  && gpg --batch --yes --dearmor -o /usr/local/share/keyrings/kubernetes.gpg /tmp/kubernetes.gpg \
+  && echo "deb [signed-by=/usr/local/share/keyrings/kubernetes.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" >> /etc/apt/sources.list \
+  && apt update \
+  && apt install -y kubectl=1.21.6-00

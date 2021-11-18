@@ -1,0 +1,8 @@
+- name: Destroy
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: cleanup temporary kubeconfig
+      ansible.builtin.file:
+        state: absent
+        path: /tmp/.kube/config

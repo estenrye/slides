@@ -1,0 +1,12 @@
+---
+# tasks file for k3s-test
+- name: get nodes
+  ansible.builtin.k8s_info:
+    api_version: v1
+    kind: Node
+    kubeconfig: "{{ kube_config }}"
+  register: nodes
+
+- name: display nodes
+  ansible.builtin.debug:
+    var: nodes

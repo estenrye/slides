@@ -1,0 +1,115 @@
+---
+dependency:
+  name: galaxy
+  options:
+    role-file: requirements.yml
+driver:
+  name: docker
+
+platforms:
+  - name: instance
+    image: docker.io/estenrye/ansible
+    pre_build_image: true
+    networks:
+      - name: molecule-k3s
+    volumes:
+      - /tmp/.kube:/home/automation-user/.kube:rw
+  - name: controlplane
+    image: docker.io/rancher/k3s:v1.21.6-k3s1
+    pre_build_image: true
+    command:
+      - server
+      - --cluster-cidr=10.50.0.0/16
+      - --service-cidr=10.51.0.0/16
+      - --cluster-dns=10.51.0.10
+      - --write-kubeconfig=/.kube/config
+      - --write-kubeconfig-mode=666
+      - --node-taint=CriticalAddonsOnly=true:NoExecute
+      - --token=blah-blah-blah
+    volumes:
+      - /tmp/.kube:/.kube:rw
+    keep_volumes: false
+    privileged: true
+    exposed_ports:
+      - 6443/tcp
+      - 80/tcp
+      - 443/tcp
+    networks:
+      - name: molecule-k3s
+    groups:
+      - controlplane
+  - name: node
+    image: docker.io/rancher/k3s:v1.21.6-k3s1
+    pre_build_image: true
+    command:
+      - agent
+      - --server=https://controlplane:6443
+      - --token=blah-blah-blah
+    privileged: true
+    exposed_ports:
+      - 6443/tcp
+      - 80/tcp
+      - 443/tcp
+    networks:
+      - name: molecule-k3s
+    groups:
+      - nodes
+provisioner:
+  name: ansible
+  inventory:
+    group_vars:
+      all:
+        kube_config: /home/automation-user/.kube/config
+    # group_vars:
+    #   all:
+    #     k3s_release_version: v1.21.6+k3s1
+    #     k3s_config_file: /etc/rancher/k3s/config.yaml
+    #     k3s_build_cluster: true
+    #     k3s_etcd_datastore: true
+    #     k3s_control_node: false
+    #     k3s_control_token: boom-boom-boom
+    #   initial_controlplane:
+    #     k3s_control_node: true
+    #     k3s_server:
+    #       cluster-cidr: 10.50.0.0/16
+    #       service-cidr: 10.51.0.0/16
+    #       cluster-dns: 10.51.0.10
+    #       advertise-port: 9345
+    #       disable:
+    #        - traefik
+    #       write-kubeconfig: /etc/rancher/k3s/kubeconfig.yaml
+    #       write-kubeconfig-mode: 644
+    #       node-name: "{{ inventory_hostname }}"
+    #       node-taint:
+    #         - "CriticalAddonsOnly=true:NoExecute"
+    #       tls-san:
+    #         - kubernetes
+    #         - controlplane01
+    #         - controlplane02
+    #         - controlplane03
+    #   additional_controlplane:
+    #     k3s_control_node: true
+    #     k3s_server:
+    #       server: https://controlplane01:9345
+    #       cluster-cidr: 10.50.0.0/16
+    #       service-cidr: 10.51.0.0/16
+    #       cluster-dns: 10.51.0.10
+    #       advertise-port: 9345
+    #       disable:
+    #        - traefik
+    #       write-kubeconfig: /etc/rancher/k3s/kubeconfig.yaml
+    #       write-kubeconfig-mode: 644
+    #       node-name: "{{ inventory_hostname }}"
+    #       node-taint:
+    #         - "CriticalAddonsOnly=true:NoExecute"
+    #       tls-san:
+    #         - kubernetes
+    #         - controlplane01
+    #         - controlplane02
+    #         - controlplane03
+    #   node:
+    #     k3s_agent:
+    #       server: controlplane:9345
+    #       node-name: "{{ inventory_hostname }}"
+verifier:
+  name: ansible
