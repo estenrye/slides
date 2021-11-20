@@ -52,8 +52,14 @@ platforms:
       - name: molecule-k3s
     groups:
       - nodes
+
 provisioner:
   name: ansible
+  playbooks:
+    prepare: ../../../../molecule/prepare.yml
+    cleanup: ../../../../molecule/cleanup.yml
+    converge: converge.yml
+    verify: verify.yml
   inventory:
     group_vars:
       all:

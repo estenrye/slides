@@ -12,7 +12,7 @@
       when:
         - not kube_stat.stat.exists
 
-    - name: replace 127.0.0.1 with kubernetes
+    - name: replace 127.0.0.1 with controlplane
       ansible.builtin.replace:
         path: "{{ kube_config }}"
         regexp: 127\.0\.0\.1
