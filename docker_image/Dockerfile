@@ -22,26 +22,17 @@ RUN apt update \
   && apt update \
   && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
     azure-cli \
-    binutils \
     certbot \
-    debootstrap \
     docker-ce-cli \
-    dosfstools \
     genisoimage \
-    grub-pc-bin \
-    grub-efi-amd64-bin \
     kubectl \
     mkisofs \
-    mtools \
     openssh-client \
     packer \
     python3 \
     python3-pip \
     p7zip-full \
-    schroot \
-    squashfs-tools \
     sudo \
-    syslinux-common \
     terraform \
     unzip \
     vim \
