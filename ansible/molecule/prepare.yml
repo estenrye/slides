@@ -19,7 +19,7 @@
         replace: controlplane
 
     - name: wait for controlplane to initialize
-      ansible.builtin.k8s_info:
+      kubernetes.core.k8s_info:
         api_version: v1
         kind: Node
         name: controlplane
@@ -29,7 +29,7 @@
         kubeconfig: "{{ kube_config }}"
 
     - name: wait for agent to initialize
-      ansible.builtin.k8s_info:
+      kubernetes.core.k8s_info:
         api_version: v1
         kind: Node
         name: node

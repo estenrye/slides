@@ -1,7 +1,7 @@
 ---
 # tasks file for k3s-test
 - name: get nodes
-  ansible.builtin.k8s_info:
+  kubernetes.core.k8s_info:
     api_version: v1
     kind: Node
     kubeconfig: "{{ kube_config }}"
