@@ -1,0 +1,114 @@
+---
+- hosts: all
+  connection: local
+  vars:
+    iso_url: https://releases.ubuntu.com/20.04.2/ubuntu-20.04.2-live-server-amd64.iso
+    iso_checksum: sha256:d1f2bf834bbe9bb43faf16f9be992a6f3935e65be0edece1dee2aa6eb1767423
+    iso_path: ubuntu-20.04.2-live-server-amd64.iso
+    iso_extract_path: ubuntu_iso
+  tasks:
+    - name: Install Prerequisites
+      ansible.builtin.package:
+        name:
+          - genisoimage
+          - mkisofs
+          - p7zip-full
+          - xorriso
+      become: true
+      tags: install_prerequisites
+
+    - name: Create extract path
+      ansible.builtin.file:
+        path: /packer/packer_cache/{{ ansible_host }}/ubuntu_iso
+        state: directory
+
+    - name: Download Ubuntu ISO
+      ansible.builtin.get_url:
+        url: "{{ iso_url }}"
+        checksum: "{{ iso_checksum }}"
+        dest: /packer/packer_cache/ubuntu.iso
+
+    - name: Extract Ubuntu ISO
+      ansible.builtin.command:
+        argv:
+          - osirrox
+          - -indev
+          - /packer/packer_cache/ubuntu.iso
+          - -extract
+          - /
+          - /packer/packer_cache/{{ ansible_host }}/ubuntu_iso
+
+    - name: Insert http preseed configuration - isolinux.cfg
+      ansible.builtin.copy:
+        dest: /packer/packer_cache/{{ ansible_host }}/ubuntu_iso/isolinux/isolinux.cfg
+        content: |-
+          default autoinstall-server
+          label autoinstall-server
+            menu label ^Autoinstall Server (HWE Kernel, NVIDIA, NetworkManager)
+            kernel /casper/hwe-vmlinuz
+            append   initrd=/casper/hwe-initrd quiet autoinstall ---
+
+    - name: Insert http preseed configuration - grub.conf
+      ansible.builtin.copy:
+        dest: /packer/packer_cache/{{ ansible_host }}/ubuntu_iso/boot/grub/grub.cfg
+        content: |-
+          set timeout=10
+          menuentry "Autoinstall Server (HWE Kernel, NVIDIA, NetworkManager)" {
+            set gfxpayload=keep
+            linux	/casper/hwe-vmlinuz   quiet autoinstall ---
+            initrd	/casper/hwe-initrd
+          }
+
+    - name: calculate grub conf md5 checksum
+      ansible.builtin.stat:
+        checksum_algorithm: md5
+        path: /packer/packer_cache/{{ ansible_host }}/ubuntu_iso/boot/grub/grub.cfg
+      register: grub_conf
+
+    - name: replace grub conf md5 checksum
+      ansible.builtin.replace:
+        path: /packer/packer_cache/{{ ansible_host }}/ubuntu_iso/md5sum.txt
+        regexp: '.*\./boot/grub/grub\.cfg$'
+        replace: '{{ grub_conf.stat.checksum }}  ./boot/grub/grub.cfg'
+
+    - name: Make custom Ubuntu ISO
+      ansible.builtin.command:
+        argv:
+          - xorriso
+          - -as
+          - mkisofs
+          - -isohybrid-mbr
+          - /ansible/isohdpfx.bin
+          - -r
+          - -V
+          - "Custom Ubuntu Install CD"
+          - -J
+          - -l
+          - -b
+          - isolinux/isolinux.bin
+          - -c
+          - isolinux/boot.cat
+          - -no-emul-boot
+          - -boot-load-size
+          - 4
+          - -boot-info-table
+          - -eltorito-alt-boot
+          - -e
+          - boot/grub/efi.img
+          - -no-emul-boot
+          - -isohybrid-gpt-basdat
+          - -o
+          - /packer/packer_cache/{{ ansible_host }}/custom_ubuntu.iso
+          - /packer/packer_cache/{{ ansible_host }}/ubuntu_iso
+      become: true
+
+    - name: Get iso checksum
+      ansible.builtin.stat:
+        path: /packer/packer_cache/{{ ansible_host }}/custom_ubuntu.iso
+        get_checksum: true
+      register: checksum
+
+    - name: Write iso checksum
+      ansible.builtin.copy:
+        content: "{{ checksum.stat.checksum }}"
+        dest: /packer/packer_cache/{{ ansible_host }}/custom_ubuntu.sha1
