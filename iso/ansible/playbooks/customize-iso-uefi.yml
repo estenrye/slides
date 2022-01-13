@@ -51,59 +51,22 @@
       ansible.builtin.copy:
         dest: /tmp/ubuntu_iso/isolinux/isolinux.cfg
         content: |-
-          default live
-          label live
-            menu label ^Autoinstall Ubuntu Server
-            kernel /casper/vmlinuz
-            append   initrd=/casper/initrd quiet autoinstall ---
-          label hwe-live
-            menu label ^Autoinstall Ubuntu Server with the HWE kernel
+          default autoinstall-server
+          label autoinstall-server
+            menu label ^Autoinstall Server (HWE Kernel, NVIDIA, NetworkManager)
             kernel /casper/hwe-vmlinuz
             append   initrd=/casper/hwe-initrd quiet autoinstall ---
-          label memtest
-            menu label Test ^memory
-            kernel /install/mt86plus
-          label hd
-            menu label ^Boot from first hard disk
-            localboot 0x80
       become: true
 
     - name: Insert http preseed configuration - grub.conf
       ansible.builtin.copy:
         dest: /tmp/ubuntu_iso/boot/grub/grub.cfg
         content: |-
-          if loadfont /boot/grub/font.pf2 ; then
-            set gfxmode=auto
-            insmod efi_gop
-            insmod efi_uga
-            insmod gfxterm
-            terminal_output gfxterm
-          fi
-
-          set menu_color_normal=white/black
-          set menu_color_highlight=black/light-gray
-
           set timeout=10
-          menuentry "Install Ubuntu Server" {
-            set gfxpayload=keep
-            linux	/casper/vmlinuz   quiet autoinstall ---
-            initrd	/casper/initrd
-          }
-          grub_platform
-          if [ "$grub_platform" = "efi" ]; then
-          menuentry 'Boot from next volume' {
-            exit 1
-          }
-          menuentry 'UEFI Firmware Settings' {
-            fwsetup
-          }
-          fi
-          submenu 'Boot and Install with the HWE kernel' {
-          menuentry "Install Ubuntu Server" {
+          menuentry "Autoinstall Server (HWE Kernel, NVIDIA, NetworkManager)" {
             set gfxpayload=keep
             linux	/casper/hwe-vmlinuz   quiet autoinstall ---
             initrd	/casper/hwe-initrd
-          }
           }
       become: true
 
