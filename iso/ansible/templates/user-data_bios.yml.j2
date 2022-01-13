@@ -11,9 +11,8 @@ autoinstall:
       - arches: [default]
         uri: {{ apt_mirror }}
   identity:
-    hostname: {{ hostname }}
-    # echo platform-automation | mkpasswd -m sha-512 -s
-    password: {{ user.password }}
+    hostname: {{ inventory_hostname }}
+    password: {{ password_ciphertext }}
     realname: {{ user.realname }}
     username: {{ user.username }}
   keyboard:
@@ -48,7 +47,7 @@ autoinstall:
     install-server: true
   storage:
     config:
-      - ptable: gpt
+      - ptable: msdos
         path: {{ disks.boot.device_path }}
         wipe: superblock
         preserve: false
@@ -58,7 +57,7 @@ autoinstall:
         id: disk-ubuntu
 
       - device: disk-ubuntu
-        size: 512M
+        size: 1024M
         wipe: superblock
         flag: boot
         number: 1
@@ -66,14 +65,14 @@ autoinstall:
         grub_device: true
         type: partition
         id: partition-0
-      - fstype: fat32
+      - fstype: ext4
         volume: partition-0
         preserve: false
         type: format
         id: format-0
 
       - device: disk-ubuntu
-        size: 1024M
+        size: -1
         wipe: superblock
         flag: ''
         number: 2
@@ -81,25 +80,10 @@ autoinstall:
         grub_device: false
         type: partition
         id: partition-1
-      - fstype: ext4
-        volume: partition-1
-        preserve: false
-        type: format
-        id: format-1
-
-      - device: disk-ubuntu
-        size: -1
-        wipe: superblock
-        flag: ''
-        number: 3
-        preserve: false
-        grub_device: false
-        type: partition
-        id: partition-2
 
       - name: ubuntu-vg
         devices:
-          - partition-2
+          - partition-1
         preserve: false
         type: lvm_volgroup
         id: lvm_volgroup-0
@@ -148,12 +132,8 @@ autoinstall:
 {% endif %}
 {% endfor %}
 
-      - device: format-1
-        path: /boot
-        type: mount
-        id: mount-1
       - device: format-0
-        path: /boot/efi
+        path: /boot
         type: mount
         id: mount-0
     swap:

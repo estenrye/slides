@@ -1,56 +1,66 @@
 ---
-- hosts: all
+- hosts: localhost
   connection: local
-  vars:
-    iso_url: https://releases.ubuntu.com/20.04.2/ubuntu-20.04.2-live-server-amd64.iso
-    iso_checksum: sha256:d1f2bf834bbe9bb43faf16f9be992a6f3935e65be0edece1dee2aa6eb1767423
-    iso_path: ubuntu-20.04.2-live-server-amd64.iso
-    iso_extract_path: ubuntu_iso
   tasks:
+    - name: Assert Required Parameters
+      ansible.builtin.assert:
+        that:
+          - iso_url is defined
+          - iso_checksum is defined
+          - iso_name is defined
+
     - name: Install Prerequisites
       ansible.builtin.package:
         name:
           - genisoimage
+          - isolinux
           - mkisofs
           - p7zip-full
           - xorriso
       become: true
       tags: install_prerequisites
 
+    - name: Clean extract path
+      ansible.builtin.file:
+        path: /tmp/ubuntu_iso
+        state: absent
+      become: true
+
     - name: Create extract path
       ansible.builtin.file:
-        path: /packer/packer_cache/{{ ansible_host }}/ubuntu_iso
+        path: /tmp/ubuntu_iso
         state: directory
 
     - name: Download Ubuntu ISO
       ansible.builtin.get_url:
         url: "{{ iso_url }}"
         checksum: "{{ iso_checksum }}"
-        dest: /packer/packer_cache/ubuntu.iso
+        dest: /output/{{ iso_name }}
 
     - name: Extract Ubuntu ISO
       ansible.builtin.command:
         argv:
           - osirrox
           - -indev
-          - /packer/packer_cache/ubuntu.iso
+          - /output/{{ iso_name }}
           - -extract
           - /
-          - /packer/packer_cache/{{ ansible_host }}/ubuntu_iso
+          - /tmp/ubuntu_iso
 
     - name: Insert http preseed configuration - isolinux.cfg
       ansible.builtin.copy:
-        dest: /packer/packer_cache/{{ ansible_host }}/ubuntu_iso/isolinux/isolinux.cfg
+        dest: /tmp/ubuntu_iso/isolinux/isolinux.cfg
         content: |-
           default autoinstall-server
           label autoinstall-server
             menu label ^Autoinstall Server (HWE Kernel, NVIDIA, NetworkManager)
             kernel /casper/hwe-vmlinuz
             append   initrd=/casper/hwe-initrd quiet autoinstall ---
+      become: true
 
     - name: Insert http preseed configuration - grub.conf
       ansible.builtin.copy:
-        dest: /packer/packer_cache/{{ ansible_host }}/ubuntu_iso/boot/grub/grub.cfg
+        dest: /tmp/ubuntu_iso/boot/grub/grub.cfg
         content: |-
           set timeout=10
           menuentry "Autoinstall Server (HWE Kernel, NVIDIA, NetworkManager)" {
@@ -58,18 +68,21 @@
             linux	/casper/hwe-vmlinuz   quiet autoinstall ---
             initrd	/casper/hwe-initrd
           }
+      become: true
 
     - name: calculate grub conf md5 checksum
       ansible.builtin.stat:
         checksum_algorithm: md5
-        path: /packer/packer_cache/{{ ansible_host }}/ubuntu_iso/boot/grub/grub.cfg
+        path: /tmp/ubuntu_iso/boot/grub/grub.cfg
       register: grub_conf
+      become: true
 
     - name: replace grub conf md5 checksum
       ansible.builtin.replace:
-        path: /packer/packer_cache/{{ ansible_host }}/ubuntu_iso/md5sum.txt
+        path: /tmp/ubuntu_iso/md5sum.txt
         regexp: '.*\./boot/grub/grub\.cfg$'
         replace: '{{ grub_conf.stat.checksum }}  ./boot/grub/grub.cfg'
+      become: true
 
     - name: Make custom Ubuntu ISO
       ansible.builtin.command:
@@ -78,10 +91,10 @@
           - -as
           - mkisofs
           - -isohybrid-mbr
-          - /ansible/isohdpfx.bin
+          - /usr/lib/ISOLINUX/isohdpfx.bin
           - -r
           - -V
-          - "Custom Ubuntu Install CD"
+          - "Ubuntu_Autoinstall"
           - -J
           - -l
           - -b
@@ -98,17 +111,17 @@
           - -no-emul-boot
           - -isohybrid-gpt-basdat
           - -o
-          - /packer/packer_cache/{{ ansible_host }}/custom_ubuntu.iso
-          - /packer/packer_cache/{{ ansible_host }}/ubuntu_iso
+          - /output/custom_{{ iso_name }}
+          - /tmp/ubuntu_iso
       become: true
 
     - name: Get iso checksum
       ansible.builtin.stat:
-        path: /packer/packer_cache/{{ ansible_host }}/custom_ubuntu.iso
+        path: /output/custom_{{ iso_name }}
         get_checksum: true
       register: checksum
 
     - name: Write iso checksum
       ansible.builtin.copy:
         content: "{{ checksum.stat.checksum }}"
-        dest: /packer/packer_cache/{{ ansible_host }}/custom_ubuntu.sha1
+        dest: /output/custom_{{ iso_name }}.sha1

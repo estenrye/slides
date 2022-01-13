@@ -1,0 +1,99 @@
+---
+- hosts: all
+  connection: local
+  tasks:
+    - name: Install Prerequisites
+      ansible.builtin.package:
+        name:
+          - genisoimage
+      become: true
+      tags:
+        - install_prerequisites
+
+    - name: Clean cidata directory
+      ansible.builtin.file:
+        state: absent
+        path: '{{ item }}'
+      loop:
+        - /tmp/{{ inventory_hostname }}/cidata
+        - /tmp/{{ inventory_hostname }}
+        - /output/{{ inventory_hostname }}
+      become: true
+
+    - name: Make cidata directory
+      ansible.builtin.file:
+        state: directory
+        path: '{{ item }}'
+        mode: 0755
+        owner: automation-user
+        group: automation-user
+      loop:
+        - /tmp/{{ inventory_hostname }}
+        - /tmp/{{ inventory_hostname }}/cidata
+        - /output/{{ inventory_hostname }}
+      become: true
+
+    - name: Generate automation-user password
+      ansible.builtin.set_fact:
+        password_plaintext: '{{ lookup("password", "/output/{{ inventory_hostname }}/password length=16 chars=ascii_letters,digits") }}'
+        password_salt: '{{ lookup("password", "/dev/null length=16 chars=ascii_letters,digits") }}'
+
+    - name: Generate automation-user password ciphertext
+      ansible.builtin.command:
+        cmd: openssl passwd -6 -salt '{{ password_salt }}' -stdin
+        stdin: '{{ password_plaintext }}'
+      register: generated_ciphertext
+
+    - name: Set password_ciphertext
+      ansible.builtin.set_fact:
+        password_ciphertext: '{{ generated_ciphertext.stdout }}'
+
+    - name: Write Packer user-data Template
+      ansible.builtin.template:
+        src: "{{ user_data_template }}"
+        dest: /tmp/{{ inventory_hostname }}/cidata/user-data
+        mode: 0644
+        owner: automation-user
+        group: automation-user
+      become: true
+
+    - name: Touch Packer meta-data Template
+      ansible.builtin.file:
+        path: /tmp/{{ inventory_hostname }}/cidata/meta-data
+        mode: 0644
+        state: touch
+        owner: automation-user
+        group: automation-user
+      become: true
+
+    - name: build cidata iso
+      ansible.builtin.command:
+        argv:
+          - genisoimage
+          - -output
+          - /output/{{ inventory_hostname }}/cidata.iso
+          - -volid
+          - cidata
+          - -joliet
+          - -input-charset
+          - utf-8
+          - -rock
+          - /tmp/{{ inventory_hostname }}/cidata/user-data
+          - /tmp/{{ inventory_hostname }}/cidata/meta-data
+      become: true
+
+    - name: Get iso checksum
+      ansible.builtin.stat:
+        path: /output/{{ inventory_hostname }}/cidata.iso
+        get_checksum: true
+      register: checksum
+      become: true
+
+    - name: Write iso checksum
+      ansible.builtin.copy:
+        content: "{{ checksum.stat.checksum }}"
+        dest: /output/{{ inventory_hostname }}/cidata.sha1
+        mode: 0644
+        owner: automation-user
+        group: automation-user
+      become: true
