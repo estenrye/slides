@@ -1,3 +1,5 @@
 - hosts: apt-mirror
   roles:
     - debmirror
+
+# TODO: add /dev/vdi to fstab and mount to /var/lib/apt-mirror

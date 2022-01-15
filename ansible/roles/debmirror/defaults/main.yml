@@ -52,3 +52,71 @@ mirror_repos:
       method: http
     output:
       verbose: true
+  - remote:
+      host: apt.releases.hashicorp.com
+      root: ''
+      gpg_key: https://apt.releases.hashicorp.com/gpg
+    mirror:
+      name: hashicorp
+      dists:
+        - focal
+      sections:
+        - main
+      arches:
+        - amd64
+    state_cache_days: 0
+    download:
+      method: http
+    output:
+      verbose: true
+  - remote:
+      host: packages.microsoft.com
+      root: repos/azure-cli
+      gpg_key: https://packages.microsoft.com/keys/microsoft.asc
+    mirror:
+      name: microsoft-azure-cli
+      dists:
+        - focal
+      sections:
+        - main
+      arches:
+        - amd64
+    state_cache_days: 0
+    download:
+      method: http
+    output:
+      verbose: true
+  - remote:
+      host: apt.kubernetes.io
+      root: ''
+      gpg_key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    mirror:
+      name: kubernetes
+      dists:
+        - focal
+      sections:
+        - main
+      arches:
+        - amd64
+    state_cache_days: 0
+    download:
+      method: http
+    output:
+      verbose: true
+  - remote:
+      host: dl.google.com
+      root: linux/chrome/deb
+      gpg_key: https://dl.google.com/linux/linux_signing_key.pub
+    mirror:
+      name: google-chrome
+      dists:
+        - stable
+      sections:
+        - main
+      arches:
+        - amd64
+    state_cache_days: 0
+    download:
+      method: http
+    output:
+      verbose: true

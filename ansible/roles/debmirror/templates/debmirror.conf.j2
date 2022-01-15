@@ -14,7 +14,7 @@
 # files.
 
 # Location of the local mirror (use with care)
-$mirrordir="{{ aptmirror.mirror.directory | default('/var/lib/longhorn/apt-mirror') }}";
+$mirrordir="{{ mirror_dir | mandatory }}/mirror/{{ aptmirror.mirror.name | mandatory }}";
 
 #################
 # Output options
