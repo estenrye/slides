@@ -34,21 +34,22 @@
 - name: Download gpg keys
   ansible.builtin.get_url:
     url: "{{ aptmirror.remote.gpg_key }}"
-    dest: "{{ mirror_dir }}/{{ aptmirror.mirror.name }}/gpg"
+    dest: "{{ mirror_dir }}/mirror/{{ aptmirror.mirror.name }}/gpg"
     mode: 0644
-    owner: apt-mirror
-    group: apt-mirror
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
   loop_control:
     loop_var: aptmirror
   loop: "{{ mirror_repos | default([]) }}"
   when:
     - aptmirror.remote.gpg_key is defined
+  become: true
 
 - name: import trusted keys
   ansible.builtin.command:
-    cmd: gpg --no-default-keyring --keyring trustedkeys.gpg --import {{ mirror_dir }}/{{ aptmirror.mirror.name }}/gpg
+    cmd: gpg --no-default-keyring --keyring trustedkeys.gpg --import {{ mirror_dir }}/mirror/{{ aptmirror.mirror.name }}/gpg
   environment:
-    GNUPGHOME: /home/apt-mirror/.gnupg
+    GNUPGHOME: /home/{{ debmirror_user_name }}/.gnupg
   loop_control:
     loop_var: aptmirror
   loop: "{{ mirror_repos | default([]) }}"

@@ -4,7 +4,7 @@
     path: /etc/debmirror.d
     mode: 0755
     owner: root
-    group: apt-mirror
+    group: "{{ debmirror_group_name }}"
   become: true
 
 - name: Create apt mirror directory
@@ -26,7 +26,7 @@
 - name: Create apt mirror subdirectories
   ansible.builtin.file:
     state: directory
-    path: "{{ mirror_dir_item.mirror.name }}"
+    path: "{{ mirror_dir }}/mirror/{{ mirror_dir_item.mirror.name }}"
     mode: 0755
     owner: "{{ debmirror_user_name }}"
     group: "{{ debmirror_group_name }}"
@@ -41,7 +41,7 @@
     dest: "/etc/debmirror.d/{{ aptmirror.mirror.name }}.conf"
     mode: 0640
     owner: root
-    group: apt-mirror
+    group: "{{ debmirror_group_name }}"
   become: true
   loop_control:
     loop_var: aptmirror

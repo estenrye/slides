@@ -1,0 +1,6 @@
+all:
+  hosts:
+    apt-mirror:
+      ansible_host: 10.5.2.1
+      ansible_user: automation-user
+      mirror_dir: /var/lib/longhorn/apt-mirror
