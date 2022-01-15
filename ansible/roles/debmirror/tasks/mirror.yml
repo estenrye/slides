@@ -22,11 +22,33 @@
     - "{{ mirror_dir }}/mirror"
     - "{{ mirror_dir }}/bin"
     - "{{ mirror_dir }}/www"
+    - "{{ mirror_dir }}/www/status"
+
+- name: Write debmirror config files
+  ansible.builtin.template:
+    src: update-status.sh.j2
+    dest: "{{ mirror_dir }}/bin/update-status.sh"
+    mode: 0754
+    owner: root
+    group: "{{ debmirror_group_name }}"
+  become: true
 
 - name: Create apt mirror subdirectories
   ansible.builtin.file:
     state: directory
     path: "{{ mirror_dir }}/mirror/{{ mirror_dir_item.mirror.name }}"
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  loop_control:
+    loop_var: mirror_dir_item
+  loop: "{{ mirror_repos | default([]) }}"
+
+- name: Create apt mirror status subdirectories
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mirror_dir }}/www/status/{{ mirror_dir_item.mirror.name }}"
     mode: 0755
     owner: "{{ debmirror_user_name }}"
     group: "{{ debmirror_group_name }}"

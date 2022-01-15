@@ -1,14 +1,13 @@
 [Unit]
 Description=Updates apt mirrors
-Wants=debmirror.update.timer
+Wants=debmirror.{{ aptmirror.mirror.name }}.update.timer
 
 [Service]
 Type=oneshot
 User={{ debmirror_user_name }}
 Group={{ debmirror_group_name }}
-{% for aptmirror in mirror_repos | default([]) %}
 ExecStart=debmirror -conf=/etc/debmirror.d/{{ aptmirror.mirror.name }}.conf
-{% endfor %}
+ExecStopPost=/bin/sh {{ mirror_dir }}/bin/update-status.sh {{ aptmirror.mirror.name }}
 
 [Install]
 WantedBy=multi-user.target

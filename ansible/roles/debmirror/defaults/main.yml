@@ -35,6 +35,10 @@ mirror_repos:
       method: rsync
     output:
       verbose: true
+    systemd:
+      on_calendar: '*-*-* 01/6:30:00'
+      accuracy_sec: 1m
+
   - remote:
       host: download.docker.com
       root: linux/ubuntu
@@ -52,9 +56,12 @@ mirror_repos:
       method: http
     output:
       verbose: true
+
+  # fails due to bug: https://bugs.launchpad.net/ubuntu/+source/debmirror/+bug/1702059
+  # TODO: Use patched debmirror.
   - remote:
       host: apt.releases.hashicorp.com
-      root: ''
+      root: '/'
       gpg_key: https://apt.releases.hashicorp.com/gpg
     mirror:
       name: hashicorp
@@ -66,9 +73,10 @@ mirror_repos:
         - amd64
     state_cache_days: 0
     download:
-      method: http
+      method: rsync
     output:
       verbose: true
+
   - remote:
       host: packages.microsoft.com
       root: repos/azure-cli
@@ -86,6 +94,7 @@ mirror_repos:
       method: http
     output:
       verbose: true
+
   - remote:
       host: apt.kubernetes.io
       root: ''
@@ -93,7 +102,7 @@ mirror_repos:
     mirror:
       name: kubernetes
       dists:
-        - focal
+        - kubernetes-xenial
       sections:
         - main
       arches:
@@ -103,6 +112,7 @@ mirror_repos:
       method: http
     output:
       verbose: true
+
   - remote:
       host: dl.google.com
       root: linux/chrome/deb

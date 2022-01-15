@@ -1,12 +1,12 @@
 [Unit]
 Description=Updates apt mirrors
-Requires=debmirror.update.service
+Requires=debmirror.{{ aptmirror.mirror.name }}.update.service
 
 [Timer]
-Unit=debmirror.update.service
+Unit=debmirror.{{ aptmirror.mirror.name }}.update.service
 
-OnCalendar={{ debmirror_on_calendar }}
-AccuracySec={{ debmirror_accuracy_sec }}
+OnCalendar={{ aptmirror.systemd.on_calendar | default(debmirror_on_calendar) }}
+AccuracySec={{ aptmirror.systemd.accuracy_sec | default(debmirror_accuracy_sec) }}
 
 [Install]
 WantedBy=timers.target

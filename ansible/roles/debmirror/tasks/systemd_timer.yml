@@ -1,24 +1,34 @@
-- name: Install SystemD Update Service and Timer
+- name: Install SystemD Update Service
   ansible.builtin.template:
-    src: "{{ systemd_timer_item.src }}"
-    dest: "{{ systemd_timer_item.dest }}"
+    src: debmirror.update.service.j2
+    dest: /lib/systemd/system/debmirror.{{ aptmirror.mirror.name }}.update.service
     mode: 0644
   become: true
   notify: systemd daemon reload
   loop_control:
-    loop_var: systemd_timer_item
-  loop:
-    - src: debmirror.update.service.j2
-      dest: /lib/systemd/system/debmirror.update.service
-    - src: debmirror.update.timer.j2
-      dest: /lib/systemd/system/debmirror.update.timer
+    loop_var: aptmirror
+  loop: "{{ mirror_repos | default([]) }}"
+
+- name: Install SystemD Update Timer
+  ansible.builtin.template:
+    src: debmirror.update.timer.j2
+    dest: /lib/systemd/system/debmirror.{{ aptmirror.mirror.name }}.update.timer
+    mode: 0644
+  become: true
+  notify: systemd daemon reload
+  loop_control:
+    loop_var: aptmirror
+  loop: "{{ mirror_repos | default([]) }}"
 
 - name: Flush handlers
   meta: flush_handlers
 
 - name: Enable and Start debmirror Timer
   ansible.builtin.systemd:
-    name: debmirror.update.timer
+    name: debmirror.{{ aptmirror.mirror.name }}.update.timer
     state: started
     enabled: true
   become: true
+  loop_control:
+    loop_var: aptmirror
+  loop: "{{ mirror_repos | default([]) }}"
