@@ -1,0 +1,5 @@
+- name: Build Custom Ubuntu Autoinstall ISO
+  ansible.builtin.import_playbook: /ansible/playbooks/customize-iso-uefi.yml
+
+- name: Build cidata ISOs
+  ansible.builtin.import_playbook: /ansible/playbooks/cidata-iso.yml

@@ -1,0 +1,127 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Assert Required Parameters
+      ansible.builtin.assert:
+        that:
+          - iso_url is defined
+          - iso_checksum is defined
+          - iso_name is defined
+
+    - name: Install Prerequisites
+      ansible.builtin.package:
+        name:
+          - genisoimage
+          - isolinux
+          - mkisofs
+          - p7zip-full
+          - xorriso
+      become: true
+      tags: install_prerequisites
+
+    - name: Clean extract path
+      ansible.builtin.file:
+        path: /tmp/ubuntu_iso
+        state: absent
+      become: true
+
+    - name: Create extract path
+      ansible.builtin.file:
+        path: /tmp/ubuntu_iso
+        state: directory
+
+    - name: Download Ubuntu ISO
+      ansible.builtin.get_url:
+        url: "{{ iso_url }}"
+        checksum: "{{ iso_checksum }}"
+        dest: /output/{{ iso_name }}
+
+    - name: Extract Ubuntu ISO
+      ansible.builtin.command:
+        argv:
+          - osirrox
+          - -indev
+          - /output/{{ iso_name }}
+          - -extract
+          - /
+          - /tmp/ubuntu_iso
+
+    - name: Insert http preseed configuration - isolinux.cfg
+      ansible.builtin.copy:
+        dest: /tmp/ubuntu_iso/isolinux/isolinux.cfg
+        content: |-
+          default autoinstall-server
+          label autoinstall-server
+            menu label ^Autoinstall Server (HWE Kernel, NVIDIA, NetworkManager)
+            kernel /casper/hwe-vmlinuz
+            append   initrd=/casper/hwe-initrd quiet autoinstall ---
+      become: true
+
+    - name: Insert http preseed configuration - grub.conf
+      ansible.builtin.copy:
+        dest: /tmp/ubuntu_iso/boot/grub/grub.cfg
+        content: |-
+          set timeout=10
+          menuentry "Autoinstall Server (HWE Kernel, NVIDIA, NetworkManager)" {
+            set gfxpayload=keep
+            linux	/casper/hwe-vmlinuz   quiet autoinstall ---
+            initrd	/casper/hwe-initrd
+          }
+      become: true
+
+    - name: calculate grub conf md5 checksum
+      ansible.builtin.stat:
+        checksum_algorithm: md5
+        path: /tmp/ubuntu_iso/boot/grub/grub.cfg
+      register: grub_conf
+      become: true
+
+    - name: replace grub conf md5 checksum
+      ansible.builtin.replace:
+        path: /tmp/ubuntu_iso/md5sum.txt
+        regexp: '.*\./boot/grub/grub\.cfg$'
+        replace: '{{ grub_conf.stat.checksum }}  ./boot/grub/grub.cfg'
+      become: true
+
+    - name: Make custom Ubuntu ISO
+      ansible.builtin.command:
+        argv:
+          - xorriso
+          - -as
+          - mkisofs
+          - -isohybrid-mbr
+          - /usr/lib/ISOLINUX/isohdpfx.bin
+          - -r
+          - -V
+          - "Ubuntu_Autoinstall"
+          - -J
+          - -l
+          - -b
+          - isolinux/isolinux.bin
+          - -c
+          - isolinux/boot.cat
+          - -no-emul-boot
+          - -boot-load-size
+          - 4
+          - -boot-info-table
+          - -eltorito-alt-boot
+          - -e
+          - boot/grub/efi.img
+          - -no-emul-boot
+          - -isohybrid-gpt-basdat
+          - -o
+          - /output/custom_{{ iso_name }}
+          - /tmp/ubuntu_iso
+      become: true
+
+    - name: Get iso checksum
+      ansible.builtin.stat:
+        path: /output/custom_{{ iso_name }}
+        get_checksum: true
+      register: checksum
+
+    - name: Write iso checksum
+      ansible.builtin.copy:
+        content: "{{ checksum.stat.checksum }}"
+        dest: /output/custom_{{ iso_name }}.sha1

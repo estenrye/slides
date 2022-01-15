@@ -1,0 +1,66 @@
+all:
+  hosts:
+    bm01:
+      user_data_template: /ansible/templates/user-data_uefi.yml.j2
+      network:
+        dhcp: false
+        addresses:
+          - 10.5.72.8/16
+        gateway4: 10.5.0.1
+        nameserver_search_domains:
+          - ryezone.com
+        nameserver_addresses:
+          - 1.1.1.1
+          - 1.0.0.1
+  vars:
+    apt_mirror: http://apt.ryezone.com/ubuntu
+    user:
+      realname: Automation User
+      username: automation-user
+    authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDN+pva6hiM1bTWkzG6QQL51v83hnyNqDGzG/G/zqFSxygJg/yvFHbRF0rs1h+kmh5LkBrulH3BEXOgvB9a8ASUPxZBsg2E0ql20f3ke3HR7PRZN/qyDFSRWVN42prkf7qsJlfWxVQgg03/LI+ngYJv2B78wyBsal4c7EmELtMCn+Rxl9bM9a/N+4STyZzcmsI9vAHiHmbTLjRlZ5WGT4utVRgmeiuMl86oYZG7UoBWndNrbz56P0R3VtIRZKEk0OsHyj810Yv82epJzabIimXB97XPkPxejEwbf1DwCgYIynfXMURo4OJUvOREqequTE1P2LLVJDJHKTSG66d5ZmKmJdLz6Fvo9cC0TMePfEiMUlXxbIvo6jdFsaFOkds2rfjUJ5EUCYwDezNVbybxV0KTSnylzAc02JoH5Mf6gO7VQLLoD3MnGkKxOdMUWjTtJb+H2RvtFSZOHGDBkoGAoRLAuuGiB/QxDLr5zmpHV1kBQ9N/cdCMA2K+uYodCUxHBZM= esten@jumpbox
+    iso_url: https://releases.ubuntu.com/20.04.2/ubuntu-20.04.2-live-server-amd64.iso
+    iso_checksum: sha256:d1f2bf834bbe9bb43faf16f9be992a6f3935e65be0edece1dee2aa6eb1767423
+    iso_name: ubuntu-20.04.2-live-server-amd64.iso
+    keyboard:
+      layout: us
+    locale: en_US.utf8
+    disks:
+      additional_disks: []
+      boot:
+        device_path: /dev/sda
+        additional_partitions:
+          - id: 3
+            name: root
+            mount_path: /
+            size: 6G
+          - id: 4
+            name: var
+            mount_path: /var
+            size: 2G
+          - id: 5
+            name: var-log
+            mount_path: /var/log
+            size: 20G
+          - id: 6
+            name: var-log-audit
+            mount_path: /var/log/audit
+            size: 4G
+          - id: 7
+            name: var-lib
+            mount_path: /var/lib
+            size: 20G
+          - id: 8
+            name: var-tmp
+            mount_path: /var/tmp
+            mount_options: nodev,nosuid,noexec
+            size: 2G
+          - id: 9
+            name: home
+            mount_path: /home
+            mount_options: nodev
+            size: 2G
+          - id: 10
+            name: var-lib-longhorn
+            mount_path: /var/lib/longhorn
+            size: -1

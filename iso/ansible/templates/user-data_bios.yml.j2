@@ -1,0 +1,141 @@
+#cloud-config
+autoinstall:
+  refresh-installer:
+    update: false
+  apt:
+    geoip: false
+    preserve_sources_list: true
+    primary:
+      - arches: [amd64, i386]
+        uri: {{ apt_mirror }}
+      - arches: [default]
+        uri: {{ apt_mirror }}
+  identity:
+    hostname: {{ inventory_hostname }}
+    password: {{ password_ciphertext }}
+    realname: {{ user.realname }}
+    username: {{ user.username }}
+  keyboard:
+    layout: {{ keyboard.layout }}
+    toggle: alt_caps_toggle
+    variant: ''
+  locale: {{ locale }}
+  network:
+    version: 2
+    renderer: networkd
+    ethernets:
+      # ens192:
+       eno1:
+        dhcp4: {{ network.dhcp }}
+        addresses:
+          {{ network.addresses | to_nice_yaml | indent(10) }}
+        gateway4: {{ network.gateway4 }}
+        nameservers:
+          search:
+            {{ network.nameserver_search_domains | to_nice_yaml | indent(12) }}
+          addresses:
+            {{ network.nameserver_addresses | to_nice_yaml | indent(12) }}
+  late-commands:
+    - echo '{{ user.username }} ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/{{ user.username }}
+  ssh:
+    allow-pw: true
+    # Provisioning SSH Key: https://protolabs.secretservercloud.com/app/#/secret/1609/general
+{% if authorized_keys is defined %}
+    authorized-keys:
+      {{ authorized_keys | to_nice_yaml | indent(6) }}
+{% endif %}
+    install-server: true
+  storage:
+    config:
+      - ptable: msdos
+        path: {{ disks.boot.device_path }}
+        wipe: superblock
+        preserve: false
+        name: 'ubuntu'
+        grub_device: false
+        type: disk
+        id: disk-ubuntu
+
+      - device: disk-ubuntu
+        size: 1024M
+        wipe: superblock
+        flag: boot
+        number: 1
+        preserve: false
+        grub_device: true
+        type: partition
+        id: partition-0
+      - fstype: ext4
+        volume: partition-0
+        preserve: false
+        type: format
+        id: format-0
+
+      - device: disk-ubuntu
+        size: -1
+        wipe: superblock
+        flag: ''
+        number: 2
+        preserve: false
+        grub_device: false
+        type: partition
+        id: partition-1
+
+      - name: ubuntu-vg
+        devices:
+          - partition-1
+        preserve: false
+        type: lvm_volgroup
+        id: lvm_volgroup-0
+
+{% for partition in disks.boot.additional_partitions %}
+      # {{ partition.name }} partition
+      - id: partition-{{ partition.name }}
+        type: lvm_partition
+        volgroup: lvm_volgroup-0
+        size: {{ partition.size }}
+        name: {{ partition.name }}
+
+      - id: format-{{ partition.name }}
+        type: format
+        fstype: ext4
+        volume: partition-{{ partition.name }}
+        preserve: false
+
+      - id: mount-{{ partition.name }}
+        type: mount
+        device: format-{{ partition.name }}
+        path: {{ partition.mount_path }}
+{% if partition.mount_options is defined %}
+        options: {{ partition.mount_options }}
+{% endif %}
+{% endfor %}
+
+{% for disk in disks.additional_disks %}
+      # format and mount {{ disk.mount_path }} disk
+      - id: disk-{{ disk.name }}
+        type: disk
+        path: {{ disk.device_path }}
+        name: {{ disk.name }}
+
+      - id: format-{{ disk.name }}
+        type: format
+        fstype: ext4
+        volume: disk-{{ disk.name }}
+
+      - id: mount-{{ disk.name }}
+        type: mount
+        device: format-{{ disk.name }}
+        path: {{ disk.mount_path }}
+{% if disk.mount_options is defined %}
+        options: {{ disk.mount_options }}
+{% endif %}
+{% endfor %}
+
+      - device: format-0
+        path: /boot
+        type: mount
+        id: mount-0
+    swap:
+      swap: 0
+  version: 1
