@@ -1,0 +1,14 @@
+[Unit]
+Description=Updates apt mirrors
+Wants=debmirror.update.timer
+
+[Service]
+Type=oneshot
+User={{ debmirror_user_name }}
+Group={{ debmirror_group_name }}
+{% for aptmirror in mirror_repos | default([]) %}
+ExecStart=debmirror --config-file=/etc/debmirror.d/{{ aptmirror.mirror.name }}.conf
+{% endfor %}
+
+[Install]
+WantedBy=multi-user.target

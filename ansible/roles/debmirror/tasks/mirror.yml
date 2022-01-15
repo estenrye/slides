@@ -1,0 +1,58 @@
+- name: set permissions on configuration directory
+  ansible.builtin.file:
+    state: directory
+    path: /etc/debmirror.d
+    mode: 0755
+    owner: root
+    group: apt-mirror
+  become: true
+
+- name: Create apt mirror directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mirror_dir_item }}"
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  loop_control:
+    loop_var: mirror_dir_item
+  loop:
+    - "{{ mirror_dir }}"
+    - "{{ mirror_dir }}/mirror"
+    - "{{ mirror_dir }}/bin"
+    - "{{ mirror_dir }}/www"
+
+- name: Create apt mirror subdirectories
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mirror_dir_item.mirror.name }}"
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  loop_control:
+    loop_var: mirror_dir_item
+  loop: "{{ mirror_repos | default([]) }}"
+
+- name: Write debmirror config files
+  ansible.builtin.template:
+    src: debmirror.conf.j2
+    dest: "/etc/debmirror.d/{{ aptmirror.mirror.name }}.conf"
+    mode: 0640
+    owner: root
+    group: apt-mirror
+  become: true
+  loop_control:
+    loop_var: aptmirror
+  loop: "{{ mirror_repos | default([]) }}"
+
+- name: Create www Symlinks
+  ansible.builtin.file:
+    state: link
+    src: "{{ mirror_dir }}/mirror/{{ aptmirror.mirror.name }}"
+    path: "{{ mirror_dir }}/www/{{ aptmirror.mirror.name }}"
+  loop_control:
+    loop_var: aptmirror
+  loop: "{{ mirror_repos | default([]) }}"
+  become: true

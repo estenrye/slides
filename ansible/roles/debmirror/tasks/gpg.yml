@@ -1,0 +1,57 @@
+- name: Import Ubuntu Archive GPG Keyring
+  ansible.builtin.shell:
+    cmd: |-
+      gpg --keyring {{ debmirror_archive_keyring }} --export \
+      | gpg --no-default-keyring --keyring trustedkeys.gpg --import
+  environment:
+    GNUPGHOME: /home/{{ debmirror_user_name }}/.gnupg
+  become: true
+
+- name: Set Permissions on .gnupg
+  ansible.builtin.file:
+    state: directory
+    path: /home/{{ debmirror_user_name }}/.gnupg
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+    mode: 0700
+  become: true
+
+- name: Set Permissions on .gnupg/*
+  ansible.builtin.file:
+    state: file
+    path: /home/{{ debmirror_user_name }}/.gnupg/{{ gpg_file }}
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+    mode: 0600
+  loop_control:
+    loop_var: gpg_file
+  loop:
+    - trustedkeys.gpg
+    - pubring.kbx
+    - trustdb.gpg
+  become: true
+
+- name: Download gpg keys
+  ansible.builtin.get_url:
+    url: "{{ aptmirror.remote.gpg_key }}"
+    dest: "{{ mirror_dir }}/{{ aptmirror.mirror.name }}/gpg"
+    mode: 0644
+    owner: apt-mirror
+    group: apt-mirror
+  loop_control:
+    loop_var: aptmirror
+  loop: "{{ mirror_repos | default([]) }}"
+  when:
+    - aptmirror.remote.gpg_key is defined
+
+- name: import trusted keys
+  ansible.builtin.command:
+    cmd: gpg --no-default-keyring --keyring trustedkeys.gpg --import {{ mirror_dir }}/{{ aptmirror.mirror.name }}/gpg
+  environment:
+    GNUPGHOME: /home/apt-mirror/.gnupg
+  loop_control:
+    loop_var: aptmirror
+  loop: "{{ mirror_repos | default([]) }}"
+  when:
+    - aptmirror.remote.gpg_key is defined
+  become: true
