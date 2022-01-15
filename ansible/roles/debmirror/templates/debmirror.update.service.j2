@@ -7,7 +7,7 @@ Type=oneshot
 User={{ debmirror_user_name }}
 Group={{ debmirror_group_name }}
 {% for aptmirror in mirror_repos | default([]) %}
-ExecStart=debmirror --config-file=/etc/debmirror.d/{{ aptmirror.mirror.name }}.conf
+ExecStart=debmirror -conf=/etc/debmirror.d/{{ aptmirror.mirror.name }}.conf
 {% endfor %}
 
 [Install]
