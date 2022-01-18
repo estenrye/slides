@@ -130,3 +130,21 @@ mirror_repos:
       method: http
     output:
       verbose: true
+
+  - remote:
+      host: pkg.surfacelinux.com
+      root: debian
+      gpg_key: https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc
+    mirror:
+      name: surfacelinux
+      dists:
+        - release
+      sections:
+        - main
+      arches:
+        - amd64
+    state_cache_days: 0
+    download:
+      method: http
+    output:
+      verbose: true

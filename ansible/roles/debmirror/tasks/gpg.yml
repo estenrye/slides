@@ -7,30 +7,6 @@
     GNUPGHOME: /home/{{ debmirror_user_name }}/.gnupg
   become: true
 
-- name: Set Permissions on .gnupg
-  ansible.builtin.file:
-    state: directory
-    path: /home/{{ debmirror_user_name }}/.gnupg
-    owner: "{{ debmirror_user_name }}"
-    group: "{{ debmirror_group_name }}"
-    mode: 0700
-  become: true
-
-- name: Set Permissions on .gnupg/*
-  ansible.builtin.file:
-    state: file
-    path: /home/{{ debmirror_user_name }}/.gnupg/{{ gpg_file }}
-    owner: "{{ debmirror_user_name }}"
-    group: "{{ debmirror_group_name }}"
-    mode: 0600
-  loop_control:
-    loop_var: gpg_file
-  loop:
-    - trustedkeys.gpg
-    - pubring.kbx
-    - trustdb.gpg
-  become: true
-
 - name: Download gpg keys
   ansible.builtin.get_url:
     url: "{{ aptmirror.remote.gpg_key }}"
@@ -55,4 +31,28 @@
   loop: "{{ mirror_repos | default([]) }}"
   when:
     - aptmirror.remote.gpg_key is defined
+  become: true
+
+- name: Set Permissions on .gnupg
+  ansible.builtin.file:
+    state: directory
+    path: /home/{{ debmirror_user_name }}/.gnupg
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+    mode: 0700
+  become: true
+
+- name: Set Permissions on .gnupg/*
+  ansible.builtin.file:
+    state: file
+    path: /home/{{ debmirror_user_name }}/.gnupg/{{ gpg_file }}
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+    mode: 0600
+  loop_control:
+    loop_var: gpg_file
+  loop:
+    - trustedkeys.gpg
+    - pubring.kbx
+    - trustdb.gpg
   become: true
