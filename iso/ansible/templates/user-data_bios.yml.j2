@@ -21,20 +21,7 @@ autoinstall:
     variant: ''
   locale: {{ locale }}
   network:
-    version: 2
-    renderer: networkd
-    ethernets:
-      # ens192:
-       eno1:
-        dhcp4: {{ network.dhcp }}
-        addresses:
-          {{ network.addresses | to_nice_yaml | indent(10) }}
-        gateway4: {{ network.gateway4 }}
-        nameservers:
-          search:
-            {{ network.nameserver_search_domains | to_nice_yaml | indent(12) }}
-          addresses:
-            {{ network.nameserver_addresses | to_nice_yaml | indent(12) }}
+    {{ network | to_nice_yaml | indent(4) }}
   late-commands:
     - echo '{{ user.username }} ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/{{ user.username }}
   ssh:
@@ -52,18 +39,18 @@ autoinstall:
         wipe: superblock
         preserve: false
         name: 'ubuntu'
-        grub_device: false
+        grub_device: true
         type: disk
         id: disk-ubuntu
 
       - device: disk-ubuntu
         size: 1024M
         wipe: superblock
-        flag: boot
+        flag: bios_grub
         number: 1
         preserve: false
-        grub_device: true
         type: partition
+        name: boot
         id: partition-0
       - fstype: ext4
         volume: partition-0

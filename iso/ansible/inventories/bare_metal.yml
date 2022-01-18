@@ -1,17 +1,51 @@
 all:
   hosts:
-    bm01:
-      user_data_template: /ansible/templates/user-data_uefi.yml.j2
+    maas01:
+      # user_data_template: /ansible/templates/user-data_uefi.yml.j2
+      user_data_template: /ansible/templates/user-data_bios.yml.j2
       network:
-        dhcp: false
-        addresses:
-          - 10.5.72.8/16
-        gateway4: 10.5.0.1
-        nameserver_search_domains:
-          - ryezone.com
-        nameserver_addresses:
-          - 1.1.1.1
-          - 1.0.0.1
+        version: 2
+        renderer: networkd
+        bridges:
+          br0:
+            interfaces:
+              - vlan61
+            addresses:
+              - 10.5.254.1/16
+            gateway4: 10.5.0.1
+            nameservers:
+              search:
+                - ryezone.com
+              addresses:
+                - 1.1.1.1
+                - 1.0.0.1
+        vlans:
+          vlan61:
+            accept-ra: false
+            id: 61
+            link: bond0
+        bonds:
+          bond0:
+            dhcp4: false
+            interfaces:
+              - enp2s0_green
+              - enp3s0_red
+            parameters:
+              mode: active-backup
+              primary: enp2s0_green
+        ethernets:
+          enp2s0_green:
+            dhcp4: false
+            match:
+              macaddress: 00:25:90:6c:b9:9a
+            set-name: enp2s0_green
+          enp3s0_red:
+            dhcp4: false
+            match:
+              macaddress: 00:25:90:6c:b9:9b
+            set-name: enp3s0_red
+
+
   vars:
     apt_mirror: http://apt.ryezone.com/ubuntu
     user:
@@ -19,9 +53,9 @@ all:
       username: automation-user
     authorized_keys:
       - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDN+pva6hiM1bTWkzG6QQL51v83hnyNqDGzG/G/zqFSxygJg/yvFHbRF0rs1h+kmh5LkBrulH3BEXOgvB9a8ASUPxZBsg2E0ql20f3ke3HR7PRZN/qyDFSRWVN42prkf7qsJlfWxVQgg03/LI+ngYJv2B78wyBsal4c7EmELtMCn+Rxl9bM9a/N+4STyZzcmsI9vAHiHmbTLjRlZ5WGT4utVRgmeiuMl86oYZG7UoBWndNrbz56P0R3VtIRZKEk0OsHyj810Yv82epJzabIimXB97XPkPxejEwbf1DwCgYIynfXMURo4OJUvOREqequTE1P2LLVJDJHKTSG66d5ZmKmJdLz6Fvo9cC0TMePfEiMUlXxbIvo6jdFsaFOkds2rfjUJ5EUCYwDezNVbybxV0KTSnylzAc02JoH5Mf6gO7VQLLoD3MnGkKxOdMUWjTtJb+H2RvtFSZOHGDBkoGAoRLAuuGiB/QxDLr5zmpHV1kBQ9N/cdCMA2K+uYodCUxHBZM= esten@jumpbox
-    iso_url: https://releases.ubuntu.com/20.04.2/ubuntu-20.04.2-live-server-amd64.iso
-    iso_checksum: sha256:d1f2bf834bbe9bb43faf16f9be992a6f3935e65be0edece1dee2aa6eb1767423
-    iso_name: ubuntu-20.04.2-live-server-amd64.iso
+    iso_url: https://releases.ubuntu.com/20.04.3/ubuntu-20.04.3-live-server-amd64.iso
+    iso_checksum: sha256:f8e3086f3cea0fb3fefb29937ab5ed9d19e767079633960ccb50e76153effc98
+    iso_name: ubuntu-20.04.3-live-server-amd64.iso
     keyboard:
       layout: us
     locale: en_US.utf8
