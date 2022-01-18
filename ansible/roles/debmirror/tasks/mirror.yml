@@ -21,6 +21,7 @@
     - "{{ mirror_dir }}"
     - "{{ mirror_dir }}/mirror"
     - "{{ mirror_dir }}/bin"
+    - "{{ mirror_dir }}/gpg"
     - "{{ mirror_dir }}/www"
     - "{{ mirror_dir }}/www/status"
 

@@ -10,7 +10,7 @@
 - name: Download gpg keys
   ansible.builtin.get_url:
     url: "{{ aptmirror.remote.gpg_key }}"
-    dest: "{{ mirror_dir }}/mirror/{{ aptmirror.mirror.name }}/gpg"
+    dest: "{{ mirror_dir }}/gpg/{{ aptmirror.mirror.name }}.gpg"
     mode: 0644
     owner: "{{ debmirror_user_name }}"
     group: "{{ debmirror_group_name }}"
@@ -23,7 +23,7 @@
 
 - name: import trusted keys
   ansible.builtin.command:
-    cmd: gpg --no-default-keyring --keyring trustedkeys.gpg --import {{ mirror_dir }}/mirror/{{ aptmirror.mirror.name }}/gpg
+    cmd: gpg --no-default-keyring --keyring trustedkeys.gpg --import {{ mirror_dir }}/gpg/{{ aptmirror.mirror.name }}.gpg
   environment:
     GNUPGHOME: /home/{{ debmirror_user_name }}/.gnupg
   loop_control:
@@ -55,4 +55,16 @@
     - trustedkeys.gpg
     - pubring.kbx
     - trustdb.gpg
+  become: true
+
+- name: Create www Symlinks for gpg keys
+  ansible.builtin.file:
+    state: link
+    src: "{{ mirror_dir }}/gpg/{{ aptmirror.mirror.name }}.gpg"
+    path: "{{ mirror_dir }}/www/{{ aptmirror.mirror.name }}/gpg"
+  loop_control:
+    loop_var: aptmirror
+  loop: "{{ deb_mirror_repos | default([]) }}"
+  when:
+    - aptmirror.remote.gpg_key is defined
   become: true
