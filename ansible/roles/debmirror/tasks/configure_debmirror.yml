@@ -1,5 +1,5 @@
 
-- name: Create apt mirror subdirectories
+- name: Create debmirror subdirectories
   ansible.builtin.file:
     state: directory
     path: "{{ mirror_dir }}/mirror/{{ aptmirror.mirror.name }}"
@@ -27,7 +27,7 @@
   when:
     - aptmirror.handler | default('debmirror') == 'debmirror'
 
-- name: Create www Symlinks
+- name: Create debmirror www Symlinks
   ansible.builtin.file:
     state: link
     src: "{{ mirror_dir }}/mirror/{{ aptmirror.mirror.name }}"
