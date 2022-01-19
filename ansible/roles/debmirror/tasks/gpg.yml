@@ -6,6 +6,7 @@
   environment:
     GNUPGHOME: /home/{{ debmirror_user_name }}/.gnupg
   become: true
+  changed_when: false
 
 - name: Download gpg keys
   ansible.builtin.get_url:
@@ -20,6 +21,7 @@
   when:
     - aptmirror.remote.gpg_key is defined
   become: true
+  register: key_download
 
 - name: import trusted keys
   ansible.builtin.command:
@@ -31,6 +33,7 @@
   loop: "{{ mirror_repos | default([]) }}"
   when:
     - aptmirror.remote.gpg_key is defined
+    - key_download.changed
   become: true
 
 - name: Set Permissions on .gnupg
