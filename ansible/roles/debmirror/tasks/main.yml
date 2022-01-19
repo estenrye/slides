@@ -12,9 +12,11 @@
     create_home: true
   become: true
 
-- name: Install debmirror
+- name: Install mirroring software
   ansible.builtin.package:
-    name: debmirror
+    name:
+      - apt-mirror
+      - debmirror
   become: true
 
 - name: Include Tasks
@@ -23,6 +25,9 @@
   loop_control:
     loop_var: taskfile
   loop:
+    - directories.yml
+    - configure_apt-mirror.yml
+    - configure_debmirror.yml
     - mirror.yml
     - gpg.yml
     - systemd_timer.yml

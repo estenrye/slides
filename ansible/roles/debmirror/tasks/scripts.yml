@@ -1,0 +1,8 @@
+- name: Write debmirror config files
+  ansible.builtin.template:
+    src: update-status.sh.j2
+    dest: "{{ mirror_dir }}/bin/update-status.sh"
+    mode: 0754
+    owner: root
+    group: "{{ debmirror_group_name }}"
+  become: true

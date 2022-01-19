@@ -1,0 +1,47 @@
+- name: set permissions on configuration directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ etc_dir }}"
+    mode: 0755
+    owner: root
+    group: "{{ debmirror_group_name }}"
+  become: true
+  loop_control:
+    loop_var: etc_dir
+  loop:
+    - /etc/apt-mirror.d
+    - /etc/debmirror.d
+
+- name: Create apt mirror directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mirror_dir_item }}"
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  loop_control:
+    loop_var: mirror_dir_item
+  loop:
+    - "{{ mirror_dir }}"
+    - "{{ mirror_dir }}/mirror"
+    - "{{ mirror_dir }}/bin"
+    - "{{ mirror_dir }}/gpg"
+    - "{{ mirror_dir }}/skel"
+    - "{{ mirror_dir }}/var"
+    - "{{ mirror_dir }}/www"
+    - "{{ mirror_dir }}/www/status"
+
+- name: Create apt mirror status subdirectories
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mirror_dir }}/www/status/{{ mirror_dir_item.mirror.name }}"
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  loop_control:
+    loop_var: mirror_dir_item
+  loop: "{{ mirror_repos | default([]) }}"
+
+

@@ -6,7 +6,12 @@ Wants=debmirror.{{ aptmirror.mirror.name }}.update.timer
 Type=oneshot
 User={{ debmirror_user_name }}
 Group={{ debmirror_group_name }}
+
+{% if aptmirror.handler | default('debmirror') == 'debmirror' %}
 ExecStart=debmirror -conf=/etc/debmirror.d/{{ aptmirror.mirror.name }}.conf
+{% else %}
+ExecStart=apt-mirror /etc/apt-mirror.d/{{ aptmirror.mirror.name }}.list
+{% endif %}
 ExecStopPost=/bin/sh {{ mirror_dir }}/bin/update-status.sh {{ aptmirror.mirror.name }}
 
 [Install]
