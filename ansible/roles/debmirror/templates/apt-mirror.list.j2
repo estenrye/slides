@@ -2,7 +2,7 @@ set base_path         {{ mirror_dir }}
 set mirror_path       $base_path/mirror
 set skel_path         $base_path/skel/{{ aptmirror.mirror.name }}
 set var_path          $base_path/var/{{ aptmirror.mirror.name }}
-set postmirror_script $base_path/postmirror.sh
+set postmirror_script $base_path/bin/postmirror.sh
 set defaultarch       amd64
 set run_postmirror    0
 set nthreads          20

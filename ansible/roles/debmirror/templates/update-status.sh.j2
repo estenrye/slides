@@ -9,7 +9,11 @@ case "$LAST_EXIT_CODE" in
   *) STATUS='FAILED' ;;
 esac
 
-journalctl -u debmirror.${MIRROR_NAME}.update.service --lines=30 > ${MIRROR_STATUS_DIR}/${MIRROR_NAME}/lastlog
+if [ -f "${MIRROR_STATUS_DIR}/${MIRROR_NAME}/lastlog" ]; then
+  rm ${MIRROR_STATUS_DIR}/${MIRROR_NAME}/lastlog
+fi
+
+journalctl -q -u debmirror.${MIRROR_NAME}.update.service --lines=30 > ${MIRROR_STATUS_DIR}/${MIRROR_NAME}/lastlog.txt
 cat > ${MIRROR_STATUS_DIR}/${MIRROR_NAME}/status.json << EOF
 {
   "service_name": "debmirror.${MIRROR_NAME}.update.service",
