@@ -62,7 +62,8 @@ mirror_repos:
   - handler: apt-mirror
     remote:
       host: apt.releases.hashicorp.com
-      root: /
+      root: ''
+      scheme: https
       gpg_key: https://apt.releases.hashicorp.com/gpg
     mirror:
       name: hashicorp
@@ -72,6 +73,8 @@ mirror_repos:
         - main
       arches:
         - amd64
+    download:
+      source: false
 
   - remote:
       host: packages.microsoft.com

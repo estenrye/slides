@@ -17,9 +17,9 @@ set proxy_password    password
 
 {% for dist in aptmirror.mirror.dists %}
 {% for arch in aptmirror.mirror.arches %}
-deb-{{ arch }} http://{{ aptmirror.remote.host }}/{{ aptmirror.remote.root }} {{ dist }} {{ aptmirror.mirror.sections | default([]) | join(' ') }}
+deb-{{ arch }} {{ aptmirror.remote.scheme | default('http') }}://{{ aptmirror.remote.host }}{% if aptmirror.remote.root != '' %}/{% endif %}{{ aptmirror.remote.root }} {{ dist }} {{ aptmirror.mirror.sections | default([]) | join(' ') }}
 {% if aptmirror.download.source | default(true) %}
-deb-src http://{{ aptmirror.remote.host }}/{{ aptmirror.remote.root }} {{ dist }} {{ aptmirror.mirror.sections | default([]) | join(' ') }}
+deb-src {{ aptmirror.remote.scheme | default('http') }}://{{ aptmirror.remote.host }}{% if aptmirror.remote.root != '' %}/{% endif %}{{ aptmirror.remote.root }} {{ dist }} {{ aptmirror.mirror.sections | default([]) | join(' ') }}
 {% endif %}
 {% endfor %}
 {% endfor %}
