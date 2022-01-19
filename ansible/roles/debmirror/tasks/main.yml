@@ -28,7 +28,6 @@
     - directories.yml
     - configure_apt-mirror.yml
     - configure_debmirror.yml
-    - mirror.yml
     - gpg.yml
     - systemd_timer.yml
 
