@@ -1,0 +1,30 @@
+- name: create debmirror group
+  ansible.builtin.group:
+    name: "{{ debmirror_group_name }}"
+    gid: "{{ debmirror_group_gid | int }}"
+  become: true
+
+- name: create nginx group
+  ansible.builtin.group:
+    name: nginx
+    gid: "{{ debmirror_nginx_group_gid | int }}"
+  become: true
+
+- name: create debmirror user
+  ansible.builtin.user:
+    name: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+    uid: "{{ debmirror_user_uid | int }}"
+    create_home: true
+  become: true
+
+- name: create nginx user
+  ansible.builtin.user:
+    name: nginx
+    group: nginx
+    uid: "{{ debmirror_nginx_user_uid | int }}"
+    create_home: true
+    append: true
+    groups:
+      - "{{ debmirror_group_name }}"
+  become: true

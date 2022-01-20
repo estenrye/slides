@@ -1,13 +1,40 @@
+debmirror_nginx_http_port: 80
+debmirror_nginx_https_port: 443
+debmirror_nginx_status_port: 8080
+debmirror_nginx_tls_cert_path: /etc/nginx/pki/tls.crt
+debmirror_nginx_tls_key_path: /etc/nginx/pki/tls.key
+debmirror_nginx_user_uid: 10001
+debmirror_nginx_group_gid: 10001
+
 debmirror_user_name: debmirror
 debmirror_user_uid: 10000
 
 debmirror_group_name: debmirror
 debmirror_group_gid: 10000
 
+
 debmirror_on_calendar: '*-*-* 00/6:30:00'
 debmirror_accuracy_sec: 1m
 
 debmirror_archive_keyring: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+firewall_rules_allow_inbound_v4:
+  - name: nginx http
+    port: "{{ debmirror_nginx_http_port | int }}"
+    protocol: tcp
+  - name: nginx https
+    port: "{{ debmirror_nginx_https_port | int }}"
+    protocol: tcp
+  - name: nginx status
+    port: "{{ debmirror_nginx_status_port | int }}"
+    protocol: tcp
+
+firewall_rules_allow_outbound_v4: []
+
+firewall_ipv6_enabled: false
+firewall_rules_allow_inbound_v6: []
+firewall_rules_allow_outbound_v6: []
+
 
 mirror_dir: /var/lib/apt-mirror
 

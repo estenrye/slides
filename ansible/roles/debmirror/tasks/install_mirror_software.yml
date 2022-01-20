@@ -1,0 +1,6 @@
+- name: Install mirroring software
+  ansible.builtin.package:
+    name:
+      - apt-mirror
+      - debmirror
+  become: true

@@ -1,34 +1,18 @@
-- name: create debmirror group
-  ansible.builtin.group:
-    name: "{{ debmirror_group_name }}"
-    gid: "{{ debmirror_group_gid | int }}"
-  become: true
-
-- name: create debmirror user
-  ansible.builtin.user:
-    name: "{{ debmirror_user_name }}"
-    group: "{{ debmirror_group_name }}"
-    uid: "{{ debmirror_user_uid | int }}"
-    create_home: true
-  become: true
-
-- name: Install mirroring software
-  ansible.builtin.package:
-    name:
-      - apt-mirror
-      - debmirror
-  become: true
-
 - name: Include Tasks
   ansible.builtin.include_tasks:
     file: "{{ taskfile }}"
   loop_control:
     loop_var: taskfile
   loop:
+    - create_users_and_groups.yml
+    - install_mirror_software.yml
     - directories.yml
     - configure_apt-mirror.yml
     - configure_debmirror.yml
     - scripts.yml
     - gpg.yml
     - systemd_timer.yml
+    - install_nginx.yml
+    - configure_nginx.yml
+    - configure_firewall.yml
 
