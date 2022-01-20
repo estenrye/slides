@@ -29,6 +29,8 @@ mirror_repos:
       sections:
         - main
         - restricted
+        - universe
+        - multiverse
       arches:
         - amd64
         - i386
