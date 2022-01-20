@@ -1,0 +1,60 @@
+- name: Install pip3
+  ansible.builtin.package:
+    name: python3-pip
+  become: true
+
+- name: Install certbot
+  ansible.builtin.pip:
+    name:
+      - certbot
+      - cloudflare
+      - certbot-dns-cloudflare
+    state: latest
+  become: true
+
+- name: Install certbot Credentials for DNS-01 challenge
+  ansible.builtin.template:
+    src: cloudflare.ini.j2
+    dest: /etc/letsencrypt/credentials.ini
+    owner: root
+    group: root
+    mode: 0640
+  become: true
+
+- name: Register ACME Account
+  ansible.builtin.command:
+    cmd: certbot register --agree-tos --email {{ certbot_acme_email }} -n
+    creates: /etc/letsencrypt/accounts/acme-v02.api.letsencrypt.org/directory
+  become: true
+
+- name: Issue initial certificate
+  ansible.builtin.command:
+    cmd: >-
+      certbot certonly
+      --dns-cloudflare
+      --dns-cloudflare-credentials /etc/letsencrypt/credentials.ini
+      {% for domain in certbot_domains | mandatory %}-d {{ domain }} {% endfor %}
+    creates: /etc/letsencrypt/live/{{ (certbot_domains | mandatory)[0] }}
+  become: true
+
+- name: Change Directory Permissions
+  ansible.builtin.file:
+    path: /etc/letsencrypt/archive/{{ (certbot_domains | mandatory)[0] }}
+    state: directory
+    owner: root
+    group: "{{ certbot_group }}"
+    recurse: true
+  become: true
+
+- name: Change Directory Permissions
+  ansible.builtin.file:
+    path: /etc/letsencrypt/live/{{ (certbot_domains | mandatory)[0] }}
+    state: directory
+    owner: root
+    group: "{{ certbot_group }}"
+    recurse: true
+  become: true
+
+- name: Include Tasks
+  ansible.builtin.include_tasks:
+    file: systemd_timer.yml

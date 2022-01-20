@@ -1,0 +1,12 @@
+[Unit]
+Description=Renew Lets Encrypt Certificates
+Requires=certbot.renewal.service
+
+[Timer]
+Unit=certbot.renewal.service
+
+OnCalendar=Sun *-*-* 00:00:00
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target

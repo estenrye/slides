@@ -16,7 +16,6 @@ RUN apt update \
     gnupg \
     lsb-release \
   && /install/add-repos.sh \
-  && /install/get-helm-3.sh \
   && /install/get-cert-manager-plugin.sh \
   && /install/get-jq.sh \
   && apt update \
@@ -25,6 +24,7 @@ RUN apt update \
     certbot \
     docker-ce-cli \
     genisoimage \
+    helm \
     kubectl \
     mkisofs \
     openssh-client \

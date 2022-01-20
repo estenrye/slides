@@ -1,5 +1,14 @@
-- hosts: apt-mirror
+- hosts: apt_mirror
   roles:
     - debmirror
+    - firewall
+    - certbot
+    - cloudflare_dns_a_record
+
+- hosts: apt_mirror
+  roles:
+    - nginxinc.nginx_core.nginx
+    - nginxinc.nginx_core.nginx_config
+  become: true
 
 # TODO: add /dev/vdi to fstab and mount to /var/lib/apt-mirror

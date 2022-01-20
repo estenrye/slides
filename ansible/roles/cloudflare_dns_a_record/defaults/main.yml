@@ -1,0 +1,3 @@
+cloudflare_a_record_name: "{{ inventory_hostname }}"
+cloudflare_a_record_value: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+cloudflare_zone: ryezone.com

@@ -12,7 +12,3 @@
     - scripts.yml
     - gpg.yml
     - systemd_timer.yml
-    - install_nginx.yml
-    - configure_nginx.yml
-    - configure_firewall.yml
-

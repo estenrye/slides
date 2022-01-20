@@ -1,0 +1,25 @@
+- name: Install SystemD Update Service
+  ansible.builtin.template:
+    src: service.j2
+    dest: /lib/systemd/system/certbot.renewal.service
+    mode: 0644
+  become: true
+  notify: systemd daemon reload
+
+- name: Install SystemD Update Timer
+  ansible.builtin.template:
+    src: timer.j2
+    dest: /lib/systemd/system/certbot.renewal.timer
+    mode: 0644
+  become: true
+  notify: systemd daemon reload
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Enable and Start debmirror Timer
+  ansible.builtin.systemd:
+    name: certbot.renewal.timer
+    state: started
+    enabled: true
+  become: true

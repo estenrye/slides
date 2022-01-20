@@ -1,0 +1,8 @@
+  - name: Set DNS A Records
+    community.general.cloudflare_dns:
+      zone: "{{ cloudflare_zone }}"
+      api_token: "{{ cloudflare_api_token }}"
+      type: A
+      value: "{{ cloudflare_a_record_value }}"
+      record: "{{ cloudflare_a_record_name }}"
+      state: present

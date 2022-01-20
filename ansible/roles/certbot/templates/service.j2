@@ -1,0 +1,13 @@
+[Unit]
+Description=Renew Lets Encrypt Certificates
+Wants=certbot.renewal.timer
+
+[Service]
+Type=oneshot
+User=root
+Group={{ certbot_group }}
+
+ExecStart=certbot renew
+
+[Install]
+WantedBy=multi-user.target

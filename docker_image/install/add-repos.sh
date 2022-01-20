@@ -17,4 +17,8 @@ curl -fsSLo /tmp/kubernetes.gpg https://packages.cloud.google.com/apt/doc/apt-ke
 gpg --batch --yes --dearmor -o /usr/local/share/keyrings/kubernetes.gpg /tmp/kubernetes.gpg
 echo "deb [signed-by=/usr/local/share/keyrings/kubernetes.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" >> /etc/apt/sources.list
 
+curl -fsSLo /tmp/helm.gpg https://baltocdn.com/helm/signing.asc
+gpg --batch --yes --dearmor -o /usr/local/share/keyrings/helm.gpg /tmp/helm.gpg
+echo "deb [signed-by=/usr/local/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" >> /etc/apt/sources.list
+
 rm /tmp/*.gpg
