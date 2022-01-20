@@ -7,6 +7,9 @@ collections:
     version: 2.0.0
   - name: community.crypto
     version: 1.9.5
+  - name: nginxinc.nginx_core
+    version: 0.4.0
+
 roles:
   - name: darkwizard242.cis_ubuntu_2004
     version: 2.1.0

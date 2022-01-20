@@ -1,6 +1,5 @@
-alvistack.obs_studio
-darkwizard242.cis_ubuntu_2004
-gantsign.antigen
-gantsign.antigen_bundles
-gantsign.golang
-sicruse.powerline-fonts
+alvistack.*
+darkwizard242.*
+gantsign.*
+nginxinc.*
+sicruse.*
