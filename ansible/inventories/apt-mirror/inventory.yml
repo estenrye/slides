@@ -10,7 +10,7 @@ apt_mirror:
     debmirror_nginx_http_port: 80
     debmirror_nginx_https_port: 443
     debmirror_nginx_status_port: 8080
-    debmirror_nginx_tls_cert_path: /etc/letsencrypt/live/{{ debmirror_hostname }}/cert.pem
+    debmirror_nginx_tls_cert_path: /etc/letsencrypt/live/{{ debmirror_hostname }}/fullchain.pem
     debmirror_nginx_tls_key_path: /etc/letsencrypt/live/{{ debmirror_hostname }}/privkey.pem
 
     certbot_group: nginx
