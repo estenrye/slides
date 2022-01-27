@@ -84,6 +84,24 @@ mirror_repos:
 
   - remote:
       host: packages.microsoft.com
+      root: ubuntu/20.04/prod
+      gpg_key: https://packages.microsoft.com/keys/microsoft.asc
+    mirror:
+      name: microsoft-focal
+      dists:
+        - focal
+      sections:
+        - main
+      arches:
+        - amd64
+    state_cache_days: 0
+    download:
+      method: http
+    output:
+      verbose: true
+
+  - remote:
+      host: packages.microsoft.com
       root: repos/azure-cli
       gpg_key: https://packages.microsoft.com/keys/microsoft.asc
     mirror:
