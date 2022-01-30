@@ -44,6 +44,21 @@ for each bare metal machine in the inventory.
 The following code will execute the automation:
 
 ```bash
+INVENTORY_DIR=`readlink -f ~/src/slides/iso/ansible/inventories`
+OUTPUT_DIR='/tmp/iso-output'
+
+mkdir -p ${OUTPUT_DIR}
+
+docker run --rm -it\
+  --mount type=bind,source=${OUTPUT_DIR},target=/output \
+  --mount type=bind,source=${INVENTORY_DIR},target=/inventories,readonly \
+  estenrye/ubuntu-autoinstall-iso \
+    -i /inventories/bare_metal.yml
+```
+
+## Local Testing of Ansible Playbook Changes
+
+```bash
 mkdir -p ~/src/slides/iso/.output
 docker run --rm -it \
   -v ~/src/slides/iso/.output:/output \

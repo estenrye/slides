@@ -31,7 +31,10 @@ COPY requirements.txt requirements.txt
 RUN pip3 install --no-warn-script-location -r requirements.txt
 
 COPY etc/sudoers /etc/sudoers
+COPY ansible/templates /ansible/templates
+COPY ansible/playbooks /ansible/playbooks
 
 USER automation-user
 ENV PATH /home/automation-user/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 WORKDIR /ansible
+ENTRYPOINT ["ansible-playbook", "/ansible/playbooks/playbook.yml"]
