@@ -45,7 +45,7 @@ The following code will execute the automation:
 
 ```bash
 INVENTORY_DIR=`readlink -f ~/src/slides/iso/ansible/inventories`
-OUTPUT_DIR='/tmp/iso-output'
+OUTPUT_DIR=`readlink -f ~/src/slides/iso/.output/`
 
 mkdir -p ${OUTPUT_DIR}
 
@@ -72,3 +72,16 @@ docker run --rm -it \
 ## Continuous Integration
 
 The Docker image is continuously integrated using [this Github Workflow](../.github/workflows/CI-estenrye-ubuntu-autoinstall-iso.yml).
+
+## Creating bootable USB media
+
+```bash
+OUTPUT_DIR=`readlink -f ~/src/slides/iso/.output/`
+TARGET_DEVICE='/dev/sda'
+
+# Making an Ubuntu autoinstaller USB disk
+sudo dd if=${OUTPUT_DIR}/custom_ubuntu-20.04.3-live-server-amd64.iso of=${TARGET_DEVICE} bs=4M status=progress
+
+# Making a cidata USB disk
+sudo dd if=${OUTPUT_DIR}/maas01/cidata.iso of=${TARGET_DEVICE} bs=4M status=progress
+```
