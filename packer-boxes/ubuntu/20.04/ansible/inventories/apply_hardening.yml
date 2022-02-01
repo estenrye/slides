@@ -1,0 +1,15 @@
+default:
+  vars:
+    packer_builder_type: bare_metal
+    packer_build_name: bare_metal
+    ansible_user: automation-user
+    ansible_ssh_private_key_file: /home/automation-user/.ssh/id_rsa
+    disk_src_var_lib: /dev/ubuntu-vg/disk0p7-logical-var-lib
+    disk_src_var_log: /dev/ubuntu-vg/disk0p5-logical-var-log
+    disk_src_var_log_audit: /dev/ubuntu-vg/disk0p6-logical-var-log-audit
+    disk_src_var: /dev/ubuntu-vg/disk0p4-logical-var
+    disk_src_var_tmp: /dev/ubuntu-vg/disk0p8-logical-var-tmp
+    disk_src_home: /dev/ubuntu-vg/disk0p9-logical-home
+  hosts:
+    bm01:
+      ansible_host: 10.5.254.1
