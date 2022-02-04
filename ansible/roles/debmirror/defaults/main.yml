@@ -101,11 +101,11 @@ mirror_repos:
       verbose: true
 
   - remote:
-      host: packages.microsoft.com
-      root: repos/azure-cli
-      gpg_key: https://packages.microsoft.com/keys/microsoft.asc
+      host: ppa.launchpadcontent.net
+      root: maas/3.1/ubuntu
+      gpg_key: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3ab6dcf1f234e78daa9c104204e7fdc5684d4a1c
     mirror:
-      name: microsoft-azure-cli
+      name: maas-3.1
       dists:
         - focal
       sections:

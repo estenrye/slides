@@ -67,7 +67,7 @@
     path: "{{ mirror_dir }}/www/{{ aptmirror.mirror.name }}/gpg"
   loop_control:
     loop_var: aptmirror
-  loop: "{{ deb_mirror_repos | default([]) }}"
+  loop: "{{ mirror_repos | default([]) }}"
   when:
     - aptmirror.remote.gpg_key is defined
   become: true
