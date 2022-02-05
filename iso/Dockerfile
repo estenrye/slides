@@ -17,6 +17,7 @@ RUN apt update \
     python3-apt \
     python3-pip \
     p7zip-full \
+    ssh \
     sudo \
     xorriso \
   && rm -rf /var/lib/apt/lists/* \
