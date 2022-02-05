@@ -21,7 +21,9 @@ autoinstall:
     variant: ''
   locale: {{ locale }}
   network:
-    {{ network | to_nice_yaml | indent(4) }}
+    {{ network | default({}) | to_nice_yaml | indent(4) }}
+  packages:
+    {{ packages | default([]) | to_nice_yaml | indent(4) }}
   late-commands:
     - echo '{{ user.username }} ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/{{ user.username }}
   ssh:

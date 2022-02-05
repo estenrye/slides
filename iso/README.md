@@ -44,14 +44,14 @@ for each bare metal machine in the inventory.
 The following code will execute the automation:
 
 ```bash
-INVENTORY_DIR=`readlink -f ~/src/slides/iso/ansible/inventories`
-OUTPUT_DIR=`readlink -f ~/src/slides/iso/.output/`
+LAB_AUTOMATION_DIR=`realpath ~/src/slides`
 
-mkdir -p ${OUTPUT_DIR}
+mkdir -p ${LAB_AUTOMATION_DIR}/iso/.output
 
-docker run --rm -it\
-  --mount type=bind,source=${OUTPUT_DIR},target=/output \
-  --mount type=bind,source=${INVENTORY_DIR},target=/inventories,readonly \
+docker run --rm -it \
+  --user 1000:$(id -u) \
+  --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
+  --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible/inventories,target=/inventories,readonly \
   estenrye/ubuntu-autoinstall-iso \
     -i /inventories/bare_metal.yml
 ```
@@ -59,14 +59,19 @@ docker run --rm -it\
 ## Local Testing of Ansible Playbook Changes
 
 ```bash
-mkdir -p ~/src/slides/iso/.output
+LAB_AUTOMATION_DIR=`realpath ~/src/slides`
+
+mkdir -p ${LAB_AUTOMATION_DIR}/iso/.output ${LAB_AUTOMATION_DIR}/iso/.cidata ${LAB_AUTOMATION_DIR}/iso/.ubuntu-iso
+
 docker run --rm -it \
-  -v ~/src/slides/iso/.output:/output \
-  -v ~/src/slides/iso/ansible:/ansible:ro \
+  --user 1000:$(id -u) \
+  --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
+  --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.cidata,target=/tmp/cidata \
+  --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.ubuntu-iso,target=/tmp/ubuntu-iso \
+  --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible/inventories,target=/inventories,readonly \
+  --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible,target=/ansible,readonly \
   estenrye/ubuntu-autoinstall-iso \
-  ansible-playbook \
-    -i /ansible/inventories/bare_metal.yml \
-    /ansible/playbooks/playbook.yml
+    -i /inventories/bare_metal.yml
 ```
 
 ## Continuous Integration
@@ -76,12 +81,12 @@ The Docker image is continuously integrated using [this Github Workflow](../.git
 ## Creating bootable USB media
 
 ```bash
-OUTPUT_DIR=`readlink -f ~/src/slides/iso/.output/`
+LAB_AUTOMATION_DIR=`realpath ~/src/slides`
 TARGET_DEVICE='/dev/sda'
 
 # Making an Ubuntu autoinstaller USB disk
-sudo dd if=${OUTPUT_DIR}/custom_ubuntu-20.04.3-live-server-amd64.iso of=${TARGET_DEVICE} bs=4M status=progress
+sudo dd if=${LAB_AUTOMATION_DIR}/iso/.output/custom_ubuntu-20.04.3-live-server-amd64.iso of=${TARGET_DEVICE} bs=4M status=progress
 
 # Making a cidata USB disk
-sudo dd if=${OUTPUT_DIR}/maas01/cidata.iso of=${TARGET_DEVICE} bs=4M status=progress
+sudo dd if=${LAB_AUTOMATION_DIR}/iso/.output/maas01/cidata.iso of=${TARGET_DEVICE} bs=4M status=progress
 ```
