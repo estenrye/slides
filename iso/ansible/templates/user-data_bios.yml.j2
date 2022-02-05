@@ -26,7 +26,6 @@ autoinstall:
     - echo '{{ user.username }} ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/{{ user.username }}
   ssh:
     allow-pw: true
-    # Provisioning SSH Key: https://protolabs.secretservercloud.com/app/#/secret/1609/general
 {% if authorized_keys is defined %}
     authorized-keys:
       {{ authorized_keys | to_nice_yaml | indent(6) }}
