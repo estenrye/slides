@@ -1,0 +1,41 @@
+network:
+  version: 2
+  renderer: networkd
+  bridges:
+    br0:
+      interfaces:
+        - vlan61
+      addresses:
+        - 10.5.254.1/16
+      gateway4: 10.5.0.1
+      nameservers:
+        search:
+          - ryezone.com
+        addresses:
+          - 1.1.1.1
+          - 1.0.0.1
+  vlans:
+    vlan61:
+      accept-ra: false
+      id: 61
+      link: bond0
+  bonds:
+    bond0:
+      dhcp4: false
+      interfaces:
+        - enp2s0_green
+        - enp3s0_red
+      parameters:
+        mode: active-backup
+        primary: enp2s0_green
+  ethernets:
+    enp2s0_green:
+      dhcp4: false
+      match:
+        macaddress: 00:25:90:6c:b9:9a
+      set-name: enp2s0_green
+    enp3s0_red:
+      dhcp4: false
+      match:
+        macaddress: 00:25:90:6c:b9:9b
+      set-name: enp3s0_red

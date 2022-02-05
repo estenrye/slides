@@ -30,8 +30,8 @@
 
     - name: Generate automation-user password
       ansible.builtin.set_fact:
-        password_plaintext: '{{ lookup("password", "/output/{{ inventory_hostname }}/password length=16 chars=ascii_letters,digits") | default(user.password_plaintext) }}'
-        password_salt: '{{ lookup("password", "/dev/null length=16 chars=ascii_letters,digits") | default(user.password_salt) }}'
+        password_plaintext: '{{ user.password_plaintext }}'
+        password_salt: '{{ user.password_salt }}'
 
     - name: Generate automation-user password ciphertext
       ansible.builtin.command:

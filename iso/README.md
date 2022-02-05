@@ -53,7 +53,7 @@ docker run --rm -it \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible/inventories,target=/inventories,readonly \
   estenrye/ubuntu-autoinstall-iso \
-    -i /inventories/bare_metal.yml
+    -i /inventories/inventory.yml
 ```
 
 ## Local Testing of Ansible Playbook Changes
@@ -71,7 +71,7 @@ docker run --rm -it \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible/inventories,target=/inventories,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible,target=/ansible,readonly \
   estenrye/ubuntu-autoinstall-iso \
-    -i /inventories/bare_metal.yml
+    -i /inventories/inventory.yml
 ```
 
 ## Continuous Integration

@@ -1,0 +1,56 @@
+user_data_template: /ansible/templates/user-data_bios.yml.j2
+# user_data_template: /ansible/templates/user-data_uefi.yml.j2
+apt_mirror: http://apt.ryezone.com/ubuntu
+user:
+  realname: Automation User
+  username: automation-user
+  password_plaintext: "{{ lookup('password', '/output/{{ inventory_hostname }}/password length=16 chars=ascii_letters,digits') }}"
+  password_salt: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
+authorized_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDN+pva6hiM1bTWkzG6QQL51v83hnyNqDGzG/G/zqFSxygJg/yvFHbRF0rs1h+kmh5LkBrulH3BEXOgvB9a8ASUPxZBsg2E0ql20f3ke3HR7PRZN/qyDFSRWVN42prkf7qsJlfWxVQgg03/LI+ngYJv2B78wyBsal4c7EmELtMCn+Rxl9bM9a/N+4STyZzcmsI9vAHiHmbTLjRlZ5WGT4utVRgmeiuMl86oYZG7UoBWndNrbz56P0R3VtIRZKEk0OsHyj810Yv82epJzabIimXB97XPkPxejEwbf1DwCgYIynfXMURo4OJUvOREqequTE1P2LLVJDJHKTSG66d5ZmKmJdLz6Fvo9cC0TMePfEiMUlXxbIvo6jdFsaFOkds2rfjUJ5EUCYwDezNVbybxV0KTSnylzAc02JoH5Mf6gO7VQLLoD3MnGkKxOdMUWjTtJb+H2RvtFSZOHGDBkoGAoRLAuuGiB/QxDLr5zmpHV1kBQ9N/cdCMA2K+uYodCUxHBZM= esten@jumpbox
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDLOOcdudgGgvUIsFxIDY6/uq9daQ7kmvSmRydv8KiqOXSUb5NH3YnnYpqcl7Le8T9U5++I71S5kRSxgsq+CY8ZmdrG522Rxy1/ixl0REKSKexZ7h/iue6ve0WxE9tS7Cj9ubug4/d1l6cFEdIp1KyzPdMRJtW9LB650t/mpe17LBic39XOcHfWdpYqCmW4Wrg9D1nO/mO+Gx1LLwfii770aZ6lHIxsaVj1FwmqKdlQswco10KPfB2WvzBxSaUhV4+xUV2uJ9aXshQPUx49flqiPgwQn7jiQxkOdkGb0X63WJjKCImGn9uJ5ms+3MVoLPeRYucKZvDxqJsYieV1Zy8uDODoqrJHPaXnixVVMZFNtKpvHDYgEoURqE2i+T/zclOdmLcSe5oYtD90/MGcKTuScZaqv5UOYfGK/y9Rqhleofznx6QqHPFVmN8HDgJje8EVwWfob3SbzfP3fYa60OJF0nfjxCBGCHZa8ZFZ47/qmpJsgWHgj6tlaYJw532lG4gCToy22PvTLmn7RQ8eB4IDmJWepezElkeH4KuQoM7o1UEPEdMkbeH1lzALj2sgGd3AnYhJxODLhlRULYdsA/dFp+bApB1YXf64fPg2ksPJdSQ7z/DIAHa1W0u6YhqVHRtaPq5s1zHzFKyDv3SClXGskExlFWz73P8l5nJkEqZfVw== esten@platform9.com
+iso_url: https://releases.ubuntu.com/20.04.3/ubuntu-20.04.3-live-server-amd64.iso
+iso_checksum: sha256:f8e3086f3cea0fb3fefb29937ab5ed9d19e767079633960ccb50e76153effc98
+iso_name: ubuntu-20.04.3-live-server-amd64.iso
+keyboard:
+  layout: us
+locale: en_US.utf8
+disks:
+  additional_disks: []
+  boot:
+    device_path: /dev/sda
+    additional_partitions:
+      - id: 3
+        name: root
+        mount_path: /
+        size: 40G
+      - id: 4
+        name: var
+        mount_path: /var
+        size: 2G
+      - id: 5
+        name: var-log
+        mount_path: /var/log
+        size: 20G
+      - id: 6
+        name: var-log-audit
+        mount_path: /var/log/audit
+        size: 4G
+      - id: 7
+        name: var-lib
+        mount_path: /var/lib
+        size: 20G
+      - id: 8
+        name: var-tmp
+        mount_path: /var/tmp
+        mount_options: nodev,nosuid,noexec
+        size: 2G
+      - id: 9
+        name: home
+        mount_path: /home
+        mount_options: nodev
+        size: 2G
+      - id: 10
+        name: var-lib-longhorn
+        mount_path: /var/lib/longhorn
+        size: -1

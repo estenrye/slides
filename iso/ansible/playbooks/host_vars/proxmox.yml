@@ -1,0 +1,15 @@
+user:
+  realname: Packer User
+  username: packer
+  password_plaintext: packer
+  password_salt: packer_salt
+packages:
+  - qemu-guest-agent
+  - auditd
+  - cloud-init
+network:
+  ethernets:
+    ens18:
+      dhcp4: true
+      dhcp-identifier: mac
+  version: 2

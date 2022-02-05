@@ -1,0 +1,8 @@
+user:
+  realname: Packer User
+  username: packer
+  password_plaintext: packer
+  password_salt: packer_salt
+packages:
+  - auditd
+  - cloud-init

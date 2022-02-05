@@ -1,0 +1,10 @@
+all:
+  children:
+    packer:
+      hosts:
+        proxmox:
+        virtualbox:
+        vmware:
+    bare_metal:
+      hosts:
+        maas01:
