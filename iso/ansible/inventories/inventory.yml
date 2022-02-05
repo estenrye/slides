@@ -1,10 +1,30 @@
+packer_ubuntu_proxmox:
+  hosts:
+    packer_ubuntu_2004_proxmox:
+
+packer_ubuntu_virtualbox:
+  hosts:
+    packer_ubuntu_2004_virtualbox:
+
+packer_ubuntu_vmware:
+  hosts:
+    packer_ubuntu_2004_vmware:
+
+packer_ubuntu:
+  children:
+    packer_ubuntu_proxmox:
+    packer_ubuntu_virtualbox:
+    packer_ubuntu_vmware:
+
+bare_metal_ubuntu:
+  hosts:
+    maas01:
+
+ubuntu:
+  children:
+    packer_ubuntu:
+    bare_metal_ubuntu:
+
 all:
   children:
-    packer:
-      hosts:
-        proxmox:
-        virtualbox:
-        vmware:
-    bare_metal:
-      hosts:
-        maas01:
+    ubuntu:

@@ -1,0 +1,4 @@
+apt_mirror: http://apt.ryezone.com/ubuntu
+
+user_data_template: /ansible/templates/user-data_bios.yml.j2
+# user_data_template: /ansible/templates/user-data_uefi.yml.j2
