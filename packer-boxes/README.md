@@ -12,6 +12,28 @@ cd slides
 2. Run packer.
 
 ```bash
+# Customize the Ubuntu installer iso and generate cidata files.
+ANSIBLE_SECRETS_DIR=`realpath ~/.ansible/secrets`
+LAB_AUTOMATION_DIR=`realpath ~/src/slides`
+SSH_KEY_PATH=`realpath ~/.ssh/home_id_rsa`
+
+mkdir -p ${LAB_AUTOMATION_DIR}/iso/.output ${LAB_AUTOMATION_DIR}/iso/.cidata
+
+docker run --rm -it \
+  # -e ANSIBLE_CONFIG=/ansible/ansible.cfg \
+  --user 1000:$(id -u) \
+  --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa,readonly \
+  --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
+  --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
+  # --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.cidata,target=/tmp/cidata \
+  # --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible/inventories,target=/inventories,readonly \
+  # --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible,target=/ansible,readonly \
+  estenrye/ubuntu-autoinstall-iso \
+    -e @/secrets/creds.yml \
+    --vault-password-file /secrets/secret.key \
+    -i /inventories/inventory.yml  --skip-tags iso,cidata,packer
+
+
 # Customize the ubuntu installer iso.
 docker run --rm -it \
   --mount type=bind,source=`readlink -f ~/src/slides/packer-boxes/ubuntu/20.04`,target=/ansible \
