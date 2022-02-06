@@ -9,6 +9,11 @@
       when:
         - packer_arch == 'aarch64'
 
+    - ansible.builtin.set_fact:
+        packer_arch: amd64
+      when:
+        - packer_arch == 'x86_64'
+
     - ansible.builtin.apt:
         update_cache: true
         upgrade: true
