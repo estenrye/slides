@@ -10,6 +10,11 @@ packer_ubuntu_vmware:
   hosts:
     packer_ubuntu_2004_vmware:
 
+proxmox_hosts:
+  hosts:
+    proxmox01.ryezone.com:
+    proxmox02.ryezone.com:
+
 packer_ubuntu:
   children:
     packer_ubuntu_proxmox:
@@ -24,6 +29,10 @@ ubuntu:
   children:
     packer_ubuntu:
     bare_metal_ubuntu:
+
+packer_proxmox:
+  children:
+    packer_ubuntu_proxmox:
 
 all:
   children:

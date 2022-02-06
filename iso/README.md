@@ -41,36 +41,59 @@ an output directory, generates a unique password for the automation-user, genera
 a `meta-data` and `user-data` file, packages an iso and creates an iso checksum
 for each bare metal machine in the inventory.
 
+You will need to create an Ansible vault with the following variables:
+
+```yaml
+proxmox_host: proxmox01.ryezone.com
+proxmox_user: root@pam
+proxmox_pass: your-password-here
+```
+
+For instructions on how to create an Ansible Vault file, read this [tutorial](../docs/ansible/creating-an-ansible-vault-file.md).
+
 The following code will execute the automation:
 
 ```bash
+ANSIBLE_SECRETS_DIR=`realpath ~/.ansible/secrets`
 LAB_AUTOMATION_DIR=`realpath ~/src/slides`
+SSH_DIR=`realpath ~/.ssh`
 
 mkdir -p ${LAB_AUTOMATION_DIR}/iso/.output
 
 docker run --rm -it \
+  -e ANSIBLE_CONFIG=/ansible/ansible.cfg \
   --user 1000:$(id -u) \
+  --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible/inventories,target=/inventories,readonly \
   estenrye/ubuntu-autoinstall-iso \
+    -e @/secrets/creds.yml \
+    --vault-password-file /secrets/secret.key \
     -i /inventories/inventory.yml
 ```
 
 ## Local Testing of Ansible Playbook Changes
 
 ```bash
+ANSIBLE_SECRETS_DIR=`realpath ~/.ansible/secrets`
 LAB_AUTOMATION_DIR=`realpath ~/src/slides`
+SSH_DIR=`realpath ~/.ssh`
 
 mkdir -p ${LAB_AUTOMATION_DIR}/iso/.output ${LAB_AUTOMATION_DIR}/iso/.cidata ${LAB_AUTOMATION_DIR}/iso/.ubuntu-iso
 
 docker run --rm -it \
+  -e ANSIBLE_CONFIG=/ansible/ansible.cfg \
   --user 1000:$(id -u) \
+  --mount type=bind,source=${SSH_DIR},target=/home/automation-user/.ssh \
+  --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.cidata,target=/tmp/cidata \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.ubuntu-iso,target=/tmp/ubuntu-iso \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible/inventories,target=/inventories,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible,target=/ansible,readonly \
   estenrye/ubuntu-autoinstall-iso \
+    -e @/secrets/creds.yml \
+    --vault-password-file /secrets/secret.key \
     -i /inventories/inventory.yml
 ```
 

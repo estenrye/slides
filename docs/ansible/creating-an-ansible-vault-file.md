@@ -10,8 +10,8 @@ ansible-vault create --vault-id creds@prompt ~/.ansible/secrets/creds.yml
 ## with password file
 
 ```bash
-mkdir -p ~/.ansible/secrets
-cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 128 | head -n 1 > ~/.ansible/secrets/secret.key
+mkdir -p ~/.ansible ~/.ansible/secrets
+echo $RANDOM | sha256sum | base64 > ~/.ansible/secrets/secret.key
 ansible-vault create --vault-password-file=~/.ansible/secrets/secret.key ~/.ansible/secrets/creds.yml
 ```
 

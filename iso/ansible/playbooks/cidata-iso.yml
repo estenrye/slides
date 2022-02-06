@@ -78,8 +78,12 @@
       register: checksum
       become: true
 
+    - name: Set cidata iso checksum fact
+      ansible.builtin.set_fact:
+        cidata_iso_checksum: "{{ checksum.stat.checksum }}"
+
     - name: Write iso checksum
       ansible.builtin.copy:
-        content: "{{ checksum.stat.checksum }}"
+        content: "{{ cidata_iso_checksum }}"
         dest: /output/{{ inventory_hostname }}/cidata.sha1
       become: true

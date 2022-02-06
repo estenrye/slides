@@ -1,0 +1,9 @@
+- hosts: packer_proxmox
+  connection: local
+  tasks:
+    - name: generate packer template
+      ansible.builtin.template:
+        src: "{{ packer_hcl_template_path }}"
+        dest: /output/{{ inventory_hostname }}/template.pkr.hcl
+      when:
+        - packer_hcl_template_path is defined

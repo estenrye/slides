@@ -7,3 +7,13 @@
   ansible.builtin.import_playbook: /ansible/playbooks/cidata-iso.yml
   tags:
     - cidata
+
+- name: Build Packer HCL Files
+  ansible.builtin.import_playbook: /ansible/playbooks/packer-hcl.yml
+  tags:
+    - packer
+
+- name: Upload Proxmox ISO files
+  ansible.builtin.import_playbook: /ansible/playbooks/upload-proxmox-iso.yml
+  tags:
+    - proxmox_upload

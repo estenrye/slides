@@ -1,0 +1,29 @@
+- hosts: proxmox_hosts
+  tasks:
+    - name: Set File Paths for ISOs
+      ansible.builtin.set_fact:
+          custom_ubuntu_iso_paths: "{{ custom_ubuntu_iso_paths | default({}) | combine ({ item : ''.join(['/output/custom_', hostvars[item]['iso_name']]) }) }}"
+          custom_ubuntu_iso_checksum_paths: "{{ custom_ubuntu_iso_checksum_paths | default({}) | combine ({ item : ''.join(['/output/custom_', hostvars[item]['iso_name'], '.sha1']) }) }}"
+          cidata_iso_paths: "{{ cidata_iso_paths | default({}) | combine ({ item : ''.join(['/output/', item, '/cidata.iso']) }) }}"
+          cidata_iso_checksum_paths: "{{ cidata_iso_checksum_paths | default({}) | combine ({ item : ''.join(['/output/', item, '/cidata.sha1']) }) }}"
+      loop: "{{ groups['packer_proxmox'] }}"
+
+    - name: Read Checksums for ISOs
+      ansible.builtin.set_fact:
+        custom_ubuntu_iso_checksums: "{{ custom_ubuntu_iso_checksums | default({}) | combine ({ item : lookup('file', custom_ubuntu_iso_checksum_paths[item]) }) }}"
+        cidata_iso_checksums: "{{ cidata_iso_checksums | default({}) | combine ({ item : lookup('file', cidata_iso_checksum_paths[item]) }) }}"
+      loop: "{{ groups['packer_proxmox'] }}"
+
+    - name: Copy installer ISO files to Proxmox Hosts
+      ansible.builtin.copy:
+        src: "{{ custom_ubuntu_iso_paths[item] }}"
+        dest: /var/lib/vz/template/iso/{{ custom_ubuntu_iso_paths[item] | basename }}
+        checksum: "{{ custom_ubuntu_iso_checksums[item] }}"
+      loop: "{{ groups['packer_proxmox'] }}"
+
+    - name: Copy cidata ISO files to Proxmox Hosts
+      ansible.builtin.copy:
+        src: "{{ cidata_iso_paths[item] }}"
+        dest: /var/lib/vz/template/iso/{{ cidata_iso_paths[item] | basename }}
+        checksum: "{{ cidata_iso_checksums[item] }}"
+      loop: "{{ groups['packer_proxmox'] }}"

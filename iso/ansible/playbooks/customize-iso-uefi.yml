@@ -121,7 +121,11 @@
         get_checksum: true
       register: checksum
 
+    - name: Set Checksum Fact
+      ansible.builtin.set_fact:
+        custom_iso_checksum: "{{ checksum.stat.checksum }}"
+
     - name: Write iso checksum
       ansible.builtin.copy:
-        content: "{{ checksum.stat.checksum }}"
+        content: "{{ custom_iso_checksum }}"
         dest: /output/custom_{{ iso_name }}.sha1

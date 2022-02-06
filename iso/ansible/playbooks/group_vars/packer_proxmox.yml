@@ -1,0 +1,8 @@
+proxmox_cluster_api: https://{{ proxmox_host | mandatory }}:{{ proxmox_port | default(8006) | int }}/api2/json
+proxmox_cluster_username: "{{ proxmox_user | mandatory }}"
+proxmox_cluster_password: "{{ proxmox_pass | mandatory }}"
+proxmox_insecure_skip_tls_verify: false
+proxmox_cluster_node: proxmox02
+proxmox_network_bridge: vmbr0
+
+packer_hcl_template_path: /ansible/templates/packer/proxmox.pkr.hcl.j2
