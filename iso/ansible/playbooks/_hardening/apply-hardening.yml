@@ -32,6 +32,7 @@
             mode: 0600
       when:
         - packer_builder_type == "virtualbox-iso"
+
     - name: vmware | Configure VMWare Prerequisites
       block:
         - name: vmware | Install Guest Customization Prerequisites
@@ -60,6 +61,11 @@
 - hosts: default
   become: true
   vars:
+    ubuntu_2004_cis_require_ssh_allowusers: automation-user
+    ubuntu_2004_cis_require_ssh_allowgroups: automation-user
+    ubuntu_2004_cis_require_ssh_denyusers: bogus
+    ubuntu_2004_cis_require_ssh_denygroups: bogus
+    ubuntu_2004_cis_section1_rule_1_1_1_6: false
     ubuntu_2004_cis_auditd_maxlogfile: 500
     ubuntu_2004_cis_auditd_maxlogfileaction: rotate
     ubuntu_2004_cis_time_synchronization: chrony
