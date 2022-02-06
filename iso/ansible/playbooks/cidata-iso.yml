@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: ubuntu
   connection: local
   tasks:
     - name: Install Prerequisites
@@ -86,4 +86,10 @@
       ansible.builtin.copy:
         content: "{{ cidata_iso_checksum }}"
         dest: /output/{{ inventory_hostname }}/cidata.sha1
+      become: true
+
+    - name: Write iso checksum
+      ansible.builtin.copy:
+        content: "{{ inventory_date }}"
+        dest: /output/{{ inventory_hostname }}/inventory_date
       become: true

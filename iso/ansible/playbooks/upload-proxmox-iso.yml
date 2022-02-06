@@ -1,5 +1,10 @@
 - hosts: proxmox_hosts
   tasks:
+    - name: Set inventory_date
+      ansible.builtin.set_fact:
+        inventory_dates: "{{ inventory_dates | default({}) | combine ({ item : lookup( 'file', '/'.join(['/output', item, 'inventory_date']) ) }) }}"
+      loop: "{{ groups['packer_proxmox'] }}"
+
     - name: Set File Paths for ISOs
       ansible.builtin.set_fact:
           custom_ubuntu_iso_paths: "{{ custom_ubuntu_iso_paths | default({}) | combine ({ item : ''.join(['/output/custom_', hostvars[item]['iso_name']]) }) }}"
@@ -21,9 +26,13 @@
         checksum: "{{ custom_ubuntu_iso_checksums[item] }}"
       loop: "{{ groups['packer_proxmox'] }}"
 
+    - name: debug inventory_dates
+      ansible.builtin.debug:
+        var: inventory_dates
+
     - name: Copy cidata ISO files to Proxmox Hosts
       ansible.builtin.copy:
         src: "{{ cidata_iso_paths[item] }}"
-        dest: /var/lib/vz/template/iso/{{ cidata_iso_paths[item] | basename }}
+        dest: /var/lib/vz/template/iso/{{ item }}_{{ inventory_dates[item] }}_{{ cidata_iso_paths[item] | basename }}
         checksum: "{{ cidata_iso_checksums[item] }}"
       loop: "{{ groups['packer_proxmox'] }}"

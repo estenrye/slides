@@ -1,6 +1,12 @@
 - hosts: packer_proxmox
   connection: local
   tasks:
+    - name: Set inventory_date
+      ansible.builtin.set_fact:
+        inventory_date: "{{ lookup( 'file', '/'.join(['/output', inventory_hostname, 'inventory_date' ]) ) }}"
+        custom_iso_checksum: "{{ lookup( 'file', ''.join(['/output/custom_', iso_name, '.sha1' ]) ) }}"
+        cidata_iso_checksum: "{{ lookup( 'file', '/'.join(['/output', inventory_hostname, 'cidata.sha1' ]) ) }}"
+
     - name: generate packer template
       ansible.builtin.template:
         src: "{{ packer_hcl_template_path }}"

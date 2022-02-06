@@ -30,7 +30,7 @@ variable "iso_url" {
 
 variable "cidata_iso_url" {
   type = string
-  default = "local:iso/cidata-{{ inventory_hostname }}_{{ inventory_date }}.iso"
+  default = "local:iso/{{ inventory_hostname }}_{{ inventory_date }}_cidata.iso"
 }
 
 variable "cidata_iso_checksum" {
