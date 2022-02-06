@@ -20,9 +20,9 @@ on:
     paths:
       - iso/Dockerfile
       - iso/requirements.txt
+      - iso/requirements.yml
       - iso/etc/**
-      - iso/ansible/tasks/**
-      - iso/ansible/templates/**
+      - iso/ansible/**
       - .github/workflows/CI-estenrye-ubuntu-autoinstall-iso.yml
 
   # Allows you to run this workflow manually from the Actions tab
