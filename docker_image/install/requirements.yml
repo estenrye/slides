@@ -6,7 +6,7 @@ collections:
   - name: community.kubernetes
     version: 2.0.1
   - name: community.crypto
-    version: 1.9.5
+    version: 2.2.1
   - name: nginxinc.nginx_core
     version: 0.4.0
 
