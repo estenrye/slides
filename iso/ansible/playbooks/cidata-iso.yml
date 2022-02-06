@@ -31,7 +31,7 @@
     - name: Generate automation-user password
       ansible.builtin.set_fact:
         password_plaintext: '{{ user.password_plaintext }}'
-        password_salt: '{{ user.password_salt }}'
+        password_salt: '{{ user.username }}'
 
     - name: Generate automation-user password ciphertext
       ansible.builtin.command:

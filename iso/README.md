@@ -62,6 +62,7 @@ mkdir -p ${LAB_AUTOMATION_DIR}/iso/.output
 
 docker run --rm -it \
   -e ANSIBLE_CONFIG=/ansible/ansible.cfg \
+  -e PACKER_LOG=1 \
   --user 1000:$(id -u) \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \

@@ -1,0 +1,4 @@
+roles:
+  - name: darkwizard242.cis_ubuntu_2004
+    version: 3.0.0
+collections: []
