@@ -1,6 +1,7 @@
 - hosts: cluster
   roles:
     - iscsi_client
+    - pf9ctl
 
 - hosts: deployer
   connection: local

@@ -1,0 +1,42 @@
+- name: Create pf9ctl CLI directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ pf9_directory }}"
+
+- name: Download pf9ctl CLI Setup Script
+  ansible.builtin.get_url:
+    url: https://pmkft-assets.s3-us-west-1.amazonaws.com/pf9ctl_setup
+    dest: "{{ pf9_directory }}/pf9ctl_setup"
+
+- name: Install pf9ctl CLI
+  ansible.builtin.command:
+    cmd: bash {{ pf9_directory }}/pf9ctl_setup
+    creates: "{{ pf9_directory }}/bin/pf9ctl"
+
+- name: debug pf9_directory
+  ansible.builtin.debug:
+    var: pf9_directory
+
+- name: Write pf9ctl configuration to host.
+  ansible.builtin.copy:
+    content: "{{ pf9_config | to_nice_json }}"
+    dest: "{{ pf9_directory }}/db/config.json"
+
+- name: Prepare Node
+  block:
+    - name: Check Node for requirements.
+      ansible.builtin.command:
+        cmd: "{{ pf9_directory }}/bin/pf9ctl check-node --no-prompt"
+
+    - name: Prepare Node
+      ansible.builtin.command:
+        cmd: "{{ pf9_directory }}/bin/pf9ctl prep-node --no-prompt --skip-checks"
+
+  rescue:
+    - name: Skip Prepare
+      ansible.builtin.debug:
+        msg: check failed.  Review logs.
+    - name: Pause for 10 seconds.  Abort to review.
+      ansible.builtin.pause:
+        seconds: 10
+  when: pf9_prep_node

@@ -1,0 +1,43 @@
+pf9_tenant: service
+pf9_region: RegionOne
+pf9_wait_period: 0
+pf9_allow_insecure: false
+pf9_proxy_url: ""
+pf9_mfa_token: ""
+pf9_iam_username: ""
+pf9_aws_access_key: ""
+pf9_aws_secret_key: ""
+pf9_aws_region: ""
+pf9_azure_tenant: ""
+pf9_azure_application: ""
+pf9_azure_subscription: ""
+pf9_azure_secret: ""
+pf9_google_path: ""
+pf9_google_project_name: ""
+pf9_google_service_email: ""
+
+pf9_directory: "{{ ansible_env.HOME }}/pf9"
+
+pf9_prep_node: false
+
+pf9_config:
+  fqdn: "{{ pf9_fqdn | mandatory }}"
+  username: "{{ pf9_username | mandatory }}"
+  password: "{{ pf9_password | mandatory }}"
+  tenant: "{{ pf9_tenant }}"
+  region: "{{ pf9_region }}"
+  wait_period: "{{ pf9_wait_period | int }}"
+  allow_insecure: "{{ pf9_allow_insecure | bool }}"
+  proxy_url: "{{ pf9_proxy_url }}"
+  mfa_token: "{{ pf9_mfa_token }}"
+  aws_iam_username: "{{ pf9_iam_username }}"
+  aws_access_key: "{{ pf9_aws_access_key }}"
+  aws_secret_key: "{{ pf9_aws_secret_key }}"
+  aws_region: "{{ pf9_aws_region }}"
+  azure_tenant: "{{ pf9_azure_tenant }}"
+  azure_application: "{{ pf9_azure_application }}"
+  azure_subscription: "{{ pf9_azure_subscription }}"
+  azure_secret: "{{ pf9_azure_secret }}"
+  google_path: "{{ pf9_google_path }}"
+  google_project_name: "{{ pf9_google_project_name }}"
+  google_service_email: "{{ pf9_google_service_email }}"

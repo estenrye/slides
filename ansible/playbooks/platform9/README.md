@@ -25,6 +25,9 @@ You will need to create an Ansible vault with the following variables:
 cloudflare_api_token: your-token-here
 pihole_admin_password: your-password-here
 truenas_api_key: your-trunas-scale-api-key-here
+pf9_fqdn: https://pmkft-id-id.platform9.io
+pf9_username: youremail@example.com
+pf9_password: your-pf9-password
 ```
 
 For instructions on how to create an Ansible Vault file, read this [tutorial](../../../docs/ansible/creating-an-ansible-vault-file.md).
