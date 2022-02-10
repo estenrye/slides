@@ -1,0 +1,21 @@
+prereq_helm_charts:
+  - name: ingress-nginx-controller
+    namespace: ingress-nginx
+    chart_ref: ingress-nginx/ingress-nginx
+    version: 4.0.17
+    values_files:
+      - helm_values/ingress-nginx.yaml
+  - name: cert-manager
+    namespace: cert-manager
+    chart_ref: cert-manager/cert-manager
+    version: 1.7.1
+    values_files:
+      - helm_values/cert-manager.yaml
+
+helm_charts:
+  - name: pihole
+    namespace: pihole
+    chart_ref: mojo2600/pihole
+    version: 2.5.5
+    values_files:
+      - helm_values/pihole.yaml

@@ -1,0 +1,6 @@
+var_files:
+  - vars/helm_charts.yml
+  - vars/helm_repositories.yml
+  - vars/manifests.yml
+  - vars/namespaces.yml
+  - vars/secrets.yml

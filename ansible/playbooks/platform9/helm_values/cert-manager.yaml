@@ -1,0 +1,16 @@
+global:
+  # Set the verbosity of cert-manager. Range of 0 - 6 with 6 being the most verbose.
+  logLevel: 2
+
+installCRDs: true
+
+# Optional DNS settings, useful if you have a public and private DNS zone for
+# the same domain on Route 53. What follows is an example of ensuring
+# cert-manager can access an ingress or DNS TXT records at all times.
+# NOTE: This requires Kubernetes 1.10 or `CustomPodDNS` feature gate enabled for
+# the cluster to work.
+# podDnsPolicy: "None"
+# podDnsConfig:
+#   nameservers:
+#     - "1.1.1.1"
+#     - "8.8.8.8"

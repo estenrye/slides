@@ -1,0 +1,18 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - ansible.builtin.file:
+        state: directory
+        mode: 0700
+        path: /home/automation-user/.kube
+
+    - ansible.builtin.file:
+        state: touch
+        mode: 0600
+        path: /home/automation-user/.kube/config
+
+    - kubernetes.core.helm_plugin:
+        plugin_path: "{{ item }}"
+        state: present
+      loop:
+        - https://github.com/databus23/helm-diff

@@ -1,0 +1,34 @@
+controller:
+  hostNetwork: false
+  ingressClassResource:
+    name: nginx
+    enabled: true
+    default: true
+    controllerValue: "k8s.io/ingress-nginx"
+    parameters: {}
+  ingressClass: nginx
+  publishService:
+    enabled: true
+  kind: Deployment
+
+  service:
+    enabled: true
+    annotations: {}
+    loadBalancerIP: "10.5.253.1"
+    enableHttp: true
+    enableHttps: true
+    externalTrafficPolicy: Local
+    ipFamilyPolicy: "SingleStack"
+    ipFamilies:
+      - IPv4
+    ports:
+      http: 80
+      https: 443
+    targetPorts:
+      http: http
+      https: https
+    type: LoadBalancer
+    external:
+      enabled: true
+    internal:
+      enabled: false

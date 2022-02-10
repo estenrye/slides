@@ -1,0 +1,7 @@
+helm_repos:
+  - name: mojo2600
+    url: https://mojo2600.github.io/pihole-kubernetes/
+  - name: ingress-nginx
+    url: https://kubernetes.github.io/ingress-nginx
+  - name: cert-manager
+    url: https://charts.jetstack.io

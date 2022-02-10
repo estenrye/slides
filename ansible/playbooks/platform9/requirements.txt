@@ -1,0 +1,2 @@
+ansible ==5.3.0
+kubernetes ==21.7.0

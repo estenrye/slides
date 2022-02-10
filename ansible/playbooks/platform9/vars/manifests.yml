@@ -1,0 +1,4 @@
+prereq_manifest_files:
+  - manifests/cloudflare-cluster-issuer.yaml
+
+manifest_files: []

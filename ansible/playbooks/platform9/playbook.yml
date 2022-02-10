@@ -1,0 +1,81 @@
+- hosts: deployer
+  connection: local
+  tasks:
+    - name: Include Vars
+      ansible.builtin.include_vars:
+        file: "{{ var_file }}"
+      loop_control:
+        loop_var: var_file
+      loop: "{{ var_files }}"
+
+    - name: Create a k8s namespace
+      kubernetes.core.k8s:
+        name: "{{ namespace }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+        context: "{{ inventory_hostname }}"
+      loop_control:
+        loop_var: namespace
+      loop: "{{ namespaces }}"
+
+    - name: Create k8s secrets
+      kubernetes.core.k8s:
+        name: "{{ secret.name }}"
+        namespace: "{{ secret.namespace }}"
+        api_version: v1
+        kind: Secret
+        state: present
+        resource_definition: "{{ secret.definition }}"
+      loop_control:
+        loop_var: secret
+      loop: "{{ secrets }}"
+
+    - name: Add stable chart repo
+      kubernetes.core.helm_repository:
+        name: "{{ repo.name }}"
+        repo_url: "{{ repo.url }}"
+      changed_when: false
+      loop_control:
+        loop_var: repo
+      loop: "{{ helm_repos }}"
+
+    - name: Install prerequisite charts
+      kubernetes.core.helm:
+        name: "{{ chart.name }}"
+        chart_ref: "{{ chart.chart_ref }}"
+        release_namespace: "{{ chart.namespace }}"
+        values_files: "{{ chart.values_files }}"
+        context: "{{ inventory_hostname }}"
+      loop_control:
+        loop_var: chart
+      loop: "{{ prereq_helm_charts }}"
+
+    - name: Install prerequisite manifests
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_file }}"
+        context: "{{ inventory_hostname }}"
+      loop_control:
+        loop_var: manifest_file
+      loop: "{{ prereq_manifest_files }}"
+
+    - name: Install charts
+      kubernetes.core.helm:
+        name: "{{ chart.name }}"
+        chart_ref: "{{ chart.chart_ref }}"
+        release_namespace: "{{ chart.namespace }}"
+        values_files: "{{ chart.values_files }}"
+        context: "{{ inventory_hostname }}"
+      loop_control:
+        loop_var: chart
+      loop: "{{ helm_charts }}"
+
+    - name: Install manifests
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_file }}"
+        context: "{{ inventory_hostname }}"
+      loop_control:
+        loop_var: manifest_file
+      loop: "{{ manifest_files }}"

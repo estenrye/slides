@@ -1,0 +1,4 @@
+namespaces:
+  - cert-manager
+  - ingress-nginx
+  - pihole

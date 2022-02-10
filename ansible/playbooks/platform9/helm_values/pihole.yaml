@@ -1,0 +1,267 @@
+---
+image:
+  repository: "pihole/pihole"
+  tag: ""
+  pullPolicy: IfNotPresent
+
+dualStack:
+  enabled: false
+
+dnsHostPort:
+  enabled: false
+  port: 53
+
+serviceDns:
+  mixedService: false
+  type: LoadBalancer
+  port: 53
+  externalTrafficPolicy: Local
+  loadBalancerIP: 10.5.253.53
+  loadBalancerIPv6: ""
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+
+# -- Configuration for the DHCP service on port 67
+serviceDhcp:
+  enabled: true
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  loadBalancerIP: 10.5.253.53
+  loadBalancerIPv6: ""
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+
+# -- Configuration for the web interface service
+serviceWeb:
+  http:
+    enabled: true
+    port: 80
+  https:
+    enabled: true
+    port: 443
+  type: ClusterIP
+
+virtualhost: pihole.ryezone.com
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: cloudflare-cluster-issuer
+  path: /
+  hosts:
+    - dns.ryezone.com
+    - pihole.ryezone.com
+  tls:
+   - secretName: pihole-tls-secret
+     hosts:
+       - pihole.ryezone.com
+       - dns.ryezone.com
+
+admin:
+  existingSecret: "admin-pass"
+  passwordKey: "password"
+
+DNS1: 1.1.1.1
+DNS2: 1.0.0.1
+
+podAnnotations:
+  prometheus.io/port: '9617'
+  prometheus.io/scrape: 'true'
+
+monitoring:
+  podMonitor:
+    enabled: false
+  sidecar:
+    enabled: true
+    port: 9617
+    image:
+      repository: ekofr/pihole-exporter
+      tag: 0.0.10
+      pullPolicy: IfNotPresent
+    resources:
+      limits:
+        memory: 128Mi
+
+podDnsConfig:
+  enabled: true
+  policy: "None"
+  nameservers:
+    - 127.0.0.1
+    - 1.1.1.1
+
+dnsmasq:
+  # -- Add upstream dns servers. All lines will be added to the pihole dnsmasq configuration
+  upstreamServers: []
+  # - server=/foo.bar/192.168.178.10
+  # - server=/bar.foo/192.168.178.11
+
+  # -- Add custom dns entries to override the dns resolution. All lines will be added to the pihole dnsmasq configuration.
+  customDnsEntries:
+    # 10.5.0.0/24
+    - address=/jumpbox.ryezone.com/10.5.0.100
+    
+    # 10.5.1.0/24
+    - address=/nas.ryezone.com/10.5.1.65
+    
+    # 10.5.2.0/24
+    - address=/apt.ryezone.com/10.5.2.1
+    
+    # 10.5.9.0/24
+    - address=/uc.network.ryezone.com/10.5.9.1
+    
+    # 10.5.10.0/24
+    - address=/proxmox01.ryezone.com/10.5.10.1
+    - address=/proxmox02.ryezone.com/10.5.10.2
+    
+    # 10.5.15.0/24
+    - address=/*.common.ryezone.com/10.5.15.1
+    - address=/kube-api.common.ryezone.com/10.5.15.1
+    - address=/haproxy01.common.ryezone.com/10.5.15.10
+    - address=/haproxy02.common.ryezone.com/10.5.15.11
+    - address=/controlplane01.common.ryezone.com/10.5.15.20
+    - address=/controlplane02.common.ryezone.com/10.5.15.21
+    - address=/controlplane03.common.ryezone.com/10.5.15.22
+    - address=/node01.common.ryezone.com/10.5.15.30
+    - address=/node02.common.ryezone.com/10.5.15.31
+    - address=/node03.common.ryezone.com/10.5.15.32
+
+    # 10.5.200.0/24
+    - address=/pf9-esten-node01.ryezone.com/10.5.200.1
+    - address=/pf9-esten-node02.ryezone.com/10.5.200.2
+    - address=/pf9-ryezone-labs-node01.ryezone.com/10.5.200.3
+    - address=/pf9-ryezone-labs-node02.ryezone.com/10.5.200.4
+    - address=/pf9-ryezone-labs-prod-node01.ryezone.com/10.5.200.5
+    - address=/pf9-ryezone-labs-prod-node02.ryezone.com/10.5.200.6
+    - address=/pf9-ryezone-labs-prod-node03.ryezone.com/10.5.200.7
+    - address=/pf9-ryezone-labs-prod-node04.ryezone.com/10.5.200.8
+    - address=/pf9-ryezone-labs-prod-node05.ryezone.com/10.5.200.9
+    - address=/pf9-ryezone-labs-prod-node06.ryezone.com/10.5.200.10
+
+    # 10.5.253.0/24
+    - address=/pf9.prod.ryezone.com/10.5.253.0
+    - address=/dns.ryezone.com/10.5.253.1
+    - address=/pihole.ryezone.com/10.5.253.1
+    - address=/a.dns.ryezone.com/10.5.253.53
+
+  # -- Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like
+  additionalHostsEntries: []
+  # - 192.168.0.3     host4
+  # - 192.168.0.4     host5
+
+  # -- Static DHCP config
+  staticDhcpEntries: []
+  # staticDhcpEntries:
+  # - dhcp-host=MAC_ADDRESS,IP_ADDRESS,HOSTNAME
+
+  # -- Other options
+  customSettings:
+  # otherSettings:
+  # - rebind-domain-ok=/plex.direct/
+
+  # -- Here we specify custom cname entries that should point to `A` records or
+  # elements in customDnsEntries array.
+  # The format should be:
+  #  - cname=cname.foo.bar,foo.bar
+  #  - cname=cname.bar.foo,bar.foo
+  #  - cname=cname record,dns record
+  customCnameEntries: []
+  # Here we specify custom cname entries that should point to `A` records or
+  # elements in customDnsEntries array.
+  # The format should be:
+  #   - cname=cname.foo.bar,foo.bar
+  #   - cname=cname.bar.foo,bar.foo
+  #   - cname=cname record,dns record
+
+# -- list of whitelisted domains to import during initial start of the container
+whitelist:
+  - logfiles.zoom.us
+
+# -- list of blacklisted domains to import during initial start of the container
+blacklist: {}
+  # If you want to have special domains blacklisted, add them here
+  # - *.blackist.com
+
+# -- list of blacklisted regex expressions to import during initial start of the container
+regex: {}
+  # Add regular expression blacklist items
+  # - (^|\.)facebook\.com$
+
+# -- values that should be added to pihole-FTL.conf
+ftl: {}
+  # Add values for pihole-FTL.conf
+  # MAXDBDAYS: 14
+
+adlists:
+  # firebog.net, suspicious, tick
+  - https://raw.githubusercontent.com/PolishFiltersTeam/KADhosts/master/KADhosts_without_controversies.txt
+  - https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Spam/hosts
+  - https://v.firebog.net/hosts/static/w3kbl.txt
+  # firebog.net, suspicious, std
+  - https://www.dshield.org/feeds/suspiciousdomains_Low.txt
+  - https://www.dshield.org/feeds/suspiciousdomains_Medium.txt
+  - https://www.dshield.org/feeds/suspiciousdomains_High.txt
+  - https://raw.githubusercontent.com/matomo-org/referrer-spam-blacklist/master/spammers.txt
+  - https://someonewhocares.org/hosts/zero/hosts
+  - https://raw.githubusercontent.com/vokins/yhosts/master/hosts
+  - https://winhelp2002.mvps.org/hosts.txt
+  - https://hosts.nfz.moe/basic/hosts
+  - https://raw.githubusercontent.com/RooneyMcNibNug/pihole-stuff/master/SNAFU.txt
+  - https://ssl.bblck.me/blacklists/hosts-file.txt
+  # firebog.net, suspicious, cross
+  # - https://hostsfile.mine.nu/hosts0.txt
+  # - https://v.firebog.net/hosts/BillStearns.txt
+  # - https://v.firebog.net/hosts/Kowabit.txt
+  # - https://adblock.mahakala.is
+  # firebog.net, advertising, tick
+  - https://adaway.org/hosts.txt
+  - https://v.firebog.net/hosts/AdguardDNS.txt
+  - https://v.firebog.net/hosts/Admiral.txt
+  - https://raw.githubusercontent.com/anudeepND/blacklist/master/adservers.txt
+  - https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt
+  - https://v.firebog.net/hosts/Easylist.txt
+  - https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext
+  - https://raw.githubusercontent.com/FadeMind/hosts.extras/master/UncheckyAds/hosts
+  - https://raw.githubusercontent.com/bigdargon/hostsVN/master/hosts
+  # firebog.net, advertising, std
+  - https://raw.githubusercontent.com/jdlingyu/ad-wars/master/hosts
+  # firebog.net, advertising, cross
+  # firebog.net, tracking, tick
+  - https://v.firebog.net/hosts/Prigent-Ads.txt
+  - https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-blocklist.txt
+  - https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.2o7Net/hosts
+  - https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt
+  - https://hostfiles.frogeye.fr/firstparty-trackers-hosts.txt
+  # firebog.net, tracking, std
+  - https://hostfiles.frogeye.fr/multiparty-trackers-hosts.txt
+  - https://www.github.developerdan.com/hosts/lists/ads-and-tracking-extended.txt
+  - https://raw.githubusercontent.com/Perflyst/PiHoleBlocklist/master/android-tracking.txt
+  - https://raw.githubusercontent.com/Perflyst/PiHoleBlocklist/master/SmartTV.txt
+  - https://raw.githubusercontent.com/Perflyst/PiHoleBlocklist/master/AmazonFireTV.txt
+  # firebog.net, tracking, cross
+  # - https://v.firebog.net/hosts/Airelle-trc.txt
+  # firebog.net, malicious, tick
+  - https://raw.githubusercontent.com/DandelionSprout/adfilt/master/Alternate%20versions%20Anti-Malware%20List/AntiMalwareHosts.txt
+  - https://osint.digitalside.it/Threat-Intel/lists/latestdomains.txt
+  - https://s3.amazonaws.com/lists.disconnect.me/simple_malvertising.txt
+  - https://mirror1.malwaredomains.com/files/justdomains
+  - https://v.firebog.net/hosts/Prigent-Crypto.txt
+  - https://v.firebog.net/hosts/Prigent-Malware.txt
+  - https://mirror.cedia.org.ec/malwaredomains/immortal_domains.txt
+  - https://www.malwaredomainlist.com/hostslist/hosts.txt
+  - https://bitbucket.org/ethanr/dns-blacklists/raw/8575c9f96e5b4a1308f2f12394abd86d0927a4a0/bad_lists/Mandiant_APT1_Report_Appendix_D.txt
+  - https://phishing.army/download/phishing_army_blocklist_extended.txt
+  - https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-malware.txt
+  - https://v.firebog.net/hosts/Shalla-mal.txt
+  - https://raw.githubusercontent.com/Spam404/lists/master/main-blacklist.txt
+  - https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Risk/hosts
+  - https://urlhaus.abuse.ch/downloads/hostfile/
+  # firebog.net, malicious, std
+  - https://raw.githubusercontent.com/HorusTeknoloji/TR-PhishingList/master/url-lists.txt
+  # firebog.net, malicious, cross
+  # - https://v.firebog.net/hosts/Airelle-hrsk.txt
+  # firebog.net, other, tick
+  - https://zerodot1.gitlab.io/CoinBlockerLists/hosts_browser
+  # firebog.net, other, std
+  # - https://raw.githubusercontent.com/chadmayfield/my-pihole-blocklists/master/lists/pi_blocklist_porn_all.list
+  # - https://raw.githubusercontent.com/chadmayfield/my-pihole-blocklists/master/lists/pi_blocklist_porn_top1m.list
+  # - https://raw.githubusercontent.com/anudeepND/blacklist/master/facebook.txt

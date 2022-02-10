@@ -1,0 +1,78 @@
+- hosts: localhost
+  connection: local
+  vars:
+    helm_version: v3.8.0
+    image_arch: "{{ ansible_architecture | lower }}"
+  tasks:
+    - ansible.builtin.set_fact:
+        image_arch: arm64
+      when:
+        - image_arch == 'aarch64'
+
+    - ansible.builtin.set_fact:
+        image_arch: amd64
+      when:
+        - image_arch == 'x86_64'
+
+    - ansible.builtin.apt:
+        update_cache: true
+        upgrade: true
+
+    - ansible.builtin.apt:
+        update_cache: false
+        install_recommends: false
+        name:
+          - curl
+          - git
+          - ssh
+          - sudo
+
+    - ansible.builtin.get_url:
+        url: https://get.helm.sh/helm-{{ helm_version }}-linux-{{ image_arch }}.tar.gz
+        dest: /tmp/helm.tar.gz
+
+    - ansible.builtin.unarchive:
+        src: /tmp/helm.tar.gz
+        dest: /usr/local/bin
+
+    - ansible.builtin.file:
+        path: /usr/local/bin/helm
+        src: /usr/local/bin/linux-{{ image_arch }}/helm
+        state: link
+
+    - ansible.builtin.debug:
+        var: ansible_architecture
+
+    - ansible.builtin.command:
+        cmd: apt clean
+
+    - ansible.builtin.group:
+        name: automation-user
+        gid: 1000
+
+    - ansible.builtin.user:
+        name: automation-user
+        uid: 1000
+        shell: /bin/bash
+        groups:
+          - sudo
+
+    - ansible.builtin.file:
+        path: /ansible
+        state: directory
+        recurse: true
+        owner: automation-user
+        group: automation-user
+
+    - ansible.builtin.file:
+        state: absent
+        path: /var/lib/apt/lists
+
+    - ansible.builtin.file:
+        state: absent
+        path: /tmp
+
+    - ansible.builtin.file:
+        state: directory
+        path: /tmp
+        mode: 0777

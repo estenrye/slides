@@ -1,0 +1,5 @@
+roles: []
+collections:
+  - name: kubernetes.core
+    version: 2.2.3
+
