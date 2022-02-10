@@ -1,5 +1,6 @@
 driver:
   config:
+    logLevel: debug
     driver: freenas-api-iscsi
     instance_id:
     httpConnection:
@@ -10,56 +11,36 @@ driver:
       username: root
       allowInsecure: false
       apiVersion: 2
+
     zfs:
-      # total volume name (zvol/<datasetParentName>/<pvc name>) length cannot exceed 63 chars
-      # https://www.ixsystems.com/documentation/freenas/11.2-U5/storage.html#zfs-zvol-config-opts-tab
-      # standard volume naming overhead is 46 chars
-      # datasetParentName should therefore be 17 chars or less
       datasetParentName: "{{ truenas_dataset_root }}/v"
-      # do NOT make datasetParentName and detachedSnapshotsDatasetParentName overlap
-      # they may be siblings, but neither should be nested in the other
       detachedSnapshotsDatasetParentName: "{{ truenas_dataset_root }}/s"
-      # "" (inherit), lz4, gzip-9, etc
       zvolCompression:
-      # "" (inherit), on, off, verify
       zvolDedup:
       zvolEnableReservation: false
-      # 512, 1K, 2K, 4K, 8K, 16K, 64K, 128K default is 16K
       zvolBlocksize:
+
     iscsi:
       targetPortal: "{{ truenas_backend }}:3260"
       targetPortals: []
-      # leave empty to omit usage of -I with iscsiadm
       interface:
-
-      # MUST ensure uniqueness
-      # full iqn limit is 223 bytes, plan accordingly
-      namePrefix: "{{ truenas_iscsi_name_prefix }}"
-      nameSuffix: "{{ truenas_iscsi_name_suffix }}"
-      # add as many as needed
+      namePrefix: "csi-"
+      nameSuffix: "-cluster"
       targetGroups:
-        # get the correct ID from the "portal" section in the UI
         - targetGroupPortalGroup: 1
-          # get the correct ID from the "initiators" section in the UI
           targetGroupInitiatorGroup: 1
-          # None, CHAP, or CHAP Mutual
           targetGroupAuthType: None
-          # get the correct ID from the "Authorized Access" section of the UI
-          # only required if using Chap
           targetGroupAuthGroup:
       extentInsecureTpc: true
       extentXenCompat: false
       extentDisablePhysicalBlocksize: true
-      # 512, 1024, 2048, or 4096,
       extentBlocksize: 512
-      # "" (let FreeNAS decide, currently defaults to SSD), Unknown, SSD, 5400, 7200, 10000, 15000
       extentRpm: "SSD"
-      # 0-100 (0 == ignore)
       extentAvailThreshold: 0
-# https://kubernetes-csi.github.io/docs/csi-driver-object.html
+
 csiDriver:
   name: "org.democratic-csi.iscsi"
-# add note here about volume expansion requirements
+
 storageClasses:
 - name: truenas-iscsi-csi
   defaultClass: true
@@ -90,11 +71,4 @@ storageClasses:
     node-publish-secret:
     controller-expand-secret:
 
-# if your cluster supports snapshots you may enable below
 volumeSnapshotClasses: []
-#- name: freenas-iscsi-csi
-#  parameters:
-#  # if true, snapshots will be created with zfs send/receive
-#  # detachedSnapshots: "false"
-#  secrets:
-#    snapshotter-secret:
