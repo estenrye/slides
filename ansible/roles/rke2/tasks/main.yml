@@ -1,52 +1,14 @@
 ---
 - name: Install nfs client tools.
-  ansible.builtin.package:
-    name: nfs-common
+  ansible.builtin.include_role:
+    role: nfs_client
   when: rke2_enable_nfs_csi
-  become: true
   tags:
     - rke2
 
-- name: Install isci client tools.
-  ansible.builtin.package:
-    name:
-      - open-iscsi
-      - lsscsi
-      - sg3-utils
-      - multipath-tools
-      - scsitools
-  become: true
-  when: rke2_enable_iscsi_csi
-  tags:
-    - rke2
-
-- name: Configure multipath.
-  ansible.builtin.template:
-    src: multipath.conf.j2
-    dest: /etc/multipath.conf
-    mode: 0640
-  become: true
-  when: rke2_enable_iscsi_csi
-  notify: restart multipath-tools
-  tags:
-    - rke2
-
-- name: Enable and Start multipath.service
-  ansible.builtin.service:
-    name: multipath-tools
-    state: started
-    enabled: true
-  become: true
-  when: rke2_enable_iscsi_csi
-  tags:
-    - rke2
-
-- name: Enable and Start open-iscsi.service
-  ansible.builtin.service:
-    name: open-iscsi
-    state: started
-    enabled: true
-  become: true
+- name: Install iscsi client tools.
+  ansible.builtin.include_role:
+    role: iscsi_client
   when: rke2_enable_iscsi_csi
   tags:
     - rke2

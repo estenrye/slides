@@ -1,0 +1,4 @@
+- name: Install nfs client tools.
+  ansible.builtin.package:
+    name: nfs-common
+  become: true

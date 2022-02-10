@@ -1,0 +1,31 @@
+- name: Install iscsi client tools.
+  ansible.builtin.package:
+    name:
+      - open-iscsi
+      - lsscsi
+      - sg3-utils
+      - multipath-tools
+      - scsitools
+  become: true
+
+- name: Configure multipath.
+  ansible.builtin.template:
+    src: multipath.conf.j2
+    dest: /etc/multipath.conf
+    mode: 0640
+  become: true
+  notify: restart multipath-tools
+
+- name: Enable and Start multipath.service
+  ansible.builtin.service:
+    name: multipath-tools
+    state: started
+    enabled: true
+  become: true
+
+- name: Enable and Start open-iscsi.service
+  ansible.builtin.service:
+    name: open-iscsi
+    state: started
+    enabled: true
+  become: true
