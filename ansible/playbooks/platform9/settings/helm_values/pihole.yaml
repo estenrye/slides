@@ -99,20 +99,20 @@ dnsmasq:
   customDnsEntries:
     # 10.5.0.0/24
     - address=/jumpbox.ryezone.com/10.5.0.100
-    
+
     # 10.5.1.0/24
     - address=/nas.ryezone.com/10.5.1.65
-    
+
     # 10.5.2.0/24
     - address=/apt.ryezone.com/10.5.2.1
-    
+
     # 10.5.9.0/24
     - address=/uc.network.ryezone.com/10.5.9.1
-    
+
     # 10.5.10.0/24
     - address=/proxmox01.ryezone.com/10.5.10.1
     - address=/proxmox02.ryezone.com/10.5.10.2
-    
+
     # 10.5.15.0/24
     - address=/*.common.ryezone.com/10.5.15.1
     - address=/kube-api.common.ryezone.com/10.5.15.1
@@ -136,6 +136,7 @@ dnsmasq:
     - address=/pf9-ryezone-labs-prod-node04.ryezone.com/10.5.200.8
     - address=/pf9-ryezone-labs-prod-node05.ryezone.com/10.5.200.9
     - address=/pf9-ryezone-labs-prod-node06.ryezone.com/10.5.200.10
+    - address=/bitwarden.ryezone.com/10.5.200.11
 
     # 10.5.253.0/24
     - address=/pf9.prod.ryezone.com/10.5.253.0
