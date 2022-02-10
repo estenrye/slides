@@ -39,6 +39,7 @@ docker run --rm -it \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
   --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/ansible/playbooks/platform9,target=/ansible,readonly \
+  --mount type=bind,source=${LAB_AUTOMATION_DIR}/ansible/roles,target=/etc/ansible/roles,readonly \
   --mount type=bind,source=`realpath ~/.kube`,target=/home/automation-user/.kube,readonly \
   -e KUBECONFIG=/home/automation-user/.kube/home/ryezone-labs-prod.yaml \
   estenrye/platform9-ansible
