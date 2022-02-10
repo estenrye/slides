@@ -5,3 +5,5 @@ helm_repos:
     url: https://kubernetes.github.io/ingress-nginx
   - name: cert-manager
     url: https://charts.jetstack.io
+  - name: democratic-csi
+    url: https://democratic-csi.github.io/charts/

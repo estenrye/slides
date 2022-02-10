@@ -11,6 +11,13 @@ prereq_helm_charts:
     version: 1.7.1
     values_files:
       - helm_values/cert-manager.yaml
+  - name: democratic-csi
+    namespace: democratic-csi
+    chart_ref: democratic-csi/democratic-csi
+    version: 0.1.0
+    values_files:
+      - /tmp/helm_values_democratic-csi.yaml
+
 
 helm_charts:
   - name: pihole

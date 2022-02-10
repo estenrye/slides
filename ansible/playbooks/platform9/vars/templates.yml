@@ -1,0 +1,3 @@
+templates:
+  - src: helm_values/democratic-csi.yaml.j2
+    dest: /tmp/helm_values_democratic-csi.yaml

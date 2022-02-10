@@ -4,3 +4,4 @@ var_files:
   - vars/manifests.yml
   - vars/namespaces.yml
   - vars/secrets.yml
+  - vars/templates.yml

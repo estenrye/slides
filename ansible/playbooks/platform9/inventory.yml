@@ -1,6 +1,11 @@
 deployer:
   hosts:
     default:
+      truenas_backend: https://nas.ryezone.com
+      truenas_trust_cert: true
+      truenas_dataset_root: main/k8s
+      truenas_iscsi_name_prefix: pf9-
+      truenas_iscsi_name_suffix: -rzl-prod
 
 controlplane:
   hosts:

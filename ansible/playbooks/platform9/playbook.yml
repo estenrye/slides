@@ -12,6 +12,15 @@
         loop_var: var_file
       loop: "{{ var_files }}"
 
+    - name: Write Templates
+      ansible.builtin.template:
+        src: "{{ template.src }}"
+        dest: "{{ template.dest }}"
+      loop_control:
+        loop_var: template
+      loop: "{{ templates }}"
+      changed_when: false
+
     - name: Create a k8s namespace
       kubernetes.core.k8s:
         name: "{{ namespace }}"
