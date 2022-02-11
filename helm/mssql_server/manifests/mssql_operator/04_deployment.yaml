@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql-operator
+  namespace: ag1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mssql-operator
+      ag: ag1
+  template:
+    metadata:
+      labels:
+        app: mssql-operator
+        ag: ag1
+    spec:
+      containers:
+      - command: [/mssql-server-k8s-operator]
+        env:
+        - name: MSSQL_K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: mcr.microsoft.com/mssql/ha:2019-latest
+        name: mssql-operator
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+          requests:
+            cpu: 1000m
+            memory: 2Gi
+      serviceAccount: mssql-operator
