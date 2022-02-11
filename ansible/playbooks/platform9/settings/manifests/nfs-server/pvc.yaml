@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-vol
+  namespace: csi-driver-nfs
+  labels:
+    app-stack: csi-driver-nfs
+    component: nfs-server
+spec:
+  storageClassName: truenas-iscsi-csi-retain
+  resources:
+    requests:
+      storage: 20Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce

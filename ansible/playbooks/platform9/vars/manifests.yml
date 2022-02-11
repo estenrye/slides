@@ -1,4 +1,13 @@
 prereq_manifest_files:
-  - settings/manifests/cloudflare-cluster-issuer.yaml
+  - cloudflare-cluster-issuer.yaml
 
-manifest_files: []
+manifest_files:
+  - nfs-server/pvc.yaml
+  - nfs-server/deployment.yaml
+  - nfs-server/service.yaml
+  - nfs-server/storageclass.yaml
+  - mssql-server/secrets.yaml
+  - mssql-server/pvc.yaml
+  - mssql-server/deployment.yaml
+  - mssql-server/service.yaml
+
