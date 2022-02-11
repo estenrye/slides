@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mssql-data
-  namespace: mssql-sql-ha
+  namespace: mssql
 spec:
   storageClassName: truenas-iscsi-csi
   resources:
