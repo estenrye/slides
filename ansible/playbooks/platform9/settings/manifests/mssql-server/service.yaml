@@ -32,3 +32,20 @@ spec:
       targetPort: 1433
   type: LoadBalancer
   loadBalancerIP: 10.5.253.3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql-monitor
+  namespace: mssql
+spec:
+  selector:
+    app-stack: mssql-server
+    component: sql-server
+    component-instance: monitor
+  ports:
+    - protocol: TCP
+      port: 1433
+      targetPort: 1433
+  type: LoadBalancer
+  loadBalancerIP: 10.5.253.4

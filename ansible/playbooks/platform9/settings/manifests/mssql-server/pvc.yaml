@@ -37,6 +37,24 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  name: mssql-data-monitor
+  namespace: mssql
+  labels:
+    app-stack: mssql-server
+    component: sql-server
+    component-instance: monitor
+spec:
+  storageClassName: truenas-iscsi-csi
+  resources:
+    requests:
+      storage: 8Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
   name: mssql-log-shipping
   namespace: mssql
   labels:
