@@ -1,5 +1,19 @@
 namespaces:
-  - cert-manager
-  - democratic-csi
-  - ingress-nginx
-  - pihole
+  - name: cert-manager
+    labels:
+      app-stack: cert-manager
+  - name: csi-driver-nfs
+    labels:
+      app-stack: csi-driver-nfs
+  - name: democratic-csi
+    labels:
+      app-stack: csi-driver-truenas
+  - name: ingress-nginx
+    labels:
+      app-stack: ingress-nginx
+  - name: pihole
+    labels:
+      app-stack: pihole
+  - name: mssql
+    labels:
+      app-stack: mssql-server

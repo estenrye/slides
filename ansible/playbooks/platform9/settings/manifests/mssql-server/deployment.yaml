@@ -1,0 +1,188 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql-primary
+  namespace: mssql
+  labels:
+    app-stack: mssql-server
+    component: sql-server
+    component-instance: primary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app-stack: mssql-server
+      component: sql-server
+      component-instance: primary
+  template:
+    metadata:
+      labels:
+        app-stack: mssql-server
+        component: sql-server
+        component-instance: primary
+    spec:
+      terminationGracePeriodSeconds: 30
+      hostname: mssql-primary
+      securityContext:
+        fsGroup: 10001
+      containers:
+      - name: mssql
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports:
+        - name: mssql
+          protocol: TCP
+          containerPort: 1433
+        env:
+        - name: MSSQL_PID
+          value: "Express"
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: MSSQL_AGENT_ENABLED
+          value: "true"
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mssql-secrets
+              key: sa-password
+        volumeMounts:
+        - name: mssqldb
+          mountPath: /var/opt/mssql
+        - name: mssql-log-shipping
+          mountPath: /var/opt/mssql-log-shipping
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+      volumes:
+      - name: mssqldb
+        persistentVolumeClaim:
+          claimName: mssql-data-primary
+      - name: mssql-log-shipping
+        persistentVolumeClaim:
+          claimName: mssql-log-shipping
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql-secondary
+  namespace: mssql
+  labels:
+    app-stack: mssql-server
+    component: sql-server
+    component-instance: secondary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app-stack: mssql-server
+      component: sql-server
+      component-instance: secondary
+  template:
+    metadata:
+      labels:
+        app-stack: mssql-server
+        component: sql-server
+        component-instance: secondary
+    spec:
+      terminationGracePeriodSeconds: 30
+      hostname: mssql-secondary
+      securityContext:
+        fsGroup: 10001
+      containers:
+      - name: mssql
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports:
+        - name: mssql
+          protocol: TCP
+          containerPort: 1433
+        env:
+        - name: MSSQL_PID
+          value: "Express"
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: MSSQL_AGENT_ENABLED
+          value: "true"
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mssql-secrets
+              key: sa-password
+        volumeMounts:
+        - name: mssqldb
+          mountPath: /var/opt/mssql
+        - name: mssql-log-shipping
+          mountPath: /var/opt/mssql-log-shipping
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+      volumes:
+      - name: mssqldb
+        persistentVolumeClaim:
+          claimName: mssql-data-secondary
+      - name: mssql-log-shipping
+        persistentVolumeClaim:
+          claimName: mssql-log-shipping
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql-monitor
+  namespace: mssql
+  labels:
+    app-stack: mssql-server
+    component: sql-server
+    component-instance: monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app-stack: mssql-server
+      component: sql-server
+      component-instance: monitor
+  template:
+    metadata:
+      labels:
+        app-stack: mssql-server
+        component: sql-server
+        component-instance: monitor
+    spec:
+      terminationGracePeriodSeconds: 30
+      hostname: mssql-monitor
+      securityContext:
+        fsGroup: 10001
+      containers:
+      - name: mssql
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports:
+        - name: mssql
+          protocol: TCP
+          containerPort: 1433
+        env:
+        - name: MSSQL_PID
+          value: "Express"
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: MSSQL_AGENT_ENABLED
+          value: "true"
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mssql-secrets
+              key: sa-password
+        volumeMounts:
+        - name: mssqldb
+          mountPath: /var/opt/mssql
+        - name: mssql-log-shipping
+          mountPath: /var/opt/mssql-log-shipping
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+      volumes:
+      - name: mssqldb
+        persistentVolumeClaim:
+          claimName: mssql-data-monitor
+      - name: mssql-log-shipping
+        persistentVolumeClaim:
+          claimName: mssql-log-shipping

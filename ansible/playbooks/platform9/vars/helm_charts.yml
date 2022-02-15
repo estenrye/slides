@@ -17,6 +17,11 @@ prereq_helm_charts:
     version: 0.1.0
     values_files:
       - /tmp/helm_values_democratic-csi.yaml
+  - name: csi-driver-nfs
+    namespace: csi-driver-nfs
+    chart_ref: csi-driver-nfs/csi-driver-nfs
+    version: v3.1.0
+    values_files: []
 
 
 helm_charts:
@@ -26,3 +31,15 @@ helm_charts:
     version: 2.5.5
     values_files:
       - settings/helm_values/pihole.yaml
+  - name: primary
+    namespace: mssql
+    chart_ref: /helm/mssql-server
+    version: 0.1.0
+    values_files:
+      /tmp/helm_values_primary-sql-server.yaml
+  - name: secondary
+    namespace: mssql
+    chart_ref: /helm/mssql-server
+    version: 0.1.0
+    values_files:
+      /tmp/helm_values_secondary-sql-server.yaml

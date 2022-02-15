@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  # Daily at 7:00 PM
+  schedule: "0 19 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: sqlcmd
+            image: mcr.microsoft.com/mssql-tools
+            imagePullPolicy: IfNotPresent
+            command:
+            - sqlcmd
+            - -S mssql-primary.mssql.svc.cluster.local
+            - -U
+            - sa
+            - -P
+            - $SA_PASSWORD
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure

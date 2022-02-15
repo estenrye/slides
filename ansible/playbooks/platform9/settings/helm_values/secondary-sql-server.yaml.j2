@@ -1,0 +1,14 @@
+sa_password: "{{ bitwarden_sa_password }}"
+service:
+  loadBalancerIP: 10.5.253.3
+pvc:
+  storageClass: truenas-iscsi-csi
+  userdbSize: 10Gi
+  userlogSize: 5Gi
+  tempSize: 2Gi
+  mssqldbSize: 2Gi
+
+logShipping:
+  enabled: true
+  createPVC: false
+  storageClass: nfs-csi-retain

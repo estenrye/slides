@@ -24,11 +24,14 @@
 
     - name: Create a k8s namespace
       kubernetes.core.k8s:
-        name: "{{ namespace }}"
+        name: "{{ namespace.name }}"
         api_version: v1
         kind: Namespace
         state: present
         context: "{{ inventory_hostname }}"
+        definition:
+          metadata:
+            labels: "{{ namespace.labels }}"
       loop_control:
         loop_var: namespace
       loop: "{{ namespaces }}"
@@ -68,7 +71,7 @@
     - name: Install prerequisite manifests
       kubernetes.core.k8s:
         state: present
-        src: "{{ manifest_file }}"
+        src: settings/manifests/{{ manifest_file }}
         context: "{{ inventory_hostname }}"
       loop_control:
         loop_var: manifest_file
@@ -88,7 +91,7 @@
     - name: Install manifests
       kubernetes.core.k8s:
         state: present
-        src: "{{ manifest_file }}"
+        src: settings/manifests/{{ manifest_file }}
         context: "{{ inventory_hostname }}"
       loop_control:
         loop_var: manifest_file
