@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: clone-olla-hallengren-sp
+  namespace: mssql
+spec:
+  template:
+    spec:
+      containers:
+      - name: sqlcmd
+        image: perl
+        command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+      restartPolicy: Never
+  backoffLimit: 4
+
