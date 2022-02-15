@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: clone-olla-hallengren-sp
+  name: install-olla-hallengren
   namespace: mssql
 spec:
   template:
@@ -9,12 +9,12 @@ spec:
       containers:
       - name: sqlcmd
         image: estenrye/mssql-tools
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         env:
           - name: SQL_SERVER_HOSTNAME
             value: primary-mssql-server.mssql.svc.cluster.local
           - name: SQL_SCRIPT_PATH
-            value: /sql/select-version.sql
+            value: /sql/MaintenanceSolution.sql
           - name: SQL_SERVER_LOGIN
             value: sa
           - name: SQL_SERVER_PASSWORD
