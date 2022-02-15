@@ -16,7 +16,7 @@ MSSQL_PID:
     value: "Express"
 MSSQL_AGENT_ENABLED:
     value: "true"
-sa_password: "Toughpass1!"
+sa_password: ""
 
 podAnnotations: {}
 
@@ -26,7 +26,7 @@ podSecurityContext:
 service:
   type: LoadBalancer
   port: 1433
-  loadBalancerIP: 10.5.253.45
+  loadBalancerIP: ""
 
 pvc:
   storageClass: truenas-iscsi-csi
@@ -38,6 +38,6 @@ pvc:
 logShipping:
   enabled: true
   createPVC: true
-  claimName: test-log-shipping
+  claimName: ""
   storageClass: nfs-csi-retain
   size: 5Gi

@@ -34,50 +34,50 @@ spec:
               containerPort: 1433
               protocol: TCP
           env:
-           - name: MSSQL_PID
-             value: "{{ .Values.MSSQL_PID.value}}"
-           - name: ACCEPT_EULA
-             value: "{{ .Values.ACCEPT_EULA.value | upper}}"
-           - name: MSSQL_AGENT_ENABLED
-             value: "{{ .Values.MSSQL_AGENT_ENABLED.value}}"
-           - name: SA_PASSWORD
-             valueFrom:
-              secretKeyRef:
-               name: {{ include "mssql-server.fullname" . }}-mssql-secret
-               key: {{  template "mssql.sapassword" . }}
+            - name: MSSQL_PID
+              value: "{{ .Values.MSSQL_PID.value}}"
+            - name: ACCEPT_EULA
+              value: "{{ .Values.ACCEPT_EULA.value | upper}}"
+            - name: MSSQL_AGENT_ENABLED
+              value: "{{ .Values.MSSQL_AGENT_ENABLED.value}}"
+            - name: SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mssql-server.secretName" . }}
+                  key: sa_password
           volumeMounts:
-           - name: mssqldb
-             mountPath: /var/opt/mssql
-           - name: mssqluserdb
-             mountPath: /var/opt/mssql/userdata
-           - name: mssqllog
-             mountPath: /var/opt/mssql/userlog
-           - name: mssqltemp
-             mountPath: /var/opt/mssql/tempdb
-           - name: mssql-config-volume
-             mountPath: /var/opt/config
-          {{- if .Values.logShipping.enabled }}
-           - name: log-shipping-volume
-             mountPath: /var/opt/mssql/logship
-          {{- end }}
+            - name: mssqldb
+              mountPath: /var/opt/mssql
+            - name: mssqluserdb
+              mountPath: /var/opt/mssql/userdata
+            - name: mssqllog
+              mountPath: /var/opt/mssql/userlog
+            - name: mssqltemp
+              mountPath: /var/opt/mssql/tempdb
+            - name: mssql-config-volume
+              mountPath: /var/opt/config
+            {{- if .Values.logShipping.enabled }}
+            - name: log-shipping-volume
+              mountPath: /var/opt/mssql/logship
+            {{- end }}
       volumes:
-       - name: mssqldb
-         persistentVolumeClaim:
-          claimName: {{ include "mssql-server.fullname" . }}-data
-       - name: mssqluserdb
-         persistentVolumeClaim:
-          claimName: {{ include "mssql-server.fullname" . }}-userdb
-       - name: mssqllog
-         persistentVolumeClaim:
-          claimName: {{ include "mssql-server.fullname" . }}-log
-       - name: mssqltemp
-         persistentVolumeClaim:
-          claimName: {{ include "mssql-server.fullname" . }}-temp
-       - name: mssql-config-volume
-         configMap:
-          name: {{ include "mssql-server.fullname" . }}-config
-      {{- if .Values.logShipping.enabled }}
-       - name: log-shipping-volume
-         persistentVolumeClaim:
-          claimName: {{ .Values.logShipping.claimName | default "mssql-log-shipping" }}
-      {{- end }}
+        - name: mssqldb
+          persistentVolumeClaim:
+            claimName: {{ include "mssql-server.mssqlsqldataPVCName" . }}
+        - name: mssqluserdb
+          persistentVolumeClaim:
+            claimName: {{ include "mssql-server.mssqluserdbPVCName" . }}
+        - name: mssqllog
+          persistentVolumeClaim:
+            claimName: {{ include "mssql-server.mssqllogPVCName" . }}
+        - name: mssqltemp
+          persistentVolumeClaim:
+            claimName: {{ include "mssql-server.mssqltempPVCName" . }}
+        {{- if .Values.logShipping.enabled }}
+        - name: log-shipping-volume
+          persistentVolumeClaim:
+            claimName: {{ include "mssql-server.logShippingClaimName" . }}
+        {{- end }}
+        - name: mssql-config-volume
+          configMap:
+            name: {{ include "mssql-server.configMapName" . }}

@@ -61,10 +61,59 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
+{{- define "mssql-server.logShippingClaimName" -}}
+{{- .Values.logShipping.claimName | default (printf "%s-%s" (.Release.Namespace | trunc 63 | trimSuffix "-") "logship" ) }}
+{{- end }}
 
 {{/*
-Create the name for the SA password secret key.
+Create the configmap name
 */}}
-{{- define "mssql.sapassword" -}}
-  sa_password
-{{- end -}}
+{{- define "mssql-server.configMapName" -}}
+{{- include "mssql-server.fullname" . }}-config
+{{- end }}
+
+{{/*
+Create the mssqllog pvc name
+*/}}
+{{- define "mssql-server.mssqllogPVCName" -}}
+{{- include "mssql-server.fullname" . }}-log
+{{- end }}
+
+{{/*
+Create the mssqldb pvc name
+*/}}
+{{- define "mssql-server.mssqlsqldataPVCName" -}}
+{{- include "mssql-server.fullname" . }}-mssqldata
+{{- end }}
+
+{{/*
+Create the mssqluserdb pvc name
+*/}}
+{{- define "mssql-server.mssqluserdbPVCName" -}}
+{{- include "mssql-server.fullname" . }}-userdb
+{{- end }}
+
+{{/*
+Create the mssqltmp pvc name
+*/}}
+{{- define "mssql-server.mssqltempPVCName" -}}
+{{- include "mssql-server.fullname" . }}-temp
+{{- end }}
+
+{{/*
+Create the secret name
+*/}}
+{{- define "mssql-server.secretName" -}}
+{{- include "mssql-server.fullname" . }}
+{{- end }}
+
+{{/*
+Get sa password value
+*/}}
+{{- define "mssql-server.sapassword" -}}
+{{- if .Release.IsInstall -}}
+{{ .Values.sa_password | default (randAlphaNum 20) | b64enc | quote }}
+{{- else -}}
+{{ index (lookup "v1" "Secret" .Release.Namespace (include "mssql-server.secretName" .)).data "sa_password" }}
+{{- end }}
+{{- end }}

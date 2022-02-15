@@ -2,7 +2,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ include "mssql-server.fullname" . }}-data
+  name: {{ include "mssql-server.mssqlsqldataPVCName" . }}
   labels:
     {{- include "mssql-server.labels" . | nindent 4 }}
 spec:
@@ -16,7 +16,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ include "mssql-server.fullname" . }}-userdb
+  name: {{ include "mssql-server.mssqluserdbPVCName" . }}
   labels:
     {{- include "mssql-server.labels" . | nindent 4 }}
 spec:
@@ -30,7 +30,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ include "mssql-server.fullname" . }}-log
+  name: {{ include "mssql-server.mssqllogPVCName" . }}
   labels:
     {{- include "mssql-server.labels" . | nindent 4 }}
 spec:
@@ -44,7 +44,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ include "mssql-server.fullname" . }}-temp
+  name: {{ include "mssql-server.mssqltempPVCName" . }}
   labels:
     {{- include "mssql-server.labels" . | nindent 4 }}
 spec:
@@ -59,7 +59,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ .Values.logShipping.claimName | default "mssql-log-shipping" }}
+  name: {{ include "mssql-server.logShippingClaimName" . }}
 spec:
   storageClassName: {{ .Values.logShipping.storageClass}}
   accessModes:
