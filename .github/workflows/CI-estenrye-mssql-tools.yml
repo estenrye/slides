@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI | Docker | estenrye/ubuntu-autoinstall-iso
+name: CI | Docker | estenrye/mssql-tools
 
 
 # Controls when the workflow will run
