@@ -31,3 +31,15 @@ helm_charts:
     version: 2.5.5
     values_files:
       - settings/helm_values/pihole.yaml
+  - name: primary
+    namespace: mssql
+    chart_ref: /helm/mssql-server
+    version: 0.1.0
+    values_files:
+      /tmp/helm_values_primary-sql-server.yaml
+  - name: secondary
+    namespace: mssql
+    chart_ref: /helm/mssql-server
+    version: 0.1.0
+    values_files:
+      /tmp/helm_values_secondary-sql-server.yaml
