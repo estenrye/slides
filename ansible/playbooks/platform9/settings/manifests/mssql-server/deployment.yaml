@@ -34,7 +34,7 @@ spec:
           containerPort: 1433
         env:
         - name: MSSQL_PID
-          value: "Developer"
+          value: "Express"
         - name: ACCEPT_EULA
           value: "Y"
         - name: MSSQL_AGENT_ENABLED
@@ -97,7 +97,7 @@ spec:
           containerPort: 1433
         env:
         - name: MSSQL_PID
-          value: "Developer"
+          value: "Express"
         - name: ACCEPT_EULA
           value: "Y"
         - name: MSSQL_AGENT_ENABLED
@@ -160,7 +160,7 @@ spec:
           containerPort: 1433
         env:
         - name: MSSQL_PID
-          value: "Developer"
+          value: "Express"
         - name: ACCEPT_EULA
           value: "Y"
         - name: MSSQL_AGENT_ENABLED
