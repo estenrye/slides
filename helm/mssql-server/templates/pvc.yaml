@@ -1,0 +1,70 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "mssql-server.fullname" . }}-data
+  labels:
+    {{- include "mssql-server.labels" . | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.pvc.storageClass}}
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.pvc.mssqldbSize}}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "mssql-server.fullname" . }}-userdb
+  labels:
+    {{- include "mssql-server.labels" . | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.pvc.storageClass}}
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.pvc.userdbSize}}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "mssql-server.fullname" . }}-log
+  labels:
+    {{- include "mssql-server.labels" . | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.pvc.storageClass}}
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.pvc.tempSize }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "mssql-server.fullname" . }}-temp
+  labels:
+    {{- include "mssql-server.labels" . | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.pvc.storageClass}}
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.pvc.userlogSize}}
+{{- if and .Values.logShipping.enabled .Values.logShipping.createPVC }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Values.logShipping.claimName | default "mssql-log-shipping" }}
+spec:
+  storageClassName: {{ .Values.logShipping.storageClass}}
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.logShipping.size}}
+{{- end }}

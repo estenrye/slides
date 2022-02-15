@@ -1,0 +1,43 @@
+# Default values for mssql-latest.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicas: 1
+
+image:
+  repository: mcr.microsoft.com/mssql/server
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+ACCEPT_EULA:
+    value: "y"
+MSSQL_PID:
+    value: "Express"
+MSSQL_AGENT_ENABLED:
+    value: "true"
+sa_password: "Toughpass1!"
+
+podAnnotations: {}
+
+podSecurityContext:
+   fsGroup: 10001
+
+service:
+  type: LoadBalancer
+  port: 1433
+  loadBalancerIP: 10.5.253.45
+
+pvc:
+  storageClass: truenas-iscsi-csi
+  userdbSize: 10Gi
+  userlogSize: 5Gi
+  tempSize: 2Gi
+  mssqldbSize: 2Gi
+
+logShipping:
+  enabled: true
+  createPVC: true
+  claimName: test-log-shipping
+  storageClass: nfs-csi-retain
+  size: 5Gi
