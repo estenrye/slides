@@ -9,7 +9,7 @@ spec:
       containers:
       - name: sqlcmd
         image: estenrye/mssql-tools
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         env:
           - name: SQL_SERVER_HOSTNAME
             value: primary-mssql-server.mssql.svc.cluster.local
