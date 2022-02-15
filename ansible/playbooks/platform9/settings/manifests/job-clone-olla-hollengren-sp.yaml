@@ -8,8 +8,21 @@ spec:
     spec:
       containers:
       - name: sqlcmd
-        image: perl
-        command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+        image: estenrye/mssql-tools
+        command:
+          - /bin/bash
+          - /entrypoint.sh
+          - /sql/select-version.sql
+        env:
+          - name: SQL_SERVER_HOSTNAME
+            value: primary-mssql-server.mssql.svc.cluster.local
+          - name: SQL_SERVER_LOGIN
+            value: sa
+          - name: SQL_SERVER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: primary-mssql-server
+                key: sa_password
       restartPolicy: Never
   backoffLimit: 4
 
