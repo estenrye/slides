@@ -4,4 +4,4 @@
   -U ${SQL_SERVER_LOGIN} \
   -P "${SQL_SERVER_PASSWORD}" \
   -N -C \
-  -i $@
+  -i ${SQL_SCRIPT_PATH}
