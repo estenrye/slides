@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-database
+  namespace: mssql
+spec:
+  template:
+    spec:
+      containers:
+      - name: sqlcmd
+        image: estenrye/mssql-tools
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: SQL_SERVER_HOSTNAME
+            value: primary-mssql-server.mssql.svc.cluster.local
+          - name: SQL_SCRIPT_PATH
+            value: /sql/primary/01-create-database.sql
+          - name: SQL_SERVER_LOGIN
+            value: sa
+          - name: SQL_SERVER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: primary-mssql-server
+                key: sa_password
+      restartPolicy: Never
+  backoffLimit: 4
+
