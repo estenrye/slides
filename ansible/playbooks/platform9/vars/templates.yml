@@ -5,3 +5,5 @@ templates:
     dest: /tmp/helm_values_primary-sql-server.yaml
   - src: settings/helm_values/secondary-sql-server.yaml.j2
     dest: /tmp/helm_values_secondary-sql-server.yaml
+  - src: settings/helm_values/bitwarden.yaml.j2
+    dest: /tmp/helm_values_bitwarden.yaml

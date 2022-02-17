@@ -1,0 +1,65 @@
+mssql:
+  enabled: false
+  saPassword: "{{ bitwarden_sa_password }}"
+  externalHostname: primary-mssql-server.mssql.svc.cluster.local
+
+core:
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    storageClass: truenas-iscsi-csi-retain
+
+identity:
+  pfx: ""
+  certificatePassword: ""
+
+setup:
+  enabled: false
+
+nginx:
+  enabled: true
+  image:
+    repository: nginx
+    tag: 1.21.6
+  service:
+    type: ClusterIP
+
+ingress:
+  enabled: true
+  ip: false
+  class: nginx
+  tls:
+    enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: cloudflare-cluster-issuer
+
+certificates:
+  enabled: false
+  issuer: cloudflare-cluster-issuer
+  kind: ClusterIssuer
+
+global:
+  coreVersion: 1.46.1
+  webVersion: 2.26.1
+  host: "{{ bitwarden_host }}"
+  internalIdentityKey: "{{ bitwarden_identity_internal_key }}"
+  duoKey: "{{ bitwarden_duo_key }}"
+  installationId: "{{ bitwarden_installation_id }}"
+  installationKey: "{{ bitwarden_installation_key }}"
+  yubicoClientId: ""
+  yubicoKey: ""
+  mail:
+    replyToEmail: "{{ bitwarden_email_smtp_reply_to_email }}"
+    host: "{{ bitwarden_email_smtp_host }}"
+    username: "{{ bitwarden_email_smtp_user }}"
+    password: "{{ bitwarden_email_smtp_pass }}"
+    ssl: "true"
+    port: "587"
+    useDefaultCredentials: "false"
+  disableUserRegistration: "false"
+  admins: "{{ bitwarden_email_admins }}"
+  healthchecks: true
+  pdb: true
+  resources: true
+  vpa: false

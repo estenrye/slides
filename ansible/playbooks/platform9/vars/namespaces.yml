@@ -1,4 +1,7 @@
 namespaces:
+  - name: bitwarden
+    labels:
+      app-stack: bitwarden
   - name: cert-manager
     labels:
       app-stack: cert-manager

@@ -43,3 +43,9 @@ helm_charts:
     version: 0.1.0
     values_files:
       /tmp/helm_values_secondary-sql-server.yaml
+  - name: bitwarden
+    namespace: bitwarden
+    chart_ref: /helm_bitwarden
+    version: 0.1.0
+    values_files:
+      /tmp/helm_values_bitwarden.yaml
