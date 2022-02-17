@@ -15,10 +15,17 @@ def createDatabase(args):
   query = template.render(database_name=args.database_name)
   print(query)
   if not args.is_dry_run:
-    command = [sqlcmd, '-S', args.host, '-U', args.login, '-P', args.password, '-Q', query]
-    process = subprocess.Popen(command, stdout=subprocess.PIPE)
-    for line in iter(process.stdout.readline, ''):  # replace '' with b'' for Python 3
-        sys.stdout.write(line)
+    command = [sqlcmd, '-S', args.hostname, '-U', args.login, '-P', args.password, '-Q', query]
+    process = subprocess.Popen(command,stdout=subprocess.PIPE)
+    while True:
+        output = process.stdout.readline()
+        if process.poll() is not None and output == b'':
+            break
+        if output:
+            print (output.strip().decode("utf-8"))
+    retval = process.poll()
+    exit(retval)
+
 
 parser = argparse.ArgumentParser(description='Manage Log Shipping.')
 
