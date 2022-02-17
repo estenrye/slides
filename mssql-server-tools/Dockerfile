@@ -16,7 +16,7 @@ RUN apt update \
   && cat /etc/apt/sources.list \
   && apt update \
   && apt upgrade -y \
-  && apt install -y --no-install-recommends \
+  && ACCEPT_EULA=y DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
        mssql-tools \
        python3-dev \
        python3-pip \
