@@ -24,9 +24,9 @@ parser = argparse.ArgumentParser(description='Manage Log Shipping.')
 
 # create the top-level parser
 parser = argparse.ArgumentParser(prog='logship.py')
-parser.add_argument('--sql-server-hostname', dest='hostname', type=str, default=os.environ.get('SQL_SERVER_HOSTNAME'), required=True, help='Server Fully Qualified Domain Name or IP Address')
-parser.add_argument('--sql-server-login', dest='login', type=str, default=os.environ.get('SQL_SERVER_LOGIN'), required=True, help='SQL Login Username')
-parser.add_argument('--sql-server-password', dest='password', type=str, default=os.environ.get('SQL_SERVER_PASSWORD'), required=True, help='SQL Login Password')
+parser.add_argument('--sql-server-hostname', dest='hostname', type=str, default=os.environ.get('SQL_SERVER_HOSTNAME'), help='Server Fully Qualified Domain Name or IP Address')
+parser.add_argument('--sql-server-login', dest='login', type=str, default=os.environ.get('SQL_SERVER_LOGIN'), help='SQL Login Username')
+parser.add_argument('--sql-server-password', dest='password', type=str, default=os.environ.get('SQL_SERVER_PASSWORD'), help='SQL Login Password')
 parser.add_argument('--dry-run', dest='is_dry_run', default=False, action='store_true', help='disables execution with sqlcmd')
 subparsers = parser.add_subparsers(help='sub-command help')
 
