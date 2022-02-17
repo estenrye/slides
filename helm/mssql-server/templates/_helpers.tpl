@@ -106,14 +106,3 @@ Create the secret name
 {{- define "mssql-server.secretName" -}}
 {{- include "mssql-server.fullname" . }}
 {{- end }}
-
-{{/*
-Get sa password value
-*/}}
-{{- define "mssql-server.sapassword" -}}
-{{- if .Release.IsInstall -}}
-{{ .Values.sa_password | default (randAlphaNum 20) | b64enc | quote }}
-{{- else -}}
-{{ index (lookup "v1" "Secret" .Release.Namespace (include "mssql-server.secretName" .)).data "sa_password" }}
-{{- end }}
-{{- end }}
