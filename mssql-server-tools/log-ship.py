@@ -10,9 +10,7 @@ sqlcmd = r'/opt/mssql-tools/bin/sqlcmd'
 file_loader = FileSystemLoader('/scripts/templates')
 env = Environment(loader=file_loader)
 
-def createDatabase(args):
-  template = env.get_template('create_database.sql.j2')
-  query = template.render(database_name=args.database_name)
+def runSqlCommand(args, query):
   print(query)
   if not args.is_dry_run:
     command = [sqlcmd, '-S', args.hostname, '-U', args.login, '-P', args.password, '-Q', query]
@@ -26,6 +24,10 @@ def createDatabase(args):
     retval = process.poll()
     exit(retval)
 
+def createDatabase(args):
+  template = env.get_template('create_database.sql.j2')
+  query = template.render(database_name=args.database_name)
+  runSqlCommand(args, query)
 
 parser = argparse.ArgumentParser(description='Manage Log Shipping.')
 
