@@ -2,8 +2,7 @@ FROM ubuntu:focal
 
 WORKDIR /scripts
 COPY . .
-
-ADD https://ola.hallengren.com/scripts/MaintenanceSolution.sql /sql/MaintenanceSolution.sql
+ADD https://ola.hallengren.com/scripts/MaintenanceSolution.sql /scripts/templates/MaintenanceSolution.sql
 
 RUN apt update \
   && apt install -y --no-install-recommends\

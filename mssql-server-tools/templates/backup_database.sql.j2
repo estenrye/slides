@@ -1,0 +1,26 @@
+USE master;
+GO
+
+EXECUTE dbo.DatabaseBackup
+@Databases = '{{ databases }}',
+@Directory = '{{ directory }}',
+@DirectoryStructure = '{{ directory_structure }}',
+{%- if init and backup_type != 'LOG' %}
+@Init = 'Y',
+{%- endif %}
+@BackupType = '{{ backup_type }}',
+{%- if verify %}
+@Verify = 'Y',
+{%- else %}
+@Verify = 'N',
+{%- endif %}
+{%- if compress %}
+@Compress = 'Y',
+{%- else %}
+@Compress = 'N',
+{%- endif %}
+@CheckSum = 'Y',
+{%- if cleanup_time > 0 %}
+@CleanupTime = {{ cleanup_time | default(168) | int }},
+{%- endif %}
+@LogToTable = 'Y'
