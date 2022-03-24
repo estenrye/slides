@@ -1,12 +1,16 @@
 deployer:
   hosts:
-    default:
-      truenas_backend: nas.ryezone.com
-      truenas_trust_cert: true
-      # truenas_dataset_root should be 15 chars or less
-      truenas_dataset_root: main/k8s/prod
-      truenas_iscsi_name_prefix: pf9-
-      truenas_iscsi_name_suffix: -rzl-prod
+    # ryezone-labs-prod:
+    #   truenas_backend: nas.ryezone.com
+    #   truenas_trust_cert: true
+    #   # truenas_dataset_root should be 15 chars or less
+    #   truenas_dataset_root: main/k8s/prod
+    #   truenas_iscsi_name_prefix: pf9-
+    #   truenas_iscsi_name_suffix: -rzl-prod
+    #   ingress_load_balancer_ip: "10.5.253.1"
+    services-pf9:
+      target: aws
+      ingress_load_balancer_ip: ""
 
 controlplane:
   hosts:

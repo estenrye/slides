@@ -14,7 +14,7 @@ controller:
   service:
     enabled: true
     annotations: {}
-    loadBalancerIP: "10.5.253.1"
+    loadBalancerIP: "{{ ingress_load_balancer_ip }}"
     enableHttp: true
     enableHttps: true
     externalTrafficPolicy: Local

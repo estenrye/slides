@@ -140,8 +140,7 @@ dnsmasq:
 
     # 10.5.253.0/24
     - address=/pf9.prod.ryezone.com/10.5.253.0
-    - address=/dns.ryezone.com/10.5.253.1
-    - address=/pihole.ryezone.com/10.5.253.1
+    - address=/metallb.ryezone.com/10.5.253.1
     - address=/a.dns.ryezone.com/10.5.253.53
 
   # -- Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like
@@ -165,13 +164,10 @@ dnsmasq:
   #  - cname=cname.foo.bar,foo.bar
   #  - cname=cname.bar.foo,bar.foo
   #  - cname=cname record,dns record
-  customCnameEntries: []
-  # Here we specify custom cname entries that should point to `A` records or
-  # elements in customDnsEntries array.
-  # The format should be:
-  #   - cname=cname.foo.bar,foo.bar
-  #   - cname=cname.bar.foo,bar.foo
-  #   - cname=cname record,dns record
+  customCnameEntries:
+    - cname=dns.ryezone.com,metallb.ryezone.com
+    - cname=pihole.ryezone.com,metallb.ryezone.com
+    - cname=bitwarden.ryezone.com,metallb.ryezone.com
 
 # -- list of whitelisted domains to import during initial start of the container
 whitelist:

@@ -2,21 +2,38 @@ namespaces:
   - name: bitwarden
     labels:
       app-stack: bitwarden
+    targets:
+      - disable
   - name: cert-manager
     labels:
       app-stack: cert-manager
+    targets:
+      - aws
+      - proxmox
   - name: csi-driver-nfs
     labels:
       app-stack: csi-driver-nfs
+    targets:
+      - disable
   - name: democratic-csi
     labels:
       app-stack: csi-driver-truenas
+    targets:
+      - proxmox
   - name: ingress-nginx
     labels:
       app-stack: ingress-nginx
+    targets:
+      - aws
+      - proxmox
   - name: pihole
     labels:
       app-stack: pihole
+    targets:
+      - aws
+      - proxmox
   - name: mssql
     labels:
       app-stack: mssql-server
+    targets:
+      - disable

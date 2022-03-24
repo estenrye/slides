@@ -2,26 +2,36 @@ prereq_helm_charts:
   - name: ingress-nginx-controller
     namespace: ingress-nginx
     chart_ref: ingress-nginx/ingress-nginx
-    version: 4.0.17
+    version: 4.0.18
     values_files:
-      - settings/helm_values/ingress-nginx.yaml
+      - /tmp/helm_values_ingress-nginx.yaml
+    targets:
+      - aws
+      - proxmox
   - name: cert-manager
     namespace: cert-manager
     chart_ref: cert-manager/cert-manager
     version: 1.7.1
     values_files:
       - settings/helm_values/cert-manager.yaml
+    targets:
+      - aws
+      - proxmox
   - name: democratic-csi
     namespace: democratic-csi
     chart_ref: democratic-csi/democratic-csi
     version: 0.1.0
     values_files:
       - /tmp/helm_values_democratic-csi.yaml
+    targets:
+      - proxmox
   - name: csi-driver-nfs
     namespace: csi-driver-nfs
     chart_ref: csi-driver-nfs/csi-driver-nfs
     version: v3.1.0
     values_files: []
+    targets:
+      - proxmox
 
 
 helm_charts:
@@ -31,21 +41,30 @@ helm_charts:
     version: 2.5.5
     values_files:
       - settings/helm_values/pihole.yaml
+    targets:
+      - aws
+      - proxmox
   - name: primary
     namespace: mssql
     chart_ref: /helm/mssql-server
     version: 0.1.0
     values_files:
       /tmp/helm_values_primary-sql-server.yaml
+    targets:
+      - disable
   - name: secondary
     namespace: mssql
     chart_ref: /helm/mssql-server
     version: 0.1.0
     values_files:
       /tmp/helm_values_secondary-sql-server.yaml
+    targets:
+      - disable
   - name: bitwarden
     namespace: bitwarden
     chart_ref: /helm_bitwarden
-    version: 0.1.0
+    version: 0.1.7
     values_files:
       /tmp/helm_values_bitwarden.yaml
+    targets:
+      - disable
