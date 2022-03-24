@@ -76,12 +76,12 @@
     - name: Install prerequisite manifests
       kubernetes.core.k8s:
         state: present
-        src: settings/manifests/{{ manifest_file }}
+        src: settings/manifests/{{ manifest_file.file }}
         context: "{{ inventory_hostname }}"
       loop_control:
         loop_var: manifest_file
       loop: "{{ prereq_manifest_files }}"
-      when: target in manifest_file.target
+      when: target in manifest_file.targets
 
     - name: Install charts
       kubernetes.core.helm:
@@ -98,7 +98,7 @@
     - name: Install manifests
       kubernetes.core.k8s:
         state: present
-        src: settings/manifests/{{ manifest_file }}
+        src: settings/manifests/{{ manifest_file.file }}
         context: "{{ inventory_hostname }}"
       loop_control:
         loop_var: manifest_file

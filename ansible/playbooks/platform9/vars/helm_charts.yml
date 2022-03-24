@@ -40,7 +40,7 @@ helm_charts:
     chart_ref: mojo2600/pihole
     version: 2.5.5
     values_files:
-      - settings/helm_values/pihole.yaml
+      - /tmp/helm_values_pihole.yaml
     targets:
       - aws
       - proxmox

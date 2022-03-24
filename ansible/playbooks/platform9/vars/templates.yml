@@ -4,6 +4,11 @@ templates:
     targets:
       - aws
       - proxmox
+  - src: settings/helm_values/pihole.yaml.j2
+    dest: /tmp/helm_values_pihole.yaml
+    targets:
+      - aws
+      - proxmox
   - src: settings/helm_values/democratic-csi.yaml.j2
     dest: /tmp/helm_values_democratic-csi.yaml
     targets:

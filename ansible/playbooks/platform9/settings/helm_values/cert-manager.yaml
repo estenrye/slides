@@ -9,8 +9,8 @@ installCRDs: true
 # cert-manager can access an ingress or DNS TXT records at all times.
 # NOTE: This requires Kubernetes 1.10 or `CustomPodDNS` feature gate enabled for
 # the cluster to work.
-# podDnsPolicy: "None"
-# podDnsConfig:
-#   nameservers:
-#     - "1.1.1.1"
-#     - "8.8.8.8"
+podDnsPolicy: "None"
+podDnsConfig:
+  nameservers:
+    - "1.1.1.1"
+    - "1.0.0.1"

@@ -16,20 +16,20 @@ serviceDns:
   type: LoadBalancer
   port: 53
   externalTrafficPolicy: Local
-  loadBalancerIP: 10.5.253.53
+  loadBalancerIP: "{{ pihole.dns.load_balancer_ip }}"
   loadBalancerIPv6: ""
   annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
+    {{ pihole.dns.annotations | to_nice_yaml | indent(4) }}
 
 # -- Configuration for the DHCP service on port 67
 serviceDhcp:
   enabled: true
   type: LoadBalancer
   externalTrafficPolicy: Local
-  loadBalancerIP: 10.5.253.53
+  loadBalancerIP: "{{ pihole.dhcp.load_balancer_ip }}"
   loadBalancerIPv6: ""
   annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
+    {{ pihole.dhcp.annotations | to_nice_yaml | indent(4) }}
 
 # -- Configuration for the web interface service
 serviceWeb:
@@ -41,7 +41,7 @@ serviceWeb:
     port: 443
   type: ClusterIP
 
-virtualhost: pihole.ryezone.com
+virtualhost: pihole.{{ cluster_wildcard_tld }}
 
 ingress:
   enabled: true
@@ -49,13 +49,13 @@ ingress:
     cert-manager.io/cluster-issuer: cloudflare-cluster-issuer
   path: /
   hosts:
-    - dns.ryezone.com
-    - pihole.ryezone.com
+    - dns.{{ cluster_wildcard_tld }}
+    - pihole.{{ cluster_wildcard_tld }}
   tls:
    - secretName: pihole-tls-secret
      hosts:
-       - pihole.ryezone.com
-       - dns.ryezone.com
+       - pihole.{{ cluster_wildcard_tld }}
+       - dns.{{ cluster_wildcard_tld }}
 
 admin:
   existingSecret: "admin-pass"
