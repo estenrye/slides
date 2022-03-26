@@ -1,0 +1,18 @@
+{% for storageclass in csi_nfs_storage_classes %}
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ storageclass.name }}
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: {{ storageclass.server }}
+  share: {{ storageclass.share }}
+  # csi.storage.k8s.io/provisioner-secret is only needed for providing mountOptions in DeleteVolume
+  # csi.storage.k8s.io/provisioner-secret-name: "mount-options"
+  # csi.storage.k8s.io/provisioner-secret-namespace: "default"
+reclaimPolicy: {{ storageclass.reclaimPolicy }}
+volumeBindingMode: {{ storageclass.volumeBindingMode }}
+mountOptions:
+  {{ storageclass.mountOptions | to_nice_yaml | indent(2) }}
+{% endfor %}

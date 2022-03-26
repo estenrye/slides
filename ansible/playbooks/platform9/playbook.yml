@@ -76,7 +76,7 @@
     - name: Install prerequisite manifests
       kubernetes.core.k8s:
         state: present
-        src: settings/manifests/{{ manifest_file.file }}
+        src: "{{ manifest_file.file }}"
         context: "{{ inventory_hostname }}"
       loop_control:
         loop_var: manifest_file
@@ -98,7 +98,7 @@
     - name: Install manifests
       kubernetes.core.k8s:
         state: present
-        src: settings/manifests/{{ manifest_file.file }}
+        src: "{{ manifest_file.file }}"
         context: "{{ inventory_hostname }}"
       loop_control:
         loop_var: manifest_file

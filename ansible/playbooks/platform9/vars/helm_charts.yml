@@ -28,9 +28,10 @@ prereq_helm_charts:
   - name: csi-driver-nfs
     namespace: csi-driver-nfs
     chart_ref: csi-driver-nfs/csi-driver-nfs
-    version: v3.1.0
+    version: v3.2.0
     values_files: []
     targets:
+      - aws
       - proxmox
 
 

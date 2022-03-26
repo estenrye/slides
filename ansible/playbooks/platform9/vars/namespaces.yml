@@ -14,7 +14,8 @@ namespaces:
     labels:
       app-stack: csi-driver-nfs
     targets:
-      - disable
+      - aws
+      - proxmox
   - name: democratic-csi
     labels:
       app-stack: csi-driver-truenas

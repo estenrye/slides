@@ -23,6 +23,33 @@ deployer:
       target: aws
       ingress_load_balancer_ip: ""
       cluster_wildcard_tld: services.rye.ninja
+      csi_nfs_storage_classes:
+        - name: nfs-csi-delete
+          server: fs-02af2cafa13775a8a.efs.us-east-2.amazonaws.com
+          share: /
+          reclaimPolicy: Delete
+          volumeBindingMode: Immediate
+          mountOptions:
+            - nfsvers=4.1
+            - rsize=1048576
+            - wsize=1048576
+            - hard
+            - timeo=600
+            - retrans=2
+            - noresvport
+        - name: nfs-csi-retain
+          server: fs-02af2cafa13775a8a.efs.us-east-2.amazonaws.com
+          share: /
+          reclaimPolicy: Retain
+          volumeBindingMode: Immediate
+          mountOptions:
+            - nfsvers=4.1
+            - rsize=1048576
+            - wsize=1048576
+            - hard
+            - timeo=600
+            - retrans=2
+            - noresvport
       pihole:
         dns:
           load_balancer_ip: ""

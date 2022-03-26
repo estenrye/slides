@@ -1,19 +1,23 @@
 prereq_manifest_files:
-  - file: cloudflare-cluster-issuer.yaml
+  - file: settings/manifests/cloudflare-cluster-issuer.yaml
     targets:
       - aws
       - proxmox
 
 manifest_files:
-  - file: nfs-server/pvc.yaml
+  - file: /tmp/manifests_csi_nfs_storageclass.yaml
     targets:
+      - aws
       - proxmox
-  - file: nfs-server/deployment.yaml
+  - file: settings/manifests/nfs-server/pvc.yaml
     targets:
-      - proxmox
-  - file: nfs-server/service.yaml
+      - disable
+  - file: settings/manifests/nfs-server/deployment.yaml
     targets:
-      - proxmox
-  - file: nfs-server/storageclass.yaml
+      - disable
+  - file: settings/manifests/nfs-server/service.yaml
     targets:
-      - proxmox
+      - disable
+  - file: settings/manifests/nfs-server/storageclass.yaml
+    targets:
+      - disable

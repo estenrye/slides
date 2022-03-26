@@ -25,3 +25,8 @@ templates:
     dest: /tmp/helm_values_bitwarden.yaml
     targets:
       - disable
+  - src: settings/manifests/csi_nfs_storageclass.yaml.j2
+    dest: /tmp/manifests_csi_nfs_storageclass.yaml
+    targets:
+      - aws
+      - proxmox
