@@ -3,6 +3,11 @@
     - iscsi_client
     - pf9ctl
 
+- hosts: idrac
+  connection: local
+  roles:
+    - idrac6_ssl_letsencrypt
+
 - hosts: deployer
   connection: local
   tasks:

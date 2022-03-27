@@ -1,16 +1,28 @@
-- name: Add iDRAC hosts
-  ansible.builtin.add_host:
-    name: '{{ idrac.name }}'
-    group: idrac
-    ansible_host: '{{ idrac.name }}'
-    ansible_ssh_user: '{{ idrac.ansible_ssh_user }}'
-    ansible_ssh_password: '{{ idrac.ansible_ssh_password }}'
+# - name: Add iDRAC hosts
+#   ansible.builtin.add_host:
+#     name: '{{ idrac.name }}'
+#     group: idrac
+#     ansible_host: '{{ idrac.name }}'
+#     ansible_ssh_user: '{{ idrac.ansible_ssh_user }}'
+#     ansible_ssh_password: '{{ idrac.ansible_ssh_password }}'
 
 - name: Get Current SSL Certificate Information
   ansible.builtin.command:
-    cmd: racadm sslcertview -t 1 -A
+    argv:
+      - racadm
+      - -r
+      - "{{ idrac.name }}"
+      - -u
+      - "{{ idrac.ansible_ssh_user }}"
+      - -p
+      - "{{ idrac.ansible_ssh_password }}"
+      - sslcertview
+      - -t
+      - 1
+      - -A
   register: ssl_cert_info
-  delegate_to: '{{ idrac.name }}'
+  become: true
+  # delegate_to: '{{ idrac.name }}'
 
 - name: DEBUG | ssl_cert_info
   ansible.builtin.debug:

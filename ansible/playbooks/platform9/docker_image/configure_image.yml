@@ -22,11 +22,27 @@
         update_cache: false
         install_recommends: false
         name:
+          - alien
           - curl
           - git
           - ssh
           - sshpass
           - sudo
+
+    - ansible.builtin.get_url:
+        url: https://dl.dell.com/FOLDER05920767M/1/DellEMC-iDRACTools-Web-LX-9.4.0-3732_A00.tar.gz
+        dest: /tmp/idrac.tar.gz
+
+    - ansible.builtin.unarchive:
+        src: /tmp/idrac.tar.gz
+        dest: /tmp
+
+    - ansible.builtin.command:
+        cmd: alien /tmp/iDRACTools/racadm/RHEL8/x86_64/{{ item }}
+      loop:
+        - srvadmin-argtable2-9.4.0-3732.15734.el8.x86_64.rpm
+        - srvadmin-hapi-9.4.0-3732.15734.el8.x86_64.rpm
+        - srvadmin-idracadm7-9.4.0-3732.15734.el8.x86_64.rpm
 
     - ansible.builtin.get_url:
         url: https://get.helm.sh/helm-{{ helm_version }}-linux-{{ image_arch }}.tar.gz
@@ -69,11 +85,16 @@
         state: absent
         path: /var/lib/apt/lists
 
-    - ansible.builtin.file:
-        state: absent
-        path: /tmp
+    # - ansible.builtin.file:
+    #     state: absent
+    #     path: /tmp
 
-    - ansible.builtin.file:
-        state: directory
-        path: /tmp
-        mode: 0777
+    # - ansible.builtin.file:
+    #     state: directory
+    #     path: /tmp
+    #     mode: 0777
+
+    - ansible.builtin.lineinfile:
+        line: 'automation-user ALL=(ALL) NOPASSWD: ALL'
+        state: present
+        path: /etc/sudoers

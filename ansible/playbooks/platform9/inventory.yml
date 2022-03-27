@@ -76,3 +76,7 @@ cluster:
     worker:
   vars:
     pf9_prep_node: true
+
+idrac:
+  hosts:
+    localhost:
