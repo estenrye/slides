@@ -37,5 +37,5 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         tag_semver: true
-        context: mssql-server-tools
+        context: ansible/playbooks/platform9
         dockerfile: ansible/playbooks/platform9/Dockerfile
