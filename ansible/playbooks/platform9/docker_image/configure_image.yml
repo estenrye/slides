@@ -25,6 +25,7 @@
           - curl
           - git
           - ssh
+          - sshpass
           - sudo
 
     - ansible.builtin.get_url:
