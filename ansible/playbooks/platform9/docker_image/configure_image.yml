@@ -38,11 +38,16 @@
         dest: /tmp
 
     - ansible.builtin.command:
-        cmd: alien /tmp/iDRACTools/racadm/RHEL8/x86_64/{{ item }}
+        cmd: alien -i /tmp/iDRACTools/racadm/RHEL8/x86_64/{{ item }}
       loop:
         - srvadmin-argtable2-9.4.0-3732.15734.el8.x86_64.rpm
         - srvadmin-hapi-9.4.0-3732.15734.el8.x86_64.rpm
         - srvadmin-idracadm7-9.4.0-3732.15734.el8.x86_64.rpm
+
+    - ansible.builtin.file:
+        path: /usr/local/bin/racadm
+        src: /opt/dell/srvadmin/bin/idracadm7
+        state: link
 
     - ansible.builtin.get_url:
         url: https://get.helm.sh/helm-{{ helm_version }}-linux-{{ image_arch }}.tar.gz
@@ -85,14 +90,14 @@
         state: absent
         path: /var/lib/apt/lists
 
-    # - ansible.builtin.file:
-    #     state: absent
-    #     path: /tmp
+    - ansible.builtin.file:
+        state: absent
+        path: /tmp
 
-    # - ansible.builtin.file:
-    #     state: directory
-    #     path: /tmp
-    #     mode: 0777
+    - ansible.builtin.file:
+        state: directory
+        path: /tmp
+        mode: 0777
 
     - ansible.builtin.lineinfile:
         line: 'automation-user ALL=(ALL) NOPASSWD: ALL'
