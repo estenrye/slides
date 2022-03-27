@@ -38,4 +38,4 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         tag_semver: true
         context: mssql-server-tools
-        dockerfile: mssql-server-tools/Dockerfile
+        dockerfile: ansible/playbooks/platform9/Dockerfile
