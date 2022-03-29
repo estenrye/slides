@@ -6,12 +6,14 @@ on:
     paths:
       - docker/estenrye/ubuntu-autoinstall-iso/**
       - .github/workflows/CI-estenrye-ubuntu-autoinstall-iso.yml
+      - .github/workflows/CI-Docker-Image-Build-Template.yml
 
   # run it during pull request
   pull_request:
     paths:
       - docker/estenrye/ubuntu-autoinstall-iso/**
       - .github/workflows/CI-estenrye-ubuntu-autoinstall-iso.yml
+      - .github/workflows/CI-Docker-Image-Build-Template.yml
 
 jobs:
   # define job to build and publish docker image
@@ -26,28 +28,8 @@ jobs:
 
     # steps to perform in job
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # setup Docker buld action
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
+      - uses: .github/workflows/CI-Docker-Image-Build-Template.yml
         with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build image and push to Docker Hub and GitHub Container Registry
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          # relative path to the place where source code with Dockerfile is located
-          context: docker/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGENAME }}
-          # Note: tags has to be all lower-case
-          tags: |
-            ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGENAME }}:latest
-          # build on feature branches, push only on main branch
-          push: ${{ github.ref == 'refs/heads/master' }}
+          DOCKER_IMAGENAME: ubuntu-autoinstall-iso
+          DOCKER_USERNAME: estenrye
+          PUSH_IMAGE: ${{ github.ref == 'refs/heads/master' }}
