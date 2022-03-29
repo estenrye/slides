@@ -1,0 +1,65 @@
+- hosts: localhost
+  connection: local
+  vars:
+    idractools_url: https://dl.dell.com/FOLDER05920767M/1/DellEMC-iDRACTools-Web-LX-9.4.0-3732_A00.tar.gz
+  tasks:
+    - name: create downloads directory
+      ansible.builtin.file:
+        path: /tmp/downloads
+        state: directory
+
+    - name: Download Scripts
+      ansible.builtin.get_url:
+        url: '{{ item.url }}'
+        dest: /tmp/downloads/{{ item.filename }}
+      loop:
+        - url: '{{ idractools_url }}'
+          filename: 'idrac.tar.gz'
+        - url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          filename: get_helm.sh
+
+    - name: Extract Dell iDRAC Tools
+      ansible.builtin.unarchive:
+        src: /tmp/downloads/idrac.tar.gz
+        dest: /tmp/downloads
+
+    - name: Install Dell iDRAC Tools
+      ansible.builtin.command:
+        chdir: /tmp/downloads/iDRACTools/racadm
+        cmd: ./install_racadm.sh
+      become: true
+    
+    - name: Change Helm Installer Script Permissions
+      ansible.builtin.file:
+        path: /tmp/downloads/get_helm.sh
+        mode: 0700
+
+    - name: Install Helm
+      ansible.builtin.command:
+        chdir: /tmp/downloads
+        cmd: ./get_helm.sh
+      environment:
+        PATH: "/usr/local/bin:{{ lookup('env', 'PATH') }}"
+      become: true
+
+    - name: Remove downloads directory
+      ansible.builtin.file:
+        path: /tmp/downloads
+        state: absent
+
+    - ansible.builtin.file:
+        path: '{{ item.path }}'
+        src: '{{ item.src }}'
+        state: link
+      become: true
+      loop:
+        - path: /usr/local/bin/racadm
+          src: /opt/dell/srvadmin/bin/idracadm7
+
+    - ansible.builtin.file:
+        path: /ansible
+        state: directory
+        recurse: true
+        owner: automation-user
+        group: automation-user
+      become: true
