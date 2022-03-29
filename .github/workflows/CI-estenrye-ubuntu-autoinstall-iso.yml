@@ -17,6 +17,10 @@ jobs:
   # define job to build and publish docker image
   build-and-push-docker-image:
     name: Build Docker image and push to repositories
+    environment: Docker
+    env:
+      DOCKER_IMAGENAME: ubuntu-autoinstall-iso
+
     # run only when code is compiling and tests are passing
     runs-on: ubuntu-latest
 
@@ -44,6 +48,6 @@ jobs:
           context: .
           # Note: tags has to be all lower-case
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/ubuntu-autoinstall-iso:latest
+            ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGENAME }}:latest
           # build on feature branches, push only on main branch
           push: ${{ github.ref == 'refs/heads/main' }}
