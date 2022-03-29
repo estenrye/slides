@@ -20,9 +20,6 @@ jobs:
     # run only when code is compiling and tests are passing
     runs-on: ubuntu-latest
 
-    env:
-      DOCKER_IMAGENAME: ubuntu-autoinstall-iso
-
     # steps to perform in job
     steps:
       - name: Checkout code
@@ -47,6 +44,6 @@ jobs:
           context: .
           # Note: tags has to be all lower-case
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGENAME }}:latest
+            ${{ secrets.DOCKER_USERNAME }}/ubuntu-autoinstall-iso:latest
           # build on feature branches, push only on main branch
           push: ${{ github.ref == 'refs/heads/main' }}
