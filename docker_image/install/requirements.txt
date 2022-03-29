@@ -1,5 +1,5 @@
 ansible ==5.5.0
-ansible-lint ==5.4.0
+ansible-lint ==6.0.2
 click ==8.1.0
 cookiecutter == 1.7.3
 dnspython ==2.2.1
