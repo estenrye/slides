@@ -8,14 +8,14 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
     paths:
-      - mssql-server-tools/**
+      - docker/estenrye/mssql-tools/**
       - .github/workflows/CI-estenrye-mssql-tools.yml
       - .github/workflows/CI-Docker-Image-Build-Template.yml
 
   pull_request:
     branches: [ master ]
     paths:
-      - mssql-server-tools/**
+      - docker/estenrye/mssql-tools/**
       - .github/workflows/CI-estenrye-mssql-tools.yml
       - .github/workflows/CI-Docker-Image-Build-Template.yml
 
