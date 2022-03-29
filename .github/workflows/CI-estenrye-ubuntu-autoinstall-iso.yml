@@ -24,5 +24,3 @@ jobs:
       DOCKER_IMAGENAME: ubuntu-autoinstall-iso
       DOCKER_USERNAME: estenrye
       PUSH_IMAGE: ${{ github.ref == 'refs/heads/master' }}
-    secrets:
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
