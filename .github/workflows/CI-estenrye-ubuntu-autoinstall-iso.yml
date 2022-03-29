@@ -31,7 +31,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - uses: ./.github/workflows/CI-Docker-Image-Build-Template.yml
+      - uses: .github/workflows/CI-Docker-Image-Build-Template.yml
         with:
           DOCKER_IMAGENAME: ubuntu-autoinstall-iso
           DOCKER_USERNAME: estenrye
