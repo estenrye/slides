@@ -1,49 +1,53 @@
-# This is a basic workflow to help you get started with Actions
+name: Build and Publish
 
-name: CI | Docker | estenrye/ubuntu-autoinstall-iso
-
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
+  # run it on push to the default repository branch
   push:
-    branches: [ master ]
     paths:
-      - iso/Dockerfile
-      - iso/requirements.txt
-      - iso/requirements.yml
-      - iso/etc/**
-      - iso/ansible/**
+      - docker/estenrye/ubuntu-autoinstall-iso/**
       - .github/workflows/CI-estenrye-ubuntu-autoinstall-iso.yml
+
+  # run it during pull request
   pull_request:
-    branches: [ master ]
     paths:
-      - iso/Dockerfile
-      - iso/requirements.txt
-      - iso/requirements.yml
-      - iso/etc/**
-      - iso/ansible/**
+      - docker/estenrye/ubuntu-autoinstall-iso/**
       - .github/workflows/CI-estenrye-ubuntu-autoinstall-iso.yml
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+  # define job to build and publish docker image
+  build-and-push-docker-image:
+    name: Build Docker image and push to repositories
     environment: Docker
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    env:
+      DOCKER_IMAGENAME: ubuntu-autoinstall-iso
+      DOCKER_USERNAME: estenrye
+    # run only when code is compiling and tests are passing
+    runs-on: ubuntu-latest
+
+    # steps to perform in job
     steps:
-    - uses: actions/checkout@master
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: estenrye/ubuntu-autoinstall-iso
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        tag_semver: true
-        context: iso
-        dockerfile: iso/Dockerfile
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # setup Docker buld action
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build image and push to Docker Hub and GitHub Container Registry
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          # relative path to the place where source code with Dockerfile is located
+          context: docker/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGENAME }}
+          # Note: tags has to be all lower-case
+          tags: |
+            ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGENAME }}:latest
+          # build on feature branches, push only on main branch
+          push: ${{ github.ref == 'refs/heads/main' }}
