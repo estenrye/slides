@@ -7,35 +7,30 @@ name: CI | Docker | estenrye/mssql-tools
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
     paths:
-      - mssql-server-tools/**
+      - docker/estenrye/mssql-tools/**
       - .github/workflows/CI-estenrye-mssql-tools.yml
+      - .github/workflows/CI-Docker-Image-Build-Template.yml
+
   pull_request:
     branches: [ master ]
     paths:
-      - mssql-server-tools/**
+      - docker/estenrye/mssql-tools/**
       - .github/workflows/CI-estenrye-mssql-tools.yml
+      - .github/workflows/CI-Docker-Image-Build-Template.yml
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    environment: Docker
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-    - uses: actions/checkout@master
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: estenrye/mssql-tools
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        tag_semver: true
-        context: mssql-server-tools
-        dockerfile: mssql-server-tools/Dockerfile
+  # define job to build and publish docker image
+  build-and-push-docker-image:
+    name: Build Docker image and push to repositories
+    uses: ./.github/workflows/CI-Docker-Image-Build-Template.yml
+    with:
+      DOCKER_IMAGENAME: mssql-tools
+      DOCKER_USERNAME: estenrye
+      PUSH_IMAGE: ${{ github.ref == 'refs/heads/master' }}
+    secrets:
+      docker_password: ${{ secrets.DOCKER_PASSWORD }}
