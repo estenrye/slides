@@ -12,6 +12,9 @@ on:
       PUSH_IMAGE:
         required: true
         type: boolean
+    secrets:
+      docker_password:
+        required: true
 
 jobs:
   # define job to build and publish docker image
@@ -36,7 +39,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           username: ${{ inputs.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          password: ${{ secrets.docker_password }}
 
       - name: Build image and push to Docker Hub and GitHub Container Registry
         id: docker_build
