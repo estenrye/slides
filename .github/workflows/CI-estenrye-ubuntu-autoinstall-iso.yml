@@ -28,7 +28,7 @@ jobs:
 
     # steps to perform in job
     steps:
-      - uses: .github/workflows/CI-Docker-Image-Build-Template.yml
+      - uses: ./.github/workflows/CI-Docker-Image-Build-Template.yml
         with:
           DOCKER_IMAGENAME: ubuntu-autoinstall-iso
           DOCKER_USERNAME: estenrye
