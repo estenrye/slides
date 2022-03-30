@@ -1,3 +1,3 @@
 #!/bin/bash
-source .bashrc
+source /home/automation-user/.bashrc
 pyenv exec $@

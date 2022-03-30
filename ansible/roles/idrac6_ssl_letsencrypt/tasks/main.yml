@@ -21,8 +21,6 @@
       - 1
       - -A
   register: ssl_cert_info
-  become: true
-  # delegate_to: '{{ idrac.name }}'
 
 - name: DEBUG | ssl_cert_info
   ansible.builtin.debug:

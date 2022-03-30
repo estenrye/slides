@@ -40,14 +40,12 @@ LAB_AUTOMATION_DIR=`realpath ~/src/slides`
 SSH_KEY_PATH=`realpath ~/.ssh/id_rsa`
 
 # temporarily mounting helm directories.
-docker run --rm -it \
+docker run --rm -it --platform=linux/amd64 \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
-  --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa \
+  --mount type=bind,source=`realpath ~/.ssh`,target=/ssh_keys \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/ansible/playbooks/platform9,target=/ansible,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/ansible/roles,target=/etc/ansible/roles,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/helm,target=/helm,readonly \
-  --mount type=bind,source=/Users/esten/src/estenrye/mcfedr-bitwarden-chart/charts/bitwarden,target=/helm_bitwarden,readonly \
-  --mount type=bind,source=`realpath ~/.kube`,target=/home/automation-user/.kube,readonly \
-  -e KUBECONFIG=/home/automation-user/.kube/home/ryezone-labs-prod.yaml \
-  estenrye/platform9-ansible --limit deployer
+  --mount type=bind,source=`realpath ~/.kube/home`,target=/kube,readonly \
+  estenrye/ansible --limit deployer
 ```
