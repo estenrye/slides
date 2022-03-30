@@ -22,29 +22,23 @@ RUN yum -y update \
       zlib-devel \
   && adduser automation-user \
   && usermod -aG wheel automation-user \
-  && echo 'automation-user ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+  && echo 'automation-user ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers \
+  && yum clean all
 
 USER automation-user
-COPY --chown=automation-user .bashrc /home/automation-user/.
+WORKDIR /home/automation-user
+COPY --chown=automation-user \
+  .bashrc configure.yaml entrypoint.sh prereq.requirements.txt requirements.txt \
+  /home/automation-user/
 RUN git clone https://github.com/pyenv/pyenv.git /home/automation-user/.pyenv \
   && git clone https://github.com/yyuu/pyenv-virtualenv.git /home/automation-user/.pyenv/plugins/pyenv-virtualenv \
   && source /home/automation-user/.bashrc \
-  && pyenv install 3.10.4
-
-WORKDIR /home/automation-user
-
-COPY prereq.requirements.txt requirements.txt /tmp/src/
-
-RUN source /home/automation-user/.bashrc \
+  && pyenv install 3.10.4 \
   && pyenv local 3.10.4 \
   && pyenv virtualenv 3.10.4 py3.10.4 \
   && pyenv activate py3.10.4 \
   && pyenv local py3.10.4 \
-  && pyenv exec python -m pip install --force -r /tmp/src/prereq.requirements.txt \
-  && pyenv exec python -m pip install -r /tmp/src/requirements.txt
-
-COPY configure.yaml /tmp/src/
-RUN source /home/automation-user/.bashrc \
-  && pyenv exec ansible-playbook -i localhost, /tmp/src/configure.yaml
-COPY entrypoint.sh /usr/local/bin
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+  && pyenv exec python -m pip install --force -r /home/automation-user/prereq.requirements.txt \
+  && pyenv exec python -m pip install -r /home/automation-user/requirements.txt \
+  && pyenv exec ansible-playbook -i localhost, /home/automation-user/configure.yaml
+ENTRYPOINT ["/home/automation-user/entrypoint.sh"]
