@@ -1,6 +1,7 @@
 FROM tgagor/centos:stream8
 
-ENV PYENV_VIRTUALENV_DISABLE_PROMPT=1
+ENV ANSIBLE_CONFIG=/home/automation-user/.ansible.cfg \
+    PYENV_VIRTUALENV_DISABLE_PROMPT=1
 
 RUN yum -y update \
   && yum -y upgrade \
@@ -28,7 +29,7 @@ RUN yum -y update \
 USER automation-user
 WORKDIR /home/automation-user
 COPY --chown=automation-user \
-  .bashrc configure.yaml entrypoint.sh prereq.requirements.txt requirements.txt \
+  .ansible.cfg .bashrc configure.yaml entrypoint.sh prereq.requirements.txt requirements.txt \
   /home/automation-user/
 RUN git clone https://github.com/pyenv/pyenv.git /home/automation-user/.pyenv \
   && git clone https://github.com/yyuu/pyenv-virtualenv.git /home/automation-user/.pyenv/plugins/pyenv-virtualenv \
@@ -41,4 +42,5 @@ RUN git clone https://github.com/pyenv/pyenv.git /home/automation-user/.pyenv \
   && pyenv exec python -m pip install --force -r /home/automation-user/prereq.requirements.txt \
   && pyenv exec python -m pip install -r /home/automation-user/requirements.txt \
   && pyenv exec ansible-playbook -i localhost, /home/automation-user/configure.yaml
+WORKDIR /ansible
 ENTRYPOINT ["/home/automation-user/entrypoint.sh"]
