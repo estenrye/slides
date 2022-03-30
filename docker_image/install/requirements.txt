@@ -16,4 +16,4 @@ pytest-testinfra ==6.6.0
 python-vagrant == 0.5.15
 virtualenv ==20.14.0
 yamllint == 1.26.3
-yq ==2.13.0
+yq ==2.14.0
