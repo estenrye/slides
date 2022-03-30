@@ -40,7 +40,7 @@ LAB_AUTOMATION_DIR=`realpath ~/src/slides`
 SSH_KEY_PATH=`realpath ~/.ssh/id_rsa`
 
 # temporarily mounting helm directories.
-docker run --rm -it \
+docker run --rm -it --platform=linux/amd64 \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
   --mount type=bind,source=`realpath ~/.ssh`,target=/ssh_keys \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/ansible/playbooks/platform9,target=/ansible,readonly \
