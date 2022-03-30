@@ -3,6 +3,7 @@ FROM tgagor/centos:stream8
 ENV PYENV_VIRTUALENV_DISABLE_PROMPT=1
 
 RUN yum -y update \
+  && yum -y upgrade \
   && yum install -y epel-release \
   && yum install -y \
       bzip2-devel \
@@ -45,5 +46,5 @@ RUN source /home/automation-user/.bashrc \
 COPY configure.yaml /tmp/src/
 RUN source /home/automation-user/.bashrc \
   && pyenv exec ansible-playbook -i localhost, /tmp/src/configure.yaml
-
-ENTRYPOINT ["pyenv", "exec"]
+COPY entrypoint.sh /usr/local/bin
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

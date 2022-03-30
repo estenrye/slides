@@ -1,7 +1,11 @@
 - hosts: localhost
   connection: local
   vars:
+    helm_url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
     idractools_url: https://dl.dell.com/FOLDER05920767M/1/DellEMC-iDRACTools-Web-LX-9.4.0-3732_A00.tar.gz
+    jq_url: https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+    kubectl_version: v1.23.5
+    kubectl_certmanager_url: https://github.com/jetstack/cert-manager/releases/latest/download/kubectl-cert_manager-linux-amd64.tar.gz
   tasks:
     - name: create downloads directory
       ansible.builtin.file:
@@ -14,21 +18,44 @@
         dest: /tmp/downloads/{{ item.filename }}
       loop:
         - url: '{{ idractools_url }}'
-          filename: 'idrac.tar.gz'
-        - url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          filename: idrac.tar.gz
+        - url: '{{ kubectl_certmanager_url }}'
+          filename: kubectl-cert_manager-linux-amd64.tar.gz
+        - url: '{{ helm_url }}'
           filename: get_helm.sh
 
-    - name: Extract Dell iDRAC Tools
+    - name: Download Binaries
+      ansible.builtin.get_url:
+        url: '{{ item.url }}'
+        dest: /usr/local/bin/{{ item.filename }}
+        mode: 0755
+      become: true
+      loop:
+        - url: '{{ jq_url }}'
+          filename: jq
+        - url: https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl
+          filename: kubectl
+
+    - name: Extract Archives
       ansible.builtin.unarchive:
-        src: /tmp/downloads/idrac.tar.gz
+        src: /tmp/downloads/{{ item.src }}
         dest: /tmp/downloads
+      loop:
+        - src: idrac.tar.gz
+        - src: kubectl-cert_manager-linux-amd64.tar.gz
+
+    - name: Move kubectl cert-manager binary.
+      ansible.builtin.command:
+        chdir: /tmp/downloads
+        cmd: mv kubectl-cert_manager /usr/local/bin/kubectl-cert_manager
+      become: true
 
     - name: Install Dell iDRAC Tools
       ansible.builtin.command:
         chdir: /tmp/downloads/iDRACTools/racadm
         cmd: ./install_racadm.sh
       become: true
-    
+
     - name: Change Helm Installer Script Permissions
       ansible.builtin.file:
         path: /tmp/downloads/get_helm.sh
