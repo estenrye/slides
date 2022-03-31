@@ -42,5 +42,9 @@ RUN git clone https://github.com/pyenv/pyenv.git /home/automation-user/.pyenv \
   && pyenv exec python -m pip install --force -r /home/automation-user/prereq.requirements.txt \
   && pyenv exec python -m pip install -r /home/automation-user/requirements.txt \
   && pyenv exec ansible-playbook -i localhost, /home/automation-user/configure.yaml
+
+ENV PYENV_VERSION=py3.10.4 \
+    PYENV_ROOT=/home/automation-user/.pyenv
+
 WORKDIR /ansible
 ENTRYPOINT ["/home/automation-user/entrypoint.sh"]
