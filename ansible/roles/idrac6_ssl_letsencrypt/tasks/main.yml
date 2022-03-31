@@ -21,7 +21,36 @@
       - 1
       - -A
   register: ssl_cert_info
+  changed_when: false
 
 - name: DEBUG | ssl_cert_info
   ansible.builtin.debug:
     var: ssl_cert_info
+
+- name: Set Facts
+  ansible.builtin.set_fact:
+    ssl_cert_info_lines: '{{ ssl_cert_info.stdout_lines }}'
+    num_lines: '{{ ssl_cert_info.stdout_lines | length | int }}'
+
+- name: Set Certificate Facts
+  ansible.builtin.set_fact:
+    ssl_cert_common_name: '{{ ssl_cert_info_lines[num_lines|int-4] }}'
+    ssl_cert_certificate_authority: '{{ ssl_cert_info_lines[num_lines|int-3] }}'
+    ssl_cert_not_before: '{{ ssl_cert_info_lines[num_lines|int-2] }}'
+    ssl_cert_not_after: '{{ ssl_cert_info_lines[num_lines|int-1] }}'
+
+- name: DEBUG | ssl_cert_info | CN
+  ansible.builtin.debug:
+    var: ssl_cert_common_name
+
+- name: DEBUG | ssl_cert_info | CA
+  ansible.builtin.debug:
+    var: ssl_cert_certificate_authority
+
+- name: DEBUG | ssl_cert_info | not_before
+  ansible.builtin.debug:
+    var: ssl_cert_not_before
+
+- name: DEBUG | ssl_cert_info | not_after
+  ansible.builtin.debug:
+    var: ssl_cert_not_after
