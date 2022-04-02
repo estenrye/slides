@@ -56,7 +56,7 @@
     var: ssl_cert_not_after
 
 - name: Generate an OpenSSL Certificate Signing Request
-  community.crypto.openssl_csr_pipe:
+  community.crypto.openssl_csr:
     path: /tmp.{ idrac.name }.csr
     privatekey_path: /tmp/{{ idrac.name }}.key
     common_name: "{{ idrac.name }}"
