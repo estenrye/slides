@@ -29,7 +29,7 @@ RUN yum -y update \
 USER automation-user
 WORKDIR /home/automation-user
 COPY --chown=automation-user \
-  .ansible.cfg .bashrc configure.yaml entrypoint.sh prereq.requirements.txt requirements.txt \
+  .ansible.cfg .bashrc configure.yaml entrypoint.sh prereq.requirements.txt requirements.txt requirements.yml \
   /home/automation-user/
 RUN git clone https://github.com/pyenv/pyenv.git /home/automation-user/.pyenv \
   && git clone https://github.com/yyuu/pyenv-virtualenv.git /home/automation-user/.pyenv/plugins/pyenv-virtualenv \
@@ -41,7 +41,8 @@ RUN git clone https://github.com/pyenv/pyenv.git /home/automation-user/.pyenv \
   && pyenv local py3.10.4 \
   && pyenv exec python -m pip install --force -r /home/automation-user/prereq.requirements.txt \
   && pyenv exec python -m pip install -r /home/automation-user/requirements.txt \
-  && pyenv exec ansible-playbook -i localhost, /home/automation-user/configure.yaml
+  && pyenv exec ansible-playbook -i localhost, /home/automation-user/configure.yaml \
+  && pyenv exec ansible-galaxy install -r requirements.yml
 
 ENV PYENV_VERSION=py3.10.4 \
     PYENV_ROOT=/home/automation-user/.pyenv
