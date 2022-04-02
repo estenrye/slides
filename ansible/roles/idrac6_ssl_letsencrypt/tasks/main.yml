@@ -54,3 +54,55 @@
 - name: DEBUG | ssl_cert_info | not_after
   ansible.builtin.debug:
     var: ssl_cert_not_after
+
+- name: Generate an OpenSSL Certificate Signing Request
+  community.crypto.openssl_csr_pipe:
+    path: /tmp.{ idrac.name }.csr
+    privatekey_path: /tmp/{{ idrac.name }}.key
+    common_name: "{{ idrac.name }}"
+    use_common_name_for_san: true
+
+- name: Create a challenge using a account key from a variable.
+  community.crypto.acme_certificate:
+    account_email: "{{ acme_account_email }}"
+    account_key_content: "{{ acme_account_key }}"
+    challenge: dns01
+    csr: /tmp.{ idrac.name }.csr
+    dest: /tmp.{ idrac.name }.crt
+    fullchain_dest: /tmp.{ idrac.name }.fullchain.crt
+    # acme_directory: https://acme-v01.api.letsencrypt.org/directory
+    # remaining_days: 60
+  register: acme_challenge
+
+- name: Create TXT record "test.example.net" with value "unique value"
+  community.general.cloudflare_dns:
+    domain: "{{ cloudflare_dns_zone }}"
+    record: "{{ acme_challenge.challenge_data[idrac.name]['dns-01'].record }}"
+    type: TXT
+    value: "{{ acme_challenge.challenge_data[idrac.name]['dns-01'].resource_value }}"
+    solo: true
+    api_token: "{{ cloudflare_api_token }}"
+    state: present
+
+- name: Let the challenge be validated and retrieve the cert and intermediate certificate
+  community.crypto.acme_certificate:
+    account_email: "{{ acme_account_email }}"
+    account_key_content: "{{ acme_account_key }}"
+    src: /tmp/{ idrac.name }.csr
+    cert: /tmp/{ idrac.name }.crt
+    fullchain: /tmp/{ idrac.name }-fullchain.crt
+    chain: /tmp/{ idrac.name }-intermediate.crt
+    challenge: dns-01
+    # acme_directory: https://acme-v01.api.letsencrypt.org/directory
+    # remaining_days: 60
+    data: "{{ acme_challenge }}"
+
+- name: Create TXT record "test.example.net" with value "unique value"
+  community.general.cloudflare_dns:
+    domain: "{{ cloudflare_dns_zone }}"
+    record: "{{ acme_challenge.challenge_data[idrac.name]['dns-01'].record }}"
+    type: TXT
+    value: "{{ acme_challenge.challenge_data[idrac.name]['dns-01'].resource_value }}"
+    solo: true
+    api_token: "{{ cloudflare_api_token }}"
+    state: absent
