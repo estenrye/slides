@@ -40,7 +40,7 @@ RUN git clone https://github.com/pyenv/pyenv.git /home/automation-user/.pyenv \
   && pyenv activate py3.10.4 \
   && pyenv local py3.10.4 \
   && pyenv exec python -m pip install --force -r /home/automation-user/prereq.requirements.txt \
-  && pyenv exec python -m pip install -r /home/automation-user/requirements.txt \
+  && pyenv exec python -m pip install --force -r /home/automation-user/requirements.txt \
   && pyenv exec ansible-playbook -i localhost, /home/automation-user/configure.yaml \
   && pyenv exec ansible-galaxy install -r requirements.yml
 
