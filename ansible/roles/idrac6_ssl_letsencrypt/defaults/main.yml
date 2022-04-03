@@ -2,3 +2,7 @@ idrac:
   name: ''
   ansible_ssh_user: ''
   ansible_ssh_password: ''
+
+cloudflare_zone: rye.ninja
+domain_name: '{{ idrac.name }}'
+cloudflare_account_api_token: '{{ cloudflare_api_token }}'

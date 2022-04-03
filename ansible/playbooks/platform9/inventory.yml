@@ -80,4 +80,4 @@ cluster:
 idrac:
   hosts:
     localhost:
-    cloudflare_dns_zone: rye.ninja
+      cloudflare_dns_zone: rye.ninja
