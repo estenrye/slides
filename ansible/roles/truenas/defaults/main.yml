@@ -1,15 +1,15 @@
 truenas_timezone: Etc/UTC
 truenas_language: en
-truenas_ipv4gateway: 10.5.0.1
+truenas_ipv4gateway: 10.6.0.2
 truenas_hostname: nas
 truenas_domain: ryezone.com
-truenas_nameserver1: 10.5.0.1
+truenas_nameserver1: 10.6.0.1
 truenas_nameserver2: 1.1.1.1
 truenas_nameserver3: 1.0.0.1
 truenas_root_email: "{{ git_user_email }}"
 truenas_physical_interface:
-  id: ens18
-  ipv4_address: 10.5.1.65
+  id: en04
+  ipv4_address: 10.6.0.2
   ipv4_netmask: 16
 truenas_csr_organization: Ryezone Labs
 truenas_csr_city: Bloomington
