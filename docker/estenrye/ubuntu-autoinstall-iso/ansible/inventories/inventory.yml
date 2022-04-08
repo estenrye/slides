@@ -1,3 +1,11 @@
+ubuntu-autoinstall-iso:
+  hosts:
+    localhost:
+  vars:
+    iso_url: https://releases.ubuntu.com/20.04.4/ubuntu-20.04.4-live-server-amd64.iso
+    iso_checksum: sha256:28ccdb56450e643bad03bb7bcf7507ce3d8d90e8bf09e38f6bd9ac298a98eaad
+    iso_name: ubuntu-20.04.4-live-server-amd64.iso
+
 packer_ubuntu_proxmox:
   hosts:
     packer_ubuntu_2004_proxmox:
@@ -24,6 +32,7 @@ packer_ubuntu:
 bare_metal_ubuntu:
   hosts:
     maas01:
+    plex.rye.ninja:
 
 ubuntu:
   children:
@@ -36,4 +45,5 @@ packer_proxmox:
 
 all:
   children:
+    ubuntu-autoinstall-iso:
     ubuntu:
