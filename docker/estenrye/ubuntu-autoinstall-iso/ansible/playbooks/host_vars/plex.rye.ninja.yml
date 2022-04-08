@@ -1,0 +1,38 @@
+user_data_template: /ansible/templates/user-data_uefi.yml.j2
+
+disks:
+  additional_disks: []
+  boot:
+    device_path: /dev/sda
+    size: 50G
+    additional_partitions:
+      - id: 3
+        name: root
+        mount_path: /
+        size: 25G
+      - id: 4
+        name: var
+        mount_path: /var
+        size: 2G
+      - id: 5
+        name: var-log
+        mount_path: /var/log
+        size: 10G
+      - id: 6
+        name: var-log-audit
+        mount_path: /var/log/audit
+        size: 4G
+      - id: 7
+        name: var-lib
+        mount_path: /var/lib
+        size: 4G
+      - id: 8
+        name: var-tmp
+        mount_path: /var/tmp
+        mount_options: nodev,nosuid,noexec
+        size: 2G
+      - id: 9
+        name: home
+        mount_path: /home
+        mount_options: nodev
+        size: -1

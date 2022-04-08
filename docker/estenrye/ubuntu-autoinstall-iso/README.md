@@ -90,12 +90,13 @@ docker run --rm -it \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.cidata,target=/tmp/cidata \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.ubuntu-iso,target=/tmp/ubuntu-iso \
-  --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible/inventories,target=/inventories,readonly \
-  --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible,target=/ansible,readonly \
+  --mount type=bind,source=${LAB_AUTOMATION_DIR}/docker/estenrye/ubuntu-autoinstall-iso/ansible/inventories,target=/inventories,readonly \
+  --mount type=bind,source=${LAB_AUTOMATION_DIR}/docker/estenrye/ubuntu-autoinstall-iso/ansible,target=/ansible,readonly \
   estenrye/ubuntu-autoinstall-iso \
     -e @/secrets/creds.yml \
     --vault-password-file /secrets/secret.key \
-    -i /inventories/inventory.yml
+    -i /inventories/inventory.yml \
+    --limit bare_metal_ubuntu,ubuntu-autoinstall-iso
 ```
 
 ## Continuous Integration

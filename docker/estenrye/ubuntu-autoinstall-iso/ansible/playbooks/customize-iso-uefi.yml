@@ -1,5 +1,5 @@
 ---
-- hosts: localhost
+- hosts: ubuntu-autoinstall-iso
   connection: local
   tasks:
     - name: Assert Required Parameters
