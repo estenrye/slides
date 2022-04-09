@@ -190,7 +190,8 @@ mirror_repos:
     output:
       verbose: true
 
-  - remote:
+  - handler: apt-mirror
+    remote:
       host: downloads.plex.tv
       root: /repo/deb
       gpg_key: https://downloads.plex.tv/plex-keys/PlexSign.key
