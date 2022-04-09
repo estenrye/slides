@@ -40,6 +40,5 @@ ENV FLUENTD_CONF="fluent.conf"
 ENV LD_PRELOAD=""
 EXPOSE 24224 5140
 
-USER fluent
 ENTRYPOINT ["tini",  "--", "/bin/entrypoint.sh"]
 CMD ["fluentd"]
