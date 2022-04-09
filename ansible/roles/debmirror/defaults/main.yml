@@ -189,3 +189,21 @@ mirror_repos:
       method: http
     output:
       verbose: true
+
+  - remote:
+      host: downloads.plex.tv
+      root: /repo/deb
+      gpg_key: https://downloads.plex.tv/plex-keys/PlexSign.key
+    mirror:
+      name: plex
+      dists:
+        - public
+      sections:
+        - main
+      arches:
+        - amd64
+    state_cache_days: 0
+    download:
+      method: http
+    output:
+      verbose: true

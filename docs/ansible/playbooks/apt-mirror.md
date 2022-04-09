@@ -1,10 +1,10 @@
 # Provisioning the apt-mirror
 
 ```bash
-docker run --rm -it \
-  --mount type=bind,source=`readlink -f ~/src/slides/ansible`,target=/ansible,readonly \
-  --mount type=bind,source=`readlink -f ~/.ansible/secrets`,target=/secrets \
-  --mount type=bind,source=`readlink -f ~/.ssh`,target=/home/automation-user/.ssh \
+docker run --rm -it --platform=linux/amd64 \
+  --mount type=bind,source=${LAB_AUTOMATION_DIR}/ansible,target=/ansible,readonly \
+  --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets \
+  --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa \
   -e ANSIBLE_CONFIG=/ansible/ansible.cfg \
   estenrye/ansible:latest \
   ansible-playbook \
