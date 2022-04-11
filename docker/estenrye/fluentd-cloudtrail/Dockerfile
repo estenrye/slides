@@ -13,7 +13,7 @@ RUN apk update \
  && apk add --no-cache \
         ca-certificates \
         ruby ruby-irb ruby-etc ruby-webrick \
-        tini \
+        tini bash \
  && apk add --no-cache --virtual .build-deps \
         build-base linux-headers \
         ruby-dev gnupg \
