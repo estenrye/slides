@@ -12,8 +12,8 @@ COPY Gemfile /Gemfile
 RUN apk update \
  && apk add --no-cache \
         ca-certificates \
-        ruby ruby-irb ruby-etc ruby-webrick \
-        tini bash \
+        ruby ruby-irb ruby-etc ruby-webrick su-exec \
+        tini \
  && apk add --no-cache --virtual .build-deps \
         build-base linux-headers \
         ruby-dev gnupg \
@@ -40,5 +40,5 @@ ENV FLUENTD_CONF="fluent.conf"
 ENV LD_PRELOAD=""
 EXPOSE 24224 5140
 
-ENTRYPOINT ["tini",  "--", "/bin/entrypoint.sh"]
+ENTRYPOINT ["tini",  "--", "sh", "/bin/entrypoint.sh"]
 CMD ["fluentd"]
