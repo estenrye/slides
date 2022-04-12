@@ -6,4 +6,4 @@ collections:
   - name: kubernetes.core
     version: 2.3.0
   - name: nginxinc.nginx_core
-    version: 0.5.0
+    version: 0.6.0
