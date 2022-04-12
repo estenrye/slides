@@ -2,3 +2,25 @@
   ansible.builtin.package:
     name: nfs-common
   become: true
+
+- name: Create NFS Mount Directories
+  ansible.builtin.file:
+    state: directory
+    path: "{{ nfs_mount.path }}"
+  loop_control:
+    loop_var: nfs_mount
+  loop: "{{ nfs_client_mounts | default([]) }}"
+  become: true
+
+- name: Configure NFS Mounts
+  ansible.posix.mount:
+    src: "{{ nfs_mount.src }}"
+    path: "{{ nfs_mount.path }}"
+    opts: "{{ nfs_mount.opts | default('rw,sync,hard,intr') }}"
+    boot: "{{ nfs.mount.boot | default(false) | bool }}"
+    state: mounted
+    fstype: nfs
+  loop_control:
+    loop_var: nfs_mount
+  loop: "{{ nfs_client_mounts | default([]) }}"
+  become: true

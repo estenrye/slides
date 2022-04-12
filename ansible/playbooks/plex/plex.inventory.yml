@@ -1,0 +1,39 @@
+plex_servers:
+  hosts:
+    plex.rye.ninja:
+      apt_repos:
+        - name: plexmediaserver
+          repo: https://apt.ryezone.com/plex public main
+          key_url: https://apt.ryezone.com/plex/gpg
+          arch: amd64
+      firewall_rules_allow_inbound_v4:
+        - name: Plex Media Server Web Interface
+          protocol: tcp
+          port: 32400
+        - name: Plex DLNA Server
+          protocol: tcp
+          port: 32469
+        - name: Plex DLNA Server
+          protocol: udp
+          port: 1900
+        - name: Older Bonjour/Avahi Network Discovery
+          protocol: udp
+          port: 5353
+        - name: Plex for Roku via Plex Companion
+          protocol: tcp
+          port: 8324
+        - name: Current GDM Network Discovery
+          protocol: udp
+          port: 32410
+        - name: Current GDM Network Discovery
+          protocol: udp
+          port: 32412
+        - name: Current GDM Network Discovery
+          protocol: udp
+          port: 32413
+        - name: Current GDM Network Discovery
+          protocol: udp
+          port: 32414
+      nfs_client_mounts:
+        - src: nfs.truenas.rye.ninja:/mnt/fast-ssd/media/music
+          path: /mnt/media/music

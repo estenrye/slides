@@ -1,0 +1,6 @@
+- hosts: plex_servers
+  roles:
+    - add_apt_repos
+    - firewall
+    - nfs_client
+    - plex

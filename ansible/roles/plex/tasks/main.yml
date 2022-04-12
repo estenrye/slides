@@ -1,0 +1,48 @@
+- name: Create Plex Groups
+  ansible.builtin.group:
+    name: "{{ plex_group.name }}"
+    gid: "{{ plex_group.gid }}"
+  loop_control:
+    loop_var: plex_group
+  loop:
+    - name: plex
+      gid: 997
+    - name: video
+      gid: 44
+  become: true
+
+- name: Create Plex User
+  ansible.builtin.user:
+    name: plex
+    uid: 997
+    create_home: false
+    group: plex
+    append: true
+    groups:
+      - plex
+      - video
+  become: true
+
+- name: Install Plex Media Server
+  ansible.builtin.package:
+    name:
+      - plexmediaserver
+      - python3-pip
+  become: true
+
+- name: Install lxml preqrequisite python library
+  ansible.builtin.pip:
+    name: lxml
+  become: true
+
+- name: debug
+  ansible.builtin.debug:
+    var: plex_claim_token
+
+- name: Claim Plex Media Server
+  community.general.xml:
+    path: "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml"
+    xpath: /Preferences
+    attribute: PlexOnlineToken
+    value: "{{ plex_claim_token }}"
+  become: true
