@@ -74,10 +74,19 @@ GEM
     faraday-rack (1.0.0)
     faraday-retry (1.0.3)
     fiber-local (1.0.0)
+    fluent-mixin-config-placeholders (0.4.0)
+      fluentd
+      uuidtools (>= 2.1.5)
+    fluent-mixin-rewrite-tag-name (0.1.0)
+      fluentd
     fluent-plugin-elasticsearch (5.2.0)
       elasticsearch
       excon
       fluentd (>= 0.14.22)
+    fluent-plugin-record_splitter (0.2.1)
+      fluent-mixin-config-placeholders (>= 0.3.0)
+      fluent-mixin-rewrite-tag-name
+      fluentd (>= 0.14.0, < 2)
     fluent-plugin-s3 (1.6.1)
       aws-sdk-s3 (~> 1.60)
       aws-sdk-sqs (~> 1.23)
@@ -119,6 +128,7 @@ GEM
       concurrent-ruby (~> 1.0)
     tzinfo-data (1.2022.1)
       tzinfo (>= 1.0.0)
+    uuidtools (2.2.0)
     webrick (1.7.0)
     yajl-ruby (1.4.2)
 
@@ -131,6 +141,7 @@ DEPENDENCIES
   elasticsearch (= 7.14)
   ext_monitor (= 0.1.2)
   fluent-plugin-elasticsearch (= 5.2)
+  fluent-plugin-record_splitter (~> 0.2.1)
   fluent-plugin-s3 (= 1.6.1)
   fluentd (= 1.14.6)
   json (= 2.6.1)
