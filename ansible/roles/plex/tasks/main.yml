@@ -39,10 +39,10 @@
   ansible.builtin.debug:
     var: plex_claim_token
 
-- name: Claim Plex Media Server
-  community.general.xml:
-    path: "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml"
-    xpath: /Preferences
-    attribute: PlexOnlineToken
-    value: "{{ plex_claim_token }}"
-  become: true
+# - name: Claim Plex Media Server
+#   community.general.xml:
+#     path: "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml"
+#     xpath: /Preferences
+#     attribute: PlexOnlineToken
+#     value: "{{ plex_claim_token }}"
+#   become: true

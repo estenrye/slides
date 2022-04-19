@@ -37,3 +37,6 @@ plex_servers:
       nfs_client_mounts:
         - src: nfs.truenas.rye.ninja:/mnt/fast-ssd/media/music
           path: /mnt/media/music
+        - src: nfs.truenas.rye.ninja:/mnt/fast-ssd/media/anime
+          path: /mnt/media/anime
+
