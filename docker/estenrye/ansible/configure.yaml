@@ -6,6 +6,7 @@
     jq_url: https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
     kubectl_version: v1.23.5
     kubectl_certmanager_url: https://github.com/jetstack/cert-manager/releases/latest/download/kubectl-cert_manager-linux-amd64.tar.gz
+    1password_cli_url: https://cache.agilebits.com/dist/1P/op2/pkg/v2.0.2/op_linux_amd64_v2.0.2.zip
   tasks:
     - name: create downloads directory
       ansible.builtin.file:
@@ -23,6 +24,8 @@
           filename: kubectl-cert_manager-linux-amd64.tar.gz
         - url: '{{ helm_url }}'
           filename: get_helm.sh
+        - url: '{{ 1password_cli_url }}'
+          filename: op_cli.zip
 
     - name: Download Binaries
       ansible.builtin.get_url:
@@ -43,12 +46,20 @@
       loop:
         - src: idrac.tar.gz
         - src: kubectl-cert_manager-linux-amd64.tar.gz
+        - src: op_cli.zip
 
     - name: Move kubectl cert-manager binary.
       ansible.builtin.command:
         chdir: /tmp/downloads
-        cmd: mv kubectl-cert_manager /usr/local/bin/kubectl-cert_manager
+        cmd: mv {{ executable.src }} {{ executable.dest }}
       become: true
+      loop_control:
+        loop_var: executable
+      loop:
+        - src: kubectl-cert_manager
+          dest: /usr/local/bin/kubectl-cert_manager
+        - src: op
+          dest: /usr/local/bin/op
 
     - name: Install Dell iDRAC Tools
       ansible.builtin.command:
