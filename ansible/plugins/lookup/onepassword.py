@@ -127,10 +127,10 @@ class OnePass(object):
                 raise AnsibleLookupError('Unable to sign in to 1Password. master_password is required.')
 
             try:
-                args = ['signin', '--output=raw']
+                args = ['signin', '--raw']
 
                 if self.subdomain:
-                    args = ['signin', self.subdomain, '--output=raw']
+                    args = ['signin', self.subdomain, '--raw']
 
                 rc, out, err = self._run(args, command_input=to_bytes(self.master_password))
                 self.token = out.strip()
@@ -144,7 +144,7 @@ class OnePass(object):
 
     def assert_logged_in(self):
         try:
-            rc, out, err = self._run(['get', 'account'], ignore_errors=True)
+            rc, out, err = self._run(['account', 'get'], ignore_errors=True)
             if rc == 0:
                 self.logged_in = True
             if not self.logged_in:
@@ -155,7 +155,7 @@ class OnePass(object):
             raise e
 
     def get_raw(self, item_id, vault=None):
-        args = ["get", "item", item_id]
+        args = ["item", "get", item_id, '--format=json']
         if vault is not None:
             args += ['--vault={0}'.format(vault)]
         if not self.logged_in:
@@ -177,7 +177,7 @@ class OnePass(object):
             '{0}.{1}'.format(self.subdomain, self.domain),
             to_bytes(self.username),
             to_bytes(self.secret_key),
-            '--output=raw',
+            '--raw',
         ]
 
         rc, out, err = self._run(args, command_input=to_bytes(self.master_password))
@@ -193,73 +193,29 @@ class OnePass(object):
         return rc, out, err
 
     def _parse_field(self, data_json, field_name, section_title=None):
-        """
-        Retrieves the desired field from the `op` response payload
-
-        When the item is a `password` type, the password is a key within the `details` key:
-
-        $ op get item 'test item' | jq
-        {
-          [...]
-          "templateUuid": "005",
-          "details": {
-            "notesPlain": "",
-            "password": "foobar",
-            "passwordHistory": [],
-            "sections": [
-              {
-                "name": "linked items",
-                "title": "Related Items"
-              }
-            ]
-          },
-          [...]
-        }
-
-        However, when the item is a `login` type, the password is within a fields array:
-
-        $ op get item 'test item' | jq
-        {
-          [...]
-          "details": {
-            "fields": [
-              {
-                "designation": "username",
-                "name": "username",
-                "type": "T",
-                "value": "foo"
-              },
-              {
-                "designation": "password",
-                "name": "password",
-                "type": "P",
-                "value": "bar"
-              }
-            ],
-            [...]
-          },
-          [...]
-        """
         data = json.loads(data_json)
-        if section_title is None:
-            # https://github.com/ansible-collections/community.general/pull/1610:
-            # check the details dictionary for `field_name` and return it immediately if it exists
-            # when the entry is a "password" instead of a "login" item, the password field is a key
-            # in the `details` dictionary:
-            if field_name in data['details']:
-                return data['details'][field_name]
+        section_id = None
+        if section_title is not None:
+          for section_data in data.get('sections', []):
+            if section_title == section_data.get('label', ''):
+              section_id = section_data['id']
+          if section_id is None:
+            raise AnsibleLookupError("Section Title '{0}' was not found in Item '{1}'.".format(section_title, data.get('title', '')))
 
-            # when the field is not found above, iterate through the fields list in the object details
-            for field_data in data['details'].get('fields', []):
-                if field_data.get('name', '').lower() == field_name.lower():
-                    return field_data.get('value', '')
-        for section_data in data['details'].get('sections', []):
-            if section_title is not None and section_title.lower() != section_data['title'].lower():
-                continue
-            for field_data in section_data.get('fields', []):
-                if field_data.get('t', '').lower() == field_name.lower():
-                    return field_data.get('v', '')
-        return ''
+        for field_data in data.get('fields', []):
+            field_section_data = field_data.get('section', None)
+            field_section_id = None
+            if section_id is not None:
+              if field_section_data is not None:
+                field_section_id = field_section_data['id']
+
+            if field_data.get('label', '') == field_name:
+                if section_id is not None and section_id != field_section_id:
+                  continue
+                else:
+                  return field_data.get('value', '')
+
+        raise AnsibleLookupError("Field '{0}' in Section '{1}' was not found in Item '{2}'.".format(field_name, section_title, data.get('title', '')))
 
 
 class LookupModule(LookupBase):

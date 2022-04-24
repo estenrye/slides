@@ -1,0 +1,10 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: get test password from test vault
+      ansible.builtin.debug:
+        var: "{{item}}"
+      loop:
+        - lookup('onepassword', 'Login', vault='test', field='username')
+        - lookup('onepassword', 'Password', vault='test', field='month/year', section='test-Section')
+        - lookup('onepassword', 'Password', vault='test', field='month/year', section='test-section')
