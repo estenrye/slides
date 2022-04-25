@@ -132,7 +132,7 @@ class OnePass(object):
                 if self.subdomain:
                     args = ['signin', self.subdomain, '--raw']
 
-                rc, out, err = self._run(args, command_input=to_bytes(self.master_password))
+                _, out, _ = self._run(args, command_input=to_bytes(self.master_password))
                 self.token = out.strip()
 
             except AnsibleLookupError:
@@ -144,7 +144,7 @@ class OnePass(object):
 
     def assert_logged_in(self):
         try:
-            rc, out, err = self._run(['account', 'get'], ignore_errors=True)
+            rc, _, _ = self._run(['account', 'get'], ignore_errors=True)
             if rc == 0:
                 self.logged_in = True
             if not self.logged_in:
@@ -154,18 +154,23 @@ class OnePass(object):
                 raise AnsibleLookupError("1Password CLI tool '%s' not installed in path on control machine" % self.cli_path)
             raise e
 
-    def get_raw(self, item_id, vault=None):
-        args = ["item", "get", item_id, '--format=json']
+    def get_field(self, item_id, field, section=None, vault=None):
+        args = ["item", "get", item_id, '--format=json', '--cache']
         if vault is not None:
             args += ['--vault={0}'.format(vault)]
         if not self.logged_in:
             args += [to_bytes('--session=') + self.token]
-        rc, output, dummy = self._run(args)
-        return output
 
-    def get_field(self, item_id, field, section=None, vault=None):
-        output = self.get_raw(item_id, vault)
-        return self._parse_field(output, field, section) if output != '' else ''
+        if section is not None:
+            args += ['--fields', 'label={0}.{1}'.format(section, field)]
+        else:
+            args += ['--fields', 'label={0}'.format(field)]
+
+        _, output, _ = self._run(args)
+
+        value = json.loads(output).get('value', None)
+
+        return value
 
     def full_login(self):
         if None in [self.subdomain, self.username, self.secret_key, self.master_password]:
@@ -180,7 +185,7 @@ class OnePass(object):
             '--raw',
         ]
 
-        rc, out, err = self._run(args, command_input=to_bytes(self.master_password))
+        _, out, _ = self._run(args, command_input=to_bytes(self.master_password))
         self.token = out.strip()
 
     def _run(self, args, expected_rc=0, command_input=None, ignore_errors=False):
@@ -191,31 +196,6 @@ class OnePass(object):
         if not ignore_errors and rc != expected_rc:
             raise AnsibleLookupError(to_text(err))
         return rc, out, err
-
-    def _parse_field(self, data_json, field_name, section_title=None):
-        data = json.loads(data_json)
-        section_id = None
-        if section_title is not None:
-          for section_data in data.get('sections', []):
-            if section_title == section_data.get('label', ''):
-              section_id = section_data['id']
-          if section_id is None:
-            raise AnsibleLookupError("Section Title '{0}' was not found in Item '{1}'.".format(section_title, data.get('title', '')))
-
-        for field_data in data.get('fields', []):
-            field_section_data = field_data.get('section', None)
-            field_section_id = None
-            if section_id is not None:
-              if field_section_data is not None:
-                field_section_id = field_section_data['id']
-
-            if field_data.get('label', '') == field_name:
-                if section_id is not None and section_id != field_section_id:
-                  continue
-                else:
-                  return field_data.get('value', '')
-
-        raise AnsibleLookupError("Field '{0}' in Section '{1}' was not found in Item '{2}'.".format(field_name, section_title, data.get('title', '')))
 
 
 class LookupModule(LookupBase):
