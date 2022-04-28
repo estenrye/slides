@@ -19,7 +19,9 @@ ISO.
 To build the build environment, use the following command:
 
 ```bash
-DOCKER_BUILDKIT=1 docker build -t estenrye/ubuntu-autoinstall-iso ~/src/slides/iso
+LAB_AUTOMATION_DIR=`realpath ~/src/slides`
+
+DOCKER_BUILDKIT=1 docker build -t estenrye/ubuntu-autoinstall-iso ${LAB_AUTOMATION_DIR}/docker/estenrye/ubuntu-autoinstall-iso
 ```
 
 ## Building Custom ISOs
@@ -56,21 +58,16 @@ The following code will execute the automation:
 ```bash
 ANSIBLE_SECRETS_DIR=`realpath ~/.ansible/secrets`
 LAB_AUTOMATION_DIR=`realpath ~/src/slides`
-SSH_DIR=`realpath ~/.ssh`
+SSH_KEY_PATH=`realpath ~/.ssh/id_rsa`
 
 mkdir -p ${LAB_AUTOMATION_DIR}/iso/.output
 
 docker run --rm -it \
-  -e ANSIBLE_CONFIG=/ansible/ansible.cfg \
-  -e PACKER_LOG=1 \
   --user 1000:$(id -u) \
+  --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa,readonly \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
-  --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible/inventories,target=/inventories,readonly \
-  estenrye/ubuntu-autoinstall-iso \
-    -e @/secrets/creds.yml \
-    --vault-password-file /secrets/secret.key \
-    -i /inventories/inventory.yml
+  estenrye/ubuntu-autoinstall-iso
 ```
 
 ## Local Testing of Ansible Playbook Changes
@@ -78,14 +75,13 @@ docker run --rm -it \
 ```bash
 ANSIBLE_SECRETS_DIR=`realpath ~/.ansible/secrets`
 LAB_AUTOMATION_DIR=`realpath ~/src/slides`
-SSH_DIR=`realpath ~/.ssh`
+SSH_KEY_PATH=`realpath ~/.ssh/id_rsa`
 
 mkdir -p ${LAB_AUTOMATION_DIR}/iso/.output ${LAB_AUTOMATION_DIR}/iso/.cidata ${LAB_AUTOMATION_DIR}/iso/.ubuntu-iso
 
 docker run --rm -it \
-  -e ANSIBLE_CONFIG=/ansible/ansible.cfg \
   --user 1000:$(id -u) \
-  --mount type=bind,source=${SSH_DIR},target=/home/automation-user/.ssh \
+  --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa,readonly \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.cidata,target=/tmp/cidata \

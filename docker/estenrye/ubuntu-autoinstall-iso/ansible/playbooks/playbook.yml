@@ -8,6 +8,13 @@
   tags:
     - cidata
 
+# TODO: Separate this into a separate docker image
+# Reasoning:
+#  - Separates concerns of building ISOs from concerns of building VM Templates
+#  - Reduces complexity of docker images.
+#  - Makes maintenance of packer process lighter.
+#  - Eliminates need for proxmox credentials when generating ISOs
+
 - name: Build Packer HCL Files
   ansible.builtin.import_playbook: /ansible/playbooks/packer-hcl.yml
   tags:
