@@ -13,7 +13,7 @@ disks:
   additional_disks: []
   boot:
     device_path: /dev/vda
-    size: 200G
+    size: 100G
     additional_partitions:
       - id: 3
         name: root
@@ -26,26 +26,22 @@ disks:
       - id: 5
         name: var-log
         mount_path: /var/log
-        size: 20G
+        size: 15G
       - id: 6
         name: var-log-audit
         mount_path: /var/log/audit
         size: 4G
       - id: 7
-        name: var-lib
-        mount_path: /var/lib
-        size: 20G
-      - id: 8
         name: var-tmp
         mount_path: /var/tmp
         mount_options: nodev,nosuid,noexec
-        size: 2G
-      - id: 9
+        size: 7G
+      - id: 8
         name: home
         mount_path: /home
         mount_options: nodev
         size: 2G
-      - id: 10
-        name: var-lib-longhorn
-        mount_path: /var/lib/longhorn
+      - id: 9
+        name: var-lib
+        mount_path: /var/lib
         size: -1
