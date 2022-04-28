@@ -111,3 +111,18 @@ sudo dd if=${LAB_AUTOMATION_DIR}/iso/.output/custom_ubuntu-20.04.3-live-server-a
 # Making a cidata USB disk
 sudo dd if=${LAB_AUTOMATION_DIR}/iso/.output/maas01/cidata.iso of=${TARGET_DEVICE} bs=4M status=progress
 ```
+
+## Provision a Proxmox VM Template
+
+```bash
+# Provision the template.
+# Note that in this example we override the existing values for proxmox_vm_id and proxmox_vm_name
+docker run --rm -it \
+  --user 1000:$(id -u) \
+  --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa,readonly \
+  --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
+  --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
+  --entrypoint packer \
+  estenrye/ubuntu-autoinstall-iso \
+  build /output/packer_ubuntu_2004_proxmox/template.pkr.hcl
+```
