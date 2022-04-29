@@ -1,0 +1,26 @@
+# my.proxmox.yml
+plugin: community.general.proxmox
+
+# url is provided by the environment variable PROXMOX_URL
+# user is provided by the environment variable PROXMOX_USER
+# pasword is provided by the environment variable PROXMOX_PASSWORD
+
+validate_certs: true
+use_extra_vars: true
+want_facts: true
+keyed_groups:
+  - key: proxmox_tags_parsed
+    separator: ""
+    prefix: group
+
+groups:
+  controlplane: >
+    'controlplane' in (proxmox_tags_parsed|list)
+    and 'esten_growth' in (proxmox_tags_parsed|list)
+  node: >
+    'node' in (proxmox_tags_parsed|list)
+    and 'esten_growth' in (proxmox_tags_parsed|list)
+  esten_growth: >
+    'esten_growth' in (proxmox_tags_parsed|list)
+  all_cluster_vms: >
+    'esten_growth' in (proxmox_tags_parsed|list)
