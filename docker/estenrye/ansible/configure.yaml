@@ -2,7 +2,6 @@
   connection: local
   vars:
     helm_url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-    idractools_url: https://dl.dell.com/FOLDER05920767M/1/DellEMC-iDRACTools-Web-LX-9.4.0-3732_A00.tar.gz
     jq_url: https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
     kubectl_version: v1.23.5
     kubectl_certmanager_url: https://github.com/jetstack/cert-manager/releases/latest/download/kubectl-cert_manager-linux-amd64.tar.gz
@@ -18,8 +17,6 @@
         url: '{{ item.url }}'
         dest: /tmp/downloads/{{ item.filename }}
       loop:
-        - url: '{{ idractools_url }}'
-          filename: idrac.tar.gz
         - url: '{{ kubectl_certmanager_url }}'
           filename: kubectl-cert_manager-linux-amd64.tar.gz
         - url: '{{ helm_url }}'
@@ -41,12 +38,12 @@
 
     - name: Extract Archives
       ansible.builtin.unarchive:
-        src: /tmp/downloads/{{ item.src }}
+        src: "{{ item.src }}"
         dest: /tmp/downloads
       loop:
-        - src: idrac.tar.gz
-        - src: kubectl-cert_manager-linux-amd64.tar.gz
-        - src: op_cli.zip
+        - src: /home/automation-user/DellEMC-iDRACTools-Web-LX-9.5.0-4111_A00.tar.gz
+        - src: /tmp/downloads/kubectl-cert_manager-linux-amd64.tar.gz
+        - src: /tmp/downloads/op_cli.zip
 
     - name: Move kubectl cert-manager binary.
       ansible.builtin.command:
@@ -85,14 +82,14 @@
         path: /tmp/downloads
         state: absent
 
-    - ansible.builtin.file:
-        path: '{{ item.path }}'
-        src: '{{ item.src }}'
-        state: link
-      become: true
-      loop:
-        - path: /usr/local/bin/racadm
-          src: /opt/dell/srvadmin/bin/idracadm7
+    # - ansible.builtin.file:
+    #     path: '{{ item.path }}'
+    #     src: '{{ item.src }}'
+    #     state: link
+    #   become: true
+    #   loop:
+    #     - path: /usr/local/bin/racadm
+    #       src: /opt/dell/srvadmin/bin/idracadm7
 
     - ansible.builtin.file:
         path: /ansible

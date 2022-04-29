@@ -1,0 +1,49 @@
+all:
+  children:
+    localhost:
+  vars:
+    platform_environment: esten-growth
+    kubernetes_zone: esten-growth.rye.ninja
+    proxmox_template: packer-ubuntu-2004-proxmox-20220428T200151
+    proxmox_bridge: vmbr0
+    proxmox_nameservers:
+      - '1.1.1.1'
+      - '1.0.0.1'
+    proxmox_gateway: '10.5.0.1'
+    guest_vms:
+      - name: controlplane01
+        platform_role: controlplane
+        node: proxmox02
+        cpu: 4
+        memory: 16384
+        ipv4: '10.5.15.1/16'
+      - name: controlplane02
+        platform_role: controlplane
+        node: proxmox02
+        cpu: 4
+        memory: 16384
+        ipv4: '10.5.15.2/16'
+      - name: controlplane03
+        platform_role: controlplane
+        node: proxmox02
+        cpu: 4
+        memory: 16384
+        ipv4: '10.5.15.3/16'
+      - name: node01
+        platform_role: node
+        node: proxmox02
+        cpu: 4
+        memory: 16384
+        ipv4: '10.5.15.4/16'
+      - name: node02
+        platform_role: node
+        node: proxmox02
+        cpu: 4
+        memory: 16384
+        ipv4: '10.5.15.5/16'
+      - name: node03
+        platform_role: node
+        node: proxmox02
+        cpu: 4
+        memory: 16384
+        ipv4: '10.5.15.6/16'
