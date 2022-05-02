@@ -63,8 +63,9 @@ docker run --rm -it --platform linux/amd64 \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets \
   estenrye/ansible:latest \
   ansible-playbook \
-    -e @/secrets/creds.yml \
-    --vault-password-file /secrets/secret.key \
+    -e @/secrets/op.yml \
+    -e @/ansible/playbooks/kubernetes/group_vars/${CLUSTER}.yml \
+    --ask-vault-password \
     -i /ansible/inventories/${CLUSTER}/infrastructure.yml \
     /ansible/playbooks/kubernetes/infrastructure_provision.yml
 ```

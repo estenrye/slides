@@ -43,6 +43,8 @@ DOCUMENTATION = '''
         description: The secret key used when performing an initial sign in.
       vault:
         description: Vault containing the item to retrieve (case-insensitive). If absent will search all vaults.
+      totp_code:
+        description: Optional code used for full sign-in when two-factor authentication is enabled on the account.
     notes:
       - This lookup will use an existing 1Password session if one exists. If not, and you have already
         performed an initial sign in (meaning C(~/.op/config exists)), then only the C(master_password) is required.
@@ -98,19 +100,23 @@ RETURN = """
 import errno
 import json
 import os
+import platform
 
 from subprocess import Popen, PIPE
 
 from ansible.plugins.lookup import LookupBase
 from ansible.errors import AnsibleLookupError
 from ansible.module_utils.common.text.converters import to_bytes, to_text
+from ansible.utils.display import Display
 
+display = Display()
 
 class OnePass(object):
 
-    def __init__(self, path='op'):
+    def __init__(self, path='/usr/local/bin/op'):
         self.cli_path = path
-        self.config_file_path = os.path.expanduser('~/.op/config')
+        self.config_file_path = os.path.expanduser('~/.config')
+        display.vvvvv(self.config_file_path)
         self.logged_in = False
         self.token = None
         self.subdomain = None
@@ -118,8 +124,10 @@ class OnePass(object):
         self.username = None
         self.secret_key = None
         self.master_password = None
+        self.totp_code = None
 
     def get_token(self):
+        display.vvv('entered get_token')
         # If the config file exists, assume an initial signin has taken place and try basic sign in
         if os.path.isfile(self.config_file_path):
 
@@ -127,10 +135,9 @@ class OnePass(object):
                 raise AnsibleLookupError('Unable to sign in to 1Password. master_password is required.')
 
             try:
-                args = ['signin', '--raw']
-
-                if self.subdomain:
-                    args = ['signin', self.subdomain, '--raw']
+                args = ['signin', '--raw', '--account {0}.{1}'.format(self.subdomain, self.domain)]
+                if None not in [self.subdomain, self.domain]:
+                    args += ['--account {0}.{1}'.format(self.subdomain, self.domain)]
 
                 _, out, _ = self._run(args, command_input=to_bytes(self.master_password))
                 self.token = out.strip()
@@ -142,17 +149,44 @@ class OnePass(object):
             # Attempt a full sign in since there appears to be no existing sign in
             self.full_login()
 
+    def assert_account_added(self):
+      display.vvv('entered assert_account_added')
+      _, out, _ = self._run(['account', 'list', '--format=json'])
+
+      accounts = json.loads(out)
+
+      if len(accounts) == 0:
+        display.vvv('assert_account_added found no accounts.  Returned: False')
+        return False
+
+      if None in [self.subdomain, self.domain, self.username]:
+        display.vvv('assert_account_added at least one account.  Returned: True')
+        return True
+
+      for account in accounts:
+        if account.url == '{0}.{1}'.format(self.subdomain, self.domain) and account.email == self.username:
+          display.vvv('assert_account_added found specified account.  Returned: True')
+          return True
+
+      display.vvv('assert_account_added did not find specified account.  Returned: False')
+      return False
+
     def assert_logged_in(self):
-        try:
-            rc, _, _ = self._run(['account', 'get'], ignore_errors=True)
-            if rc == 0:
-                self.logged_in = True
-            if not self.logged_in:
-                self.get_token()
-        except OSError as e:
-            if e.errno == errno.ENOENT:
-                raise AnsibleLookupError("1Password CLI tool '%s' not installed in path on control machine" % self.cli_path)
-            raise e
+      display.vvv('entered assert_logged_in')
+      rc = -1
+      if not self.assert_account_added():
+        self.logged_in = False
+        self.full_login()
+      elif None not in [self.subdomain, self.domain]:
+        rc, _, _ = self._run(args=['account', 'get', '--account={0}.{1}'.format(self.subdomain, self.domain)], ignore_errors=True)
+      else:
+        rc, _, _ = self._run(args=['account', 'get'], ignore_errors=True)
+
+      if rc == 0:
+        self.logged_in = True
+      el
+      if not self.logged_in:
+          self.get_token()
 
     def get_field(self, item_id, field, section=None, vault=None):
         args = ["item", "get", item_id, '--format=json', '--cache']
@@ -173,29 +207,67 @@ class OnePass(object):
         return value
 
     def full_login(self):
+        display.vvv('entered full_login')
         if None in [self.subdomain, self.username, self.secret_key, self.master_password]:
             raise AnsibleLookupError('Unable to perform initial sign in to 1Password. '
                                      'subdomain, username, secret_key, and master_password are required to perform initial sign in.')
 
         args = [
-            'signin',
-            '{0}.{1}'.format(self.subdomain, self.domain),
-            to_bytes(self.username),
-            to_bytes(self.secret_key),
-            '--raw',
+            'account', 'add',
+            '--account={0}.{1}'.format(self.subdomain, self.domain),
+            '--address={0}.{1}'.format(self.subdomain, self.domain),
+            '--email={0}'.format(self.username),
+            '--secret-key={0}'.format(self.secret_key),
+            '--signin',
+            '--raw'
         ]
 
-        _, out, _ = self._run(args, command_input=to_bytes(self.master_password))
-        self.token = out.strip()
+        command_inputs = [ to_bytes(self.master_password) ]
+
+        if self.totp_code is not None:
+          command_inputs += [ to_bytes(self.totp_code) ]
+
+        rc, out, _ = self._runs(args, command_input=command_inputs)
+        display.vvvvv('rc={0}'.format(rc))
+        self.get_token()
+
+    def _runs(self, args, expected_rc=0, command_input=None, ignore_errors=False):
+        try:
+          command = [self.cli_path, '--config={0}'.format(self.config_file_path)] + args
+          device_id = os.getenv('OP_DEVICE')
+
+          p = Popen(command, stdout=PIPE, stderr=PIPE, stdin=PIPE, env={'OP_DEVICE': device_id})
+          display.vvvvv(' '.join(command))
+          p.stdin.writelines(command_input)
+          out, err = p.communicate(input=None)
+          display.vvvvv('stdout:')
+          display.vvvvv(out.decode())
+          display.vvvvv('stderr:')
+          display.vvvvv(err.decode())
+          rc = p.wait()
+          if not ignore_errors and rc != expected_rc:
+              raise AnsibleLookupError(to_text(err))
+          return rc, out, err
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                display.vvvvv(e.strerror)
+                raise AnsibleLookupError("1Password CLI tool '%s' not installed in path on control machine" % self.cli_path)
+            raise e
 
     def _run(self, args, expected_rc=0, command_input=None, ignore_errors=False):
-        command = [self.cli_path] + args
-        p = Popen(command, stdout=PIPE, stderr=PIPE, stdin=PIPE)
-        out, err = p.communicate(input=command_input)
-        rc = p.wait()
-        if not ignore_errors and rc != expected_rc:
-            raise AnsibleLookupError(to_text(err))
-        return rc, out, err
+        try:
+          command = [self.cli_path, '--config={0}'.format(self.config_file_path)] + args
+          display.vvvvv(' '.join(command))
+          p = Popen(command, stdout=PIPE, stderr=PIPE, stdin=PIPE)
+          out, err = p.communicate(input=command_input)
+          rc = p.wait()
+          if not ignore_errors and rc != expected_rc:
+              raise AnsibleLookupError(to_text(err))
+          return rc, out, err
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                raise AnsibleLookupError("1Password CLI tool '%s' not installed in path on control machine" % self.cli_path)
+            raise e
 
 
 class LookupModule(LookupBase):
@@ -211,7 +283,7 @@ class LookupModule(LookupBase):
         op.username = kwargs.get('username')
         op.secret_key = kwargs.get('secret_key')
         op.master_password = kwargs.get('master_password', kwargs.get('vault_password'))
-
+        op.totp_code = kwargs.get('totp_code')
         op.assert_logged_in()
 
         values = []

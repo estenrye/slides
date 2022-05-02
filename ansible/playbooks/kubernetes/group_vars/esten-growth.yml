@@ -1,0 +1,8 @@
+pf9_fqdn:  "{{ lookup('onepassword', 'Platform9 - esten-growth', vault='Home Lab', field='website', master_password=op_master_password, username=op_username, secret_key=op_secret_key, subdomain=op_subdomain, totp_code=op_totp_code) }}"
+pf9_username: "{{ lookup('onepassword', 'Platform9 - esten-growth', vault='Home Lab', field='username', master_password=op_master_password, username=op_username, secret_key=op_secret_key, subdomain=op_subdomain, totp_code=op_totp_code) }}"
+pf9_password: "{{ lookup('onepassword', 'Platform9 - esten-growth', vault='Home Lab', field='password', master_password=op_master_password, username=op_username, secret_key=op_secret_key, subdomain=op_subdomain, totp_code=op_totp_code) }}"
+proxmox_username: "{{ lookup('onepassword', 'Proxmox', vault='Home Lab', field='username', master_password=op_master_password, username=op_username, secret_key=op_secret_key, subdomain=op_subdomain, totp_code=op_totp_code) }}"
+proxmox_realm: "{{ lookup('onepassword', 'Proxmox', vault='Home Lab', field='realm', master_password=op_master_password, username=op_username, secret_key=op_secret_key, subdomain=op_subdomain, totp_code=op_totp_code) }}"
+proxmox_user: "{{ proxmox_username }}@{{ proxmox_realm }}"
+proxmox_pass: "{{ lookup('onepassword', 'Proxmox', vault='Home Lab', field='password', master_password=op_master_password, username=op_username, secret_key=op_secret_key, subdomain=op_subdomain, totp_code=op_totp_code) }}"
+proxmox_host: "{{ lookup('onepassword', 'Proxmox', vault='Home Lab', field='host', master_password=op_master_password, username=op_username, secret_key=op_secret_key, subdomain=op_subdomain, totp_code=op_totp_code) }}"

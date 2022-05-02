@@ -52,6 +52,9 @@ RUN source /home/automation-user/.bashrc \
 ENV PYENV_VERSION=3.10.4 \
     PYENV_ROOT=/home/automation-user/.pyenv
 
+RUN  mkdir -p /home/automation-user/.config/op \
+  && chmod -R 700 /home/automation-user/.config
+
 COPY --chown=automation-user entrypoint.sh /home/automation-user/
 WORKDIR /ansible
 ENTRYPOINT ["/home/automation-user/entrypoint.sh"]
