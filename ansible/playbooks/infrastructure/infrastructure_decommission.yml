@@ -6,7 +6,7 @@
         api_user: "{{ proxmox_user }}"
         api_password: "{{ proxmox_pass }}"
         api_host: "{{ proxmox_host }}"
-        name: "{{ vm.name }}.{{ kubernetes_zone }}"
+        name: "{{ vm.name }}.{{ platform_environment }}.{{ cloudflare_zone }}"
         node: "{{ vm.node }}"
         pool: "{{ platform_environment }}"
         proxmox_default_behavior: no_defaults
@@ -22,7 +22,7 @@
         api_user: "{{ proxmox_user }}"
         api_password: "{{ proxmox_pass }}"
         api_host: "{{ proxmox_host }}"
-        name: "{{ vm.name }}.{{ kubernetes_zone }}"
+        name: "{{ vm.name }}.{{ platform_environment }}.{{ cloudflare_zone }}"
         node: "{{ vm.node }}"
         pool: "{{ platform_environment }}"
         proxmox_default_behavior: no_defaults

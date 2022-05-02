@@ -10,7 +10,7 @@
         api_host: "{{ proxmox_host }}"
         proxmox_default_behavior: no_defaults
         clone: "{{ proxmox_template }}"
-        name: "{{ vm.name }}.{{ kubernetes_zone }}"
+        name: "{{ vm.name }}.{{ platform_environment }}.{{ cloudflare_zone }}"
         node: "{{ vm.node }}"
         full: no
         format: unspecified
@@ -22,7 +22,7 @@
 
     - name: Modify cloned vm
       community.general.proxmox_kvm:
-        name: "{{ vm.name }}.{{ kubernetes_zone }}"
+        name: "{{ vm.name }}.{{ platform_environment }}.{{ cloudflare_zone }}"
         node: "{{ vm.node }}"
         update: true
         api_user: "{{ proxmox_user }}"
@@ -31,7 +31,7 @@
         proxmox_default_behavior: no_defaults
         memory: "{{ vm.memory | int }}"
         vcpus: "{{ vm.cpu | int }}"
-        searchdomains: '{{ kubernetes_zone }}'
+        searchdomains: '{{ platform_environment }}.{{ cloudflare_zone }}'
         tags:
           - "{{ platform_environment }}"
           - "{{ vm.platform_role }}"
@@ -48,7 +48,7 @@
 
     - name: Start cloned vm
       community.general.proxmox_kvm:
-        name: "{{ vm.name }}.{{ kubernetes_zone }}"
+        name: "{{ vm.name }}.{{ platform_environment }}.{{ cloudflare_zone }}"
         node: "{{ vm.node }}"
         update: true
         api_user: "{{ proxmox_user }}"

@@ -1,0 +1,7 @@
+- name: Chrony | Make sure the service is unmasked, started, and enabled
+  systemd:
+    name: chrony
+    state: started
+    enabled: yes
+    masked: no
+  become: true

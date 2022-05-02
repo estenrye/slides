@@ -3,7 +3,7 @@ plugin: community.general.proxmox
 
 # url is provided by the environment variable PROXMOX_URL
 # user is provided by the environment variable PROXMOX_USER
-# pasword is provided by the environment variable PROXMOX_PASSWORD
+# password is provided by the environment variable PROXMOX_PASSWORD
 
 validate_certs: true
 use_extra_vars: true
@@ -16,11 +16,11 @@ keyed_groups:
 groups:
   controlplane: >
     'controlplane' in (proxmox_tags_parsed|list)
-    and 'esten_growth' in (proxmox_tags_parsed|list)
+    and 'esten-growth' in (proxmox_tags_parsed|list)
   node: >
     'node' in (proxmox_tags_parsed|list)
-    and 'esten_growth' in (proxmox_tags_parsed|list)
+    and 'esten-growth' in (proxmox_tags_parsed|list)
   esten_growth: >
-    'esten_growth' in (proxmox_tags_parsed|list)
+    'esten-growth' in (proxmox_tags_parsed|list)
   all_cluster_vms: >
-    'esten_growth' in (proxmox_tags_parsed|list)
+    'esten-growth' in (proxmox_tags_parsed|list)

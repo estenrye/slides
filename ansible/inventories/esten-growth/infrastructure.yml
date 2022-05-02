@@ -3,7 +3,7 @@ all:
     localhost:
   vars:
     platform_environment: esten-growth
-    kubernetes_zone: esten-growth.rye.ninja
+    cloudflare_zone: rye.ninja
     proxmox_template: packer-ubuntu-2004-proxmox-20220428T200151
     proxmox_bridge: vmbr0
     proxmox_nameservers:

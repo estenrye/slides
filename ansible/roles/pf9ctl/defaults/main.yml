@@ -23,7 +23,7 @@ pf9_prep_node: false
 pf9_config:
   fqdn: "{{ pf9_fqdn | mandatory }}"
   username: "{{ pf9_username | mandatory }}"
-  password: "{{ pf9_password | mandatory }}"
+  password: "{{ pf9_password | mandatory | b64encode }}"
   tenant: "{{ pf9_tenant }}"
   region: "{{ pf9_region }}"
   wait_period: "{{ pf9_wait_period | int }}"

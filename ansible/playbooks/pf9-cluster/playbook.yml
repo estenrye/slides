@@ -1,0 +1,4 @@
+- hosts: all_cluster_vms
+  roles:
+    - chrony
+    - pf9ctl
