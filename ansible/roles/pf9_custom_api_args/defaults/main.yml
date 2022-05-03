@@ -1,0 +1,6 @@
+kube_controller_manager_args: []
+
+kube_api_server_args:
+  - --enable-admission-plugins=NodeRestriction
+
+kube_scheduler_args: []

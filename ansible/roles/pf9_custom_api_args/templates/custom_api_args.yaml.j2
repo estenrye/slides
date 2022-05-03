@@ -1,0 +1,28 @@
+---
+# For flags in kube-controller-manager
+#- op: add
+#  path: /spec/containers/0/command/-
+#  value: "--my-custom-controller-arg1=arg1"
+# For flags in kube-apiserver
+#- op: add
+#  path: /spec/containers/1/command/-
+#  value: "--my-custom-apiserver-arg2=arg2"
+# For flags in kube-scheduler
+#- op: add
+#  path: /spec/containers/2/command/-
+#  value: "--my-custom-scheduler-arg3=arg3"
+{% for arg in kube_controller_manager_args %}
+- op: add
+  path: /spec/containers/0/command/-
+  value: "{{ arg }}"
+{%- endfor %}
+{% for arg in kube_api_server_args %}
+- op: add
+  path: /spec/containers/1/command/-
+  value: "{{ arg }}"
+{%- endfor %}
+{% for arg in kube_scheduler_args %}
+- op: add
+  path: /spec/containers/2/command/-
+  value: "{{ arg }}"
+{%- endfor %}

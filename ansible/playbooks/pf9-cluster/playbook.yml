@@ -2,3 +2,8 @@
   roles:
     - chrony
     - pf9ctl
+
+- hosts: controlplane
+  roles:
+    - kubernetes_audit_log
+    - pf9_custom_api_args

@@ -1,0 +1,8 @@
+- name: Write Custom Kubernetes API Server Arguments
+  ansible.builtin.template:
+    src: custom_api_args.yaml.j2
+    dest: /opt/pf9/.custom_api_args.yaml
+    owner: root
+    group: root
+    mode: 0640
+  become: true

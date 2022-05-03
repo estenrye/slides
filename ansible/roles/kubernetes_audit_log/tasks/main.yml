@@ -1,0 +1,8 @@
+- name: Write Audit Policy
+  ansible.builtin.copy:
+    content: "{{ audit_policy | to_nice_yaml }}"
+    dest: "{{ audit_policy_path }}"
+    owner: pf9
+    group: pf9group
+    mode: 0644
+  become: true
