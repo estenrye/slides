@@ -40,13 +40,13 @@ GEM
     console (1.15.0)
       fiber-local
     cool.io (1.7.1)
-    elasticsearch (7.14.0)
-      elasticsearch-api (= 7.14.0)
-      elasticsearch-transport (= 7.14.0)
-    elasticsearch-api (7.14.0)
-      multi_json
-    elasticsearch-transport (7.14.0)
+    elastic-transport (8.0.0)
       faraday (~> 1)
+      multi_json
+    elasticsearch (8.2.0)
+      elastic-transport (= 8.0.0)
+      elasticsearch-api (= 8.2.0)
+    elasticsearch-api (8.2.0)
       multi_json
     excon (0.92.2)
     ext_monitor (0.1.2)
@@ -91,8 +91,6 @@ GEM
       aws-sdk-s3 (~> 1.60)
       aws-sdk-sqs (~> 1.23)
       fluentd (>= 0.14.22, < 2)
-    fluent-plugin-split-array (0.1.1)
-      fluentd (>= 0.14.0, < 2)
     fluentd (1.14.6)
       bundler
       cool.io (>= 1.4.5, < 2.0.0)
@@ -136,16 +134,16 @@ GEM
 
 PLATFORMS
   universal-darwin-21
+  x86_64-linux
 
 DEPENDENCIES
   async-http (= 0.56.5)
   bigdecimal (= 3.1.2)
-  elasticsearch (= 7.14)
+  elasticsearch (= 8.2)
   ext_monitor (= 0.1.2)
   fluent-plugin-elasticsearch (= 5.2)
   fluent-plugin-record_splitter (= 0.2.1)
   fluent-plugin-s3 (= 1.6.1)
-  fluent-plugin-split-array (~> 0.1.1)
   fluentd (= 1.14.6)
   json (= 2.6.1)
   oj (= 3.13.11)
