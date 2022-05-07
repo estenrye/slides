@@ -15,12 +15,24 @@
 - op: add
   path: /spec/containers/0/command/-
   value: "{{ arg }}"
-{%- endfor %}
+{% endfor %}
 {% for arg in kube_api_server_args %}
 - op: add
   path: /spec/containers/1/command/-
   value: "{{ arg }}"
-{%- endfor %}
+{% endfor %}
+{% for mount in kube_api_server_volume_mounts %}
+- op: add
+  path: /spec/containers/1/volumeMounts/-
+  value:
+    {{ mount | to_nice_yaml | indent(4) }}
+{% endfor %}
+{% for volume in k8s_master_volumes %}
+- op: add
+  path: /spec/volumes/-
+  value:
+    {{ volume | to_nice_yaml | indent(4) }}
+{% endfor %}
 {% for arg in kube_scheduler_args %}
 - op: add
   path: /spec/containers/2/command/-

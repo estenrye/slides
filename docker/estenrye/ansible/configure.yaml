@@ -5,6 +5,7 @@
     jq_url: https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
     kubectl_version: v1.23.5
     kubectl_certmanager_url: https://github.com/jetstack/cert-manager/releases/latest/download/kubectl-cert_manager-linux-amd64.tar.gz
+    kustomize_url: https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh
     one_password_cli_url: https://cache.agilebits.com/dist/1P/op2/pkg/v2.0.2/op_linux_amd64_v2.0.2.zip
   tasks:
     - name: create downloads directory
@@ -23,6 +24,8 @@
           filename: get_helm.sh
         - url: '{{ one_password_cli_url }}'
           filename: op_cli.zip
+        - url: '{{ kustomize_url }}'
+          filename: get_kustomize.sh
 
     - name: Download Binaries
       ansible.builtin.get_url:
@@ -64,18 +67,28 @@
         cmd: ./install_racadm.sh
       become: true
 
-    - name: Change Helm Installer Script Permissions
+    - name: Change Installer Script Permissions
       ansible.builtin.file:
-        path: /tmp/downloads/get_helm.sh
+        path: /tmp/downloads/{{ script }}
         mode: 0700
+      loop_control:
+        loop_var: script
+      loop:
+        - get_helm.sh
+        - get_kustomize.sh
 
-    - name: Install Helm
+    - name: Run Scripts
       ansible.builtin.command:
         chdir: /tmp/downloads
-        cmd: ./get_helm.sh
+        cmd: "{{ script }}"
       environment:
         PATH: "/usr/local/bin:{{ lookup('env', 'PATH') }}"
       become: true
+      loop_control:
+        loop_var: script
+      loop:
+        - ./get_helm.sh
+        - ./get_kustomize.sh
 
     - name: Remove downloads directory
       ansible.builtin.file:

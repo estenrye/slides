@@ -1,0 +1,34 @@
+audit_config:
+  path: /opt/pf9/.audit_config_args.yaml
+  owner: pf9
+  group: pf9group
+
+audit_policy:
+  path: /var/opt/pf9/kube/apiserver-config/audit-policy.yaml
+  owner: pf9
+  group: pf9group
+  content:
+    apiVersion: audit.k8s.io/v1
+    kind: Policy
+    rules:
+      # A catch-all rule to log all requests that modify state at the Request level.
+      - level: Request
+        verbs:
+          - create
+          - delete
+          - deletecollection
+          - patch
+          - update
+
+      # A catch-all rule to log all other requests at the Metadata level.  (get, list, watch)
+      - level: Metadata
+        # Long-running requests like watches that fall under this rule will not
+        # generate an audit event in RequestReceived.
+        omitStages:
+          - "RequestReceived"
+
+audit_log:
+  path: /var/opt/pf9/kube/audit
+  owner: pf9
+  group: pf9group
+

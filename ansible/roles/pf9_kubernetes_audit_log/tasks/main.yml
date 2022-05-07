@@ -1,0 +1,52 @@
+- name: Ensure Audit Log Directory Exists
+  ansible.builtin.file:
+    state: directory
+    path: "{{ audit_log.path }}"
+    owner: "{{ audit_log.owner }}"
+    group: "{{ audit_log.group }}"
+    mode: 0750
+  become: true
+
+- name: Write Audit Config
+  ansible.builtin.template:
+    src: audit-logging.kustomize.yml.j2
+    dest: "{{ audit_config.path }}"
+    owner: "{{ audit_config.owner }}"
+    group: "{{ audit_config.group }}"
+    mode: 0640
+  become: true
+
+- name: Write Audit Policy
+  ansible.builtin.copy:
+    content: "{{ audit_policy.content | to_nice_yaml }}"
+    dest: "{{ audit_policy.path }}"
+    owner: pf9
+    group: pf9group
+    mode: 0644
+  become: true
+
+- name: reset overlay
+  ansible.builtin.copy:
+    content: |
+      bases:
+      - ../../base/ubuntu
+      patchesJson6902:
+      - path: /opt/pf9/.custom_api_args.yaml
+        target:
+          version: "v1"
+          kind: "Pod"
+          name: "k8s-master"
+    dest: /opt/pf9/pf9-kube/conf/masterconfig/overlays/local/kustomization.yaml
+  become: true
+
+# - name: Add line to overlay
+#   ansible.builtin.lineinfile:
+#     regexp: |
+#       - path: {{ audit_config.path }}
+#         target:
+#           version: "v1"
+#           kind: "Pod"
+#           name: "k8s-master"
+#     state: absent
+#     path: /opt/pf9/pf9-kube/conf/masterconfig/overlays/local/kustomization.yaml
+#   become: true

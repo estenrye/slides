@@ -5,5 +5,7 @@
 
 - hosts: controlplane
   roles:
-    - kubernetes_audit_log
-    - pf9_custom_api_args
+    - pf9_kubernetes_audit_log
+  tasks:
+    - ansible.builtin.debug:
+        var: message

@@ -1,0 +1,22 @@
+- op: add
+  path: /spec/containers/1/volumeMounts/-
+  value:
+    mountpath: /var/log/kubernetes/audit/
+    name: audit-log
+    readonly: false
+
+- op: add
+  path: /spec/volumes/-
+  value:
+    hostPath:
+        path: "{{ audit_policy.path }}"
+        type: File
+    name: audit
+
+- op: add
+  path: /spec/volumes/-
+  value:
+    hostPath:
+        path: "{{ audit_log.path }}"
+        type: DirectoryOrCreate
+    name: audit-log

@@ -1,0 +1,25 @@
+audit_policy_path: /var/opt/pf9/kube/apiserver-config/audit-policy.yaml
+audit_log_directory: /var/log/kubernetes/audit
+
+kube_api_server_args:
+  - --enable-admission-plugins=NodeRestriction
+  # - --audit-policy-file={{ audit_policy_path }}
+  # - --audit-log-path
+
+k8s_master_volumes:
+  - name: audit
+    hostPath:
+      path: "{{ audit_policy_path }}"
+      type: File
+  - name: audit-log
+    hostPath:
+      path: "{{ audit_log_directory }}"
+      type: DirectoryOrCreate
+
+kube_api_server_volume_mounts:
+  - name: audit
+    mountPath: /etc/kubernetes/audit-policy.yaml
+    readOnly: true
+  - name: audit-log
+    mountpath: /var/log/kubernetes/audit/
+    readonly: false

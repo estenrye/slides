@@ -1,5 +1,8 @@
 kube_controller_manager_args: []
 
+k8s_master_volumes: []
+kube_api_server_volume_mounts: []
+
 kube_api_server_args:
   - --enable-admission-plugins=NodeRestriction
 
