@@ -24,7 +24,7 @@ prereq_helm_charts:
     values_files:
       - /tmp/helm_values_democratic-csi.yaml
     targets:
-      - proxmox
+      - disable
   - name: csi-driver-nfs
     namespace: csi-driver-nfs
     chart_ref: csi-driver-nfs/csi-driver-nfs

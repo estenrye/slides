@@ -20,7 +20,7 @@ namespaces:
     labels:
       app-stack: csi-driver-truenas
     targets:
-      - proxmox
+      - disable
   - name: ingress-nginx
     labels:
       app-stack: ingress-nginx

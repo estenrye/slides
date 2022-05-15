@@ -12,7 +12,7 @@ templates:
   - src: settings/helm_values/democratic-csi.yaml.j2
     dest: /tmp/helm_values_democratic-csi.yaml
     targets:
-      - proxmox
+      - disable
   - src: settings/helm_values/primary-sql-server.yaml.j2
     dest: /tmp/helm_values_primary-sql-server.yaml
     targets:

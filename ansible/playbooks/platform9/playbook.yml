@@ -1,13 +1,3 @@
-- hosts: cluster
-  roles:
-    - iscsi_client
-    - pf9ctl
-
-- hosts: idrac
-  connection: local
-  roles:
-    - idrac6_ssl_letsencrypt
-
 - hosts: deployer
   connection: local
   tasks:
@@ -54,6 +44,7 @@
         context: "{{ inventory_hostname }}"
       loop_control:
         loop_var: secret
+        label: "{{ secret.namespace }}.{{ secret.name }}"
       loop: "{{ secrets }}"
       when: target in secret.targets
 
