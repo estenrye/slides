@@ -3,7 +3,7 @@ deployer:
     Stable-Cluster:
       target:  proxmox
       ingress_load_balancer_ip: 10.5.15.150
-      cluster_wildcard_tld: '*.services.esten-growth.rye.ninja'
+      cluster_wildcard_tld: 'services.esten-growth.rye.ninja'
       csi_nfs_storage_classes:
         - name: nfs-csi-fast-delete
           server: nfs.rye.ninja

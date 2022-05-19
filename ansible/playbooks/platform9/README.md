@@ -38,6 +38,7 @@ The following code will execute the automation:
 ANSIBLE_SECRETS_DIR=`realpath ~/.ansible/secrets`
 LAB_AUTOMATION_DIR=`realpath ~/src/slides`
 SSH_KEY_PATH=`realpath ~/.ssh/id_rsa`
+CLUSTER='esten-growth'
 
 # temporarily mounting helm directories.
 docker run --rm -it --platform=linux/amd64 \
@@ -46,11 +47,11 @@ docker run --rm -it --platform=linux/amd64 \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/ansible/roles,target=/etc/ansible/roles,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/helm,target=/helm,readonly \
   --mount type=bind,source=`realpath ~/.kube/home`,target=/kube,readonly \
-  -e ANSIBLE_VAULT_PASSWORD_FILE='/secrets/secret.key' \
-  -e ANSIBLE_INVENTORY='/ansible/inventory.yml' \
   estenrye/ansible \
   ansible-playbook \
-    -e @/secrets/creds.yml \
+    -e @/secrets/${CLUSTER}.yml \
+    -i /ansible/inventory.yml \
+    --ask-vault-password \
     --limit deployer \
     playbook.yml
 ```
