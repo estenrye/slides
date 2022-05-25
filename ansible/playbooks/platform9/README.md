@@ -63,9 +63,9 @@ docker run --rm -it --platform=linux/amd64 \
 
 This is included in my Platform9 Kubernetes cluster.
 
-## Install an Ingress Controller
+## Install an Ingress Controller  ingress-nginx
 
-## Install a Storage Class: ingress-nginx
+## Install a Storage Class: nfs-csi
 
 Open Source Software that explicitly takes a dependency:
 
