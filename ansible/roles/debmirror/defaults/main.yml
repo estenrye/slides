@@ -119,6 +119,24 @@ mirror_repos:
       verbose: true
 
   - remote:
+      host: ppa.launchpadcontent.net
+      root: yubico/stable/ubuntu
+      gpg_key: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3653e21064b19d134466702e43d5c49532cba1a9
+    mirror:
+      name: yubico-stable
+      dists:
+        - focal
+      sections:
+        - main
+      arches:
+        - amd64
+    state_cache_days: 0
+    download:
+      method: http
+    output:
+      verbose: true
+
+  - remote:
       host: apt.kubernetes.io
       root: ''
       gpg_key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
