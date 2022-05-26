@@ -45,6 +45,22 @@ helm_charts:
     targets:
       - aws
       - proxmox
+  - name: minio-operator
+    namespace: minio-operator
+    chart_ref: minio/operator
+    version: 4.4.21
+    values_files: []
+    targets:
+      - aws
+      - proxmox
+  - name: redis-operator
+    namespace: redis-operator
+    chart_ref: redis-operator/redis-operator
+    version: 3.1.4
+    values_fields: []
+    targets:
+      - aws
+      - proxmox
   - name: primary
     namespace: mssql
     chart_ref: /helm/mssql-server

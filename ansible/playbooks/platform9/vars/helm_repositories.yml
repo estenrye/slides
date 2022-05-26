@@ -14,3 +14,9 @@ helm_repos:
   - name: csi-driver-nfs
     url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
     github: https://github.com/kubernetes-csi/csi-driver-nfs/
+  - name: minio
+    url: https://operator.min.io/
+    github: https://github.com/minio/operator/tree/master/helm/operator
+  - name: redis-operator
+    url: https://spotahome.github.io/redis-operator
+    github: https://github.com/spotahome/redis-operator
