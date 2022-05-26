@@ -25,6 +25,10 @@ templates:
     dest: /tmp/helm_values_bitwarden.yaml
     targets:
       - disable
+  - src: settings/helm_values/postgres-operator.yaml.j2
+    dest: /tmp/helm_values_postgres-operator.yaml
+    targets:
+      - proxmox
   - src: settings/manifests/csi_nfs_storageclass.yaml.j2
     dest: /tmp/manifests_csi_nfs_storageclass.yaml
     targets:
