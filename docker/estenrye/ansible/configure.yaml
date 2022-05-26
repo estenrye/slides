@@ -4,8 +4,8 @@
     helm_url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
     jq_url: https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
     kubectl_version: v1.23.5
-    kubectl_certmanager_url: https://github.com/jetstack/cert-manager/releases/latest/download/kubectl-cert_manager-linux-amd64.tar.gz
     one_password_cli_url: https://cache.agilebits.com/dist/1P/op2/pkg/v2.0.2/op_linux_amd64_v2.0.2.zip
+    krew_url: https://github.com/kubernetes-sigs/krew/releases/latest/download/krew-linux_amd64.tar.gz
   tasks:
     - name: create downloads directory
       ansible.builtin.file:
@@ -17,8 +17,8 @@
         url: '{{ item.url }}'
         dest: /tmp/downloads/{{ item.filename }}
       loop:
-        - url: '{{ kubectl_certmanager_url }}'
-          filename: kubectl-cert_manager-linux-amd64.tar.gz
+        - url: '{{ krew_url }}'
+          filename: kubectl-krew-linux-amd64.tar.gz
         - url: '{{ helm_url }}'
           filename: get_helm.sh
         - url: '{{ one_password_cli_url }}'
@@ -42,10 +42,10 @@
         dest: /tmp/downloads
       loop:
         - src: /home/automation-user/DellEMC-iDRACTools-Web-LX-9.5.0-4111_A00.tar.gz
-        - src: /tmp/downloads/kubectl-cert_manager-linux-amd64.tar.gz
         - src: /tmp/downloads/op_cli.zip
+        - src: /tmp/downloads/kubectl-krew-linux-amd64.tar.gz
 
-    - name: Move kubectl cert-manager binary.
+    - name: Move binaries.
       ansible.builtin.command:
         chdir: /tmp/downloads
         cmd: mv {{ executable.src }} {{ executable.dest }}
@@ -53,10 +53,17 @@
       loop_control:
         loop_var: executable
       loop:
-        - src: kubectl-cert_manager
-          dest: /usr/local/bin/kubectl-cert_manager
+        - src: krew-linux_amd64
+          dest: /usr/local/bin/kubectl-krew
         - src: op
           dest: /usr/local/bin/op
+
+    - name: Install kubectl plugins
+      ansible.builtin.command:
+        cmd: kubectl krew install {{ item }}
+      loop:
+        - cert-manager
+        - minio
 
     - name: Install Dell iDRAC Tools
       ansible.builtin.command:

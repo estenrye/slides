@@ -2,7 +2,7 @@
 
 ## pyenv configs
 export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:/usr/local/bin:$PATH"
+export PATH="$PYENV_ROOT/bin:/usr/local/bin:${HOME}/.krew/bin:$PATH"
 
 if [ -d /kube ]; then
   KUBE_CONFIG_FILES=`find /kube -type f`
