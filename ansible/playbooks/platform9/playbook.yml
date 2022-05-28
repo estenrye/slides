@@ -14,6 +14,7 @@
         dest: "{{ template.dest }}"
       loop_control:
         loop_var: template
+        label: "{{ template.src }}"
       loop: "{{ templates }}"
       changed_when: false
       when: target in template.targets
@@ -30,6 +31,7 @@
             labels: "{{ namespace.labels }}"
       loop_control:
         loop_var: namespace
+        label: "{{ namespace.name }}"
       loop: "{{ namespaces }}"
       when: target in namespace.targets
 
@@ -55,8 +57,10 @@
       changed_when: false
       loop_control:
         loop_var: repo
+        label: "{{ repo.name }}"
       loop: "{{ helm_repos }}"
 
+    # TODO: Use chart version.
     - name: Install prerequisite charts
       kubernetes.core.helm:
         name: "{{ chart.name }}"
@@ -66,6 +70,7 @@
         context: "{{ inventory_hostname }}"
       loop_control:
         loop_var: chart
+        label: "{{ chart.namespace }}.{{ chart.name }} - {{ chart.chart_ref }}"
       loop: "{{ prereq_helm_charts }}"
       when: target in chart.targets
 
@@ -79,6 +84,7 @@
       loop: "{{ prereq_manifest_files }}"
       when: target in manifest_file.targets
 
+    # TODO: Use chart version.
     - name: Install charts
       kubernetes.core.helm:
         name: "{{ chart.name }}"
@@ -88,6 +94,7 @@
         context: "{{ inventory_hostname }}"
       loop_control:
         loop_var: chart
+        label: "{{ chart.namespace }}.{{ chart.name }} - {{ chart.chart_ref }}"
       loop: "{{ helm_charts }}"
       when: target in chart.targets
 

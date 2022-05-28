@@ -1,0 +1,11 @@
+console:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: cloudflare-cluster-issuer
+    host: minio-operator-console.services.esten-growth.rye.ninja
+    tls:
+      - hosts:
+          - minio-operator-console.services.esten-growth.rye.ninja
+        secretName: minio-operator-tls-secret

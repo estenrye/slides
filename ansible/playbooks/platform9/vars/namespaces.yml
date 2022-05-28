@@ -27,6 +27,13 @@ namespaces:
     targets:
       - aws
       - proxmox
+  - name: minio-operator
+    labels:
+      app-stack: minio-operator
+      is_operator: 'true'
+    targets:
+      - aws
+      - proxmox
   - name: pihole
     labels:
       app-stack: pihole
@@ -38,3 +45,10 @@ namespaces:
       app-stack: mssql-server
     targets:
       - disable
+  - name: redis-operator
+    labels:
+      app-stack: redis-operator
+      is_operator: 'true'
+    targets:
+      - aws
+      - proxmox
