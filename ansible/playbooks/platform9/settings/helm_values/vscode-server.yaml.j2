@@ -1,0 +1,17 @@
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: cloudflare-cluster-issuer
+  hosts:
+    - host: code-server.{{ cluster_wildcard_tld }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - code-server.{{ cluster_wildcard_tld }}
+      secretName: code-server-tls
+password:
+  enabled: true
+  value: '{{ lookup('password', '/tmp/password_vscode chars=ascii_letters') | b64encode }}'

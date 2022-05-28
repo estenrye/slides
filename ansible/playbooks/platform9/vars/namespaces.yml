@@ -52,3 +52,9 @@ namespaces:
     targets:
       - aws
       - proxmox
+  - name: vscode-server
+    labels:
+      app-stack: IDE
+    targets:
+      - aws
+      - proxmox

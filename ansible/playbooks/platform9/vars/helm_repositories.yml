@@ -20,3 +20,6 @@ helm_repos:
   - name: redis-operator
     url: https://spotahome.github.io/redis-operator
     github: https://github.com/spotahome/redis-operator
+  - name: estenrye
+    url: https://estenrye.github.io/helm-charts/
+    github: https://github.com/estenrye/helm-charts

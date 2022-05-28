@@ -9,6 +9,11 @@ templates:
     targets:
       - aws
       - proxmox
+  - src: settings/helm_values/vscode-server.yaml.j2
+    dest: /tmp/helm_values_vscode-server.yaml
+    targets:
+      - aws
+      - proxmox
   - src: settings/helm_values/democratic-csi.yaml.j2
     dest: /tmp/helm_values_democratic-csi.yaml
     targets:
