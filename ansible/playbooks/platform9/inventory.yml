@@ -7,56 +7,56 @@ deployer:
       csi_nfs_storage_classes:
         - name: nfs-csi-fast-delete
           server: nfs.rye.ninja
-          share: /mnt/fast-ssd/k8s-volumes/Stable-Cluster
+          share: /mnt/fast-ssd/k8s-volumes/Stable-Cluster/delete
           reclaimPolicy: Delete
           volumeBindingMode: Immediate
           mountOptions:
-            - nfsvers=4.1
+            - nfsvers=4
             - rsize=1048576
             - wsize=1048576
             - hard
             - timeo=600
             - retrans=2
-            - noresvport
+            - resvport
         - name: nfs-csi-fast-retain
           server: nfs.rye.ninja
-          share: /mnt/fast-ssd/k8s-volumes/Stable-Cluster
+          share: /mnt/fast-ssd/k8s-volumes/Stable-Cluster/retain
           reclaimPolicy: Retain
           volumeBindingMode: Immediate
           mountOptions:
-            - nfsvers=4.1
+            - nfsvers=4
             - rsize=1048576
             - wsize=1048576
             - hard
             - timeo=600
             - retrans=2
-            - noresvport
+            - resvport
         - name: nfs-csi-slow-delete
           server: nfs.rye.ninja
-          share: /mnt/main/k8s-volumes/Stable-Cluster
+          share: /mnt/main/k8s-volumes/Stable-Cluster/delete
           reclaimPolicy: Delete
           volumeBindingMode: Immediate
           mountOptions:
-            - nfsvers=4.1
+            - nfsvers=4
             - rsize=1048576
             - wsize=1048576
             - hard
             - timeo=600
             - retrans=2
-            - noresvport
+            - resvport
         - name: nfs-csi-slow-retain
           server: nfs.rye.ninja
-          share: /mnt/main/k8s-volumes/Stable-Cluster
+          share: /mnt/main/k8s-volumes/Stable-Cluster/retain
           reclaimPolicy: Retain
           volumeBindingMode: Immediate
           mountOptions:
-            - nfsvers=4.1
+            - nfsvers=4
             - rsize=1048576
             - wsize=1048576
             - hard
             - timeo=600
             - retrans=2
-            - noresvport
+            - resvport
       pihole:
         dns:
           load_balancer_ip: 10.5.15.151

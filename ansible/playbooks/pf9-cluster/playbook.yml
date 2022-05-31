@@ -2,3 +2,4 @@
   roles:
     - chrony
     - pf9ctl
+    - nfs_client

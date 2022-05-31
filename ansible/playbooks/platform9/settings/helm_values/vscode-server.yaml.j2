@@ -15,3 +15,6 @@ ingress:
 password:
   enabled: true
   value: '{{ lookup('password', '/tmp/password_vscode chars=ascii_letters') | b64encode }}'
+persistence:
+  enabled: true
+  storageClassName: nfs-csi-fast-retain
