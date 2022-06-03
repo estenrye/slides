@@ -48,7 +48,7 @@ helm_charts:
   - name: code-server
     namespace: vscode-server
     chart_ref: estenrye/vscode-server
-    version: 0.2.1
+    version: 0.3.12
     values_files:
       - /tmp/helm_values_vscode-server.yaml
     targets:

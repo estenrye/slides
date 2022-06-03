@@ -1,20 +1,55 @@
-ingress:
-  enabled: true
-  className: nginx
-  annotations:
-    cert-manager.io/cluster-issuer: cloudflare-cluster-issuer
-  hosts:
-    - host: code-server.{{ cluster_wildcard_tld }}
-      paths:
-        - path: /
-          pathType: Prefix
-  tls:
-    - hosts:
-        - code-server.{{ cluster_wildcard_tld }}
-      secretName: code-server-tls
-password:
-  enabled: true
-  value: '{{ vscode_password | default(lookup('password', '/tmp/password_vscode chars=ascii_letters')) | b64encode }}'
-persistence:
-  enabled: true
-  storageClassName: nfs-csi-fast-retain
+vscode_server:
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: cloudflare-cluster-issuer
+    hosts:
+      - host: code-server.{{ cluster_wildcard_tld }}
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - code-server.{{ cluster_wildcard_tld }}
+        secretName: code-server-tls
+  password:
+    enabled: true
+    value: '{{ vscode_password | default(lookup('password', '/tmp/password_vscode chars=ascii_letters')) | b64encode }}'
+  persistence:
+    enabled: true
+    storageClassName: nfs-csi-fast-retain
+
+step-certificates:
+  inject:
+    config:
+      files:
+        ca.json:
+          authority:
+            provisioners: {{ vscode_step_certificates.provisioners | to_json }}
+          dnsNames:
+            - code-server-step-certificates.{{ cluster_wildcard_tld }}
+            - code-server-step-certificates.vscode-server.svc.cluster.local
+            - code-server-step-certificates.svc.cluster.local
+            - 127.0.0.1
+        defaults.json:
+          fingerprint: '{{ vscode_step_certificates.ca_fingerprint }}'
+    certificates:
+      intermediate_ca: |
+        {{ vscode_step_certificates.certificates.intermediate_ca | indent(8) }}
+      root_ca: |
+        {{ vscode_step_certificates.certificates.root_ca | indent(8) }}
+    secrets:
+      ca_password: '{{ vscode_step_certificates.secrets.ca_password | b64encode }}'
+      provisioner_password: '{{ vscode_step_certificates.secrets.provisioner_password | b64encode }}'
+      x509:
+        intermediate_ca_key: |
+          {{ vscode_step_certificates.secrets.x509.intermediate_ca_key | indent(10) }}
+        root_ca_key: |
+          {{ vscode_step_certificates.secrets.x509.intermediate_ca_key | indent(10) }}
+  ca:
+    db:
+      storageClass: nfs-csi-fast-retain
+
+  # TODO, try deployment later after investigating possible chart bug
+  kind: StatefulSet
