@@ -8,6 +8,7 @@ prereq_helm_charts:
     targets:
       - aws
       - proxmox
+      - dialtone
   - name: cert-manager
     namespace: cert-manager
     chart_ref: cert-manager/cert-manager
@@ -17,6 +18,15 @@ prereq_helm_charts:
     targets:
       - aws
       - proxmox
+      - dialtone
+  - name: step-issuer
+    namespace: cert-manager
+    chart_ref: smallstep/step-issuer
+    values_files: []
+    targets:
+      - aws
+      - proxmox
+      - dialtone
   - name: democratic-csi
     namespace: democratic-csi
     chart_ref: democratic-csi/democratic-csi
@@ -45,6 +55,7 @@ helm_charts:
     targets:
       - aws
       - proxmox
+      - dialtone
   - name: code-server
     namespace: vscode-server
     chart_ref: estenrye/vscode-server
@@ -54,6 +65,7 @@ helm_charts:
     targets:
       - aws
       - proxmox
+      - dialtone
   # - name: minio-operator
   #   namespace: minio-operator
   #   chart_ref: minio/operator
@@ -71,6 +83,7 @@ helm_charts:
     targets:
       - aws
       - proxmox
+      - dialtone
   - name: primary
     namespace: mssql
     chart_ref: /helm/mssql-server

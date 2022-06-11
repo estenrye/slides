@@ -1,32 +1,42 @@
 templates:
-  - src: settings/helm_values/ingress-nginx.yaml.j2
+  - name: ingress-nginx
+    src: settings/helm_values/ingress-nginx.yaml.j2
     dest: /tmp/helm_values_ingress-nginx.yaml
     targets:
       - aws
       - proxmox
-  - src: settings/helm_values/pihole.yaml.j2
+      - dialtone
+  - name: pihole
+    src: settings/helm_values/pihole.yaml.j2
     dest: /tmp/helm_values_pihole.yaml
     targets:
       - aws
       - proxmox
-  - src: settings/helm_values/vscode-server.yaml.j2
+      - dialtone
+  - name: vscode-server
+    src: settings/helm_values/vscode-server.yaml.j2
     dest: /tmp/helm_values_vscode-server.yaml
     targets:
       - aws
       - proxmox
-  - src: settings/helm_values/democratic-csi.yaml.j2
+      - dialtone
+  - name: democratic-csi
+    src: settings/helm_values/democratic-csi.yaml.j2
     dest: /tmp/helm_values_democratic-csi.yaml
     targets:
       - disable
-  - src: settings/helm_values/primary-sql-server.yaml.j2
+  - name: primary-mssql-server
+    src: settings/helm_values/primary-sql-server.yaml.j2
     dest: /tmp/helm_values_primary-sql-server.yaml
     targets:
       - disable
-  - src: settings/helm_values/secondary-sql-server.yaml.j2
+  - name: secondary-mssql-server
+    src: settings/helm_values/secondary-sql-server.yaml.j2
     dest: /tmp/helm_values_secondary-sql-server.yaml
     targets:
       - disable
-  - src: settings/helm_values/bitwarden.yaml.j2
+  - name: bitwarden
+    src: settings/helm_values/bitwarden.yaml.j2
     dest: /tmp/helm_values_bitwarden.yaml
     targets:
       - disable
@@ -34,7 +44,8 @@ templates:
   #   dest: /tmp/helm_values_postgres-operator.yaml
   #   targets:
   #     - proxmox
-  - src: settings/manifests/csi_nfs_storageclass.yaml.j2
+  - name: csi-nfs
+    src: settings/manifests/csi_nfs_storageclass.yaml.j2
     dest: /tmp/manifests_csi_nfs_storageclass.yaml
     targets:
       - aws

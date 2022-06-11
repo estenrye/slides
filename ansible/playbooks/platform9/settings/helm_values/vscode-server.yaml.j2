@@ -18,7 +18,7 @@ vscode_server:
     value: '{{ vscode_password | default(lookup('password', '/tmp/password_vscode chars=ascii_letters')) | b64encode }}'
   persistence:
     enabled: true
-    storageClassName: nfs-csi-fast-retain
+    storageClassName: "{{ fast_retain_storage_class }}"
 
 step-certificates:
   inject:
@@ -49,7 +49,7 @@ step-certificates:
           {{ vscode_step_certificates.secrets.x509.intermediate_ca_key | indent(10) }}
   ca:
     db:
-      storageClass: nfs-csi-fast-retain
+      storageClass: "{{ fast_retain_storage_class }}"
 
   # TODO, try deployment later after investigating possible chart bug
   kind: StatefulSet

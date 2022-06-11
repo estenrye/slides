@@ -10,6 +10,7 @@ namespaces:
     targets:
       - aws
       - proxmox
+      - dialtone
   - name: csi-driver-nfs
     labels:
       app-stack: csi-driver-nfs
@@ -27,6 +28,7 @@ namespaces:
     targets:
       - aws
       - proxmox
+      - dialtone
   - name: minio-operator
     labels:
       app-stack: minio-operator
@@ -34,12 +36,14 @@ namespaces:
     targets:
       - aws
       - proxmox
+      - dialtone
   - name: pihole
     labels:
       app-stack: pihole
     targets:
       - aws
       - proxmox
+      - dialtone
   - name: mssql
     labels:
       app-stack: mssql-server
@@ -52,9 +56,11 @@ namespaces:
     targets:
       - aws
       - proxmox
+      - dialtone
   - name: vscode-server
     labels:
       app-stack: IDE
     targets:
       - aws
       - proxmox
+      - dialtone

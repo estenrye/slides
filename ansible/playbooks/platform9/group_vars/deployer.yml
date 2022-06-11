@@ -5,3 +5,15 @@ var_files:
   - vars/namespaces.yml
   - vars/secrets.yml
   - vars/templates.yml
+
+ingress_load_balancer_ip: ""
+csi_nfs_storage_classes: []
+pihole:
+  dns:
+    load_balancer_ip: ""
+    annotations: {}
+  dhcp:
+    load_balancer_ip: ""
+    annotations: {}
+
+fast_retain_storage_class: ""

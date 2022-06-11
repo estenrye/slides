@@ -1,0 +1,2 @@
+target: dialtone
+cluster_wildcard_tld: 'services.dialtone.rye.ninja'
