@@ -84,6 +84,13 @@
         PATH: "/usr/local/bin:{{ lookup('env', 'PATH') }}"
       become: true
 
+    - name: Install Helm-Diff
+      ansible.builtin.command:
+        cmd: helm plugin install https://github.com/databus23/helm-diff
+      environment:
+        PATH: "/usr/local/bin:{{ lookup('env', 'PATH') }}"
+      become: true
+
     - name: Remove downloads directory
       ansible.builtin.file:
         path: /tmp/downloads
