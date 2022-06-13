@@ -20,6 +20,13 @@ templates:
       - aws
       - proxmox
       - dialtone
+  - name: minecraft
+    src: settings/helm_values/minecraft.yaml.j2
+    dest: /tmp/helm_values_minecraft.yaml
+    targets:
+      - aws
+      - proxmox
+      - dialtone
   - name: democratic-csi
     src: settings/helm_values/democratic-csi.yaml.j2
     dest: /tmp/helm_values_democratic-csi.yaml

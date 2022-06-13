@@ -66,6 +66,16 @@ helm_charts:
       - aws
       - proxmox
       - dialtone
+  - name: minecraft
+    namespace: minecraft
+    chart_ref: itzg/minecraft
+    version: 4.0.0
+    values_files:
+      - /tmp/helm_values_minecraft.yaml
+    targets:
+      - aws
+      - proxmox
+      - dialtone
   # - name: minio-operator
   #   namespace: minio-operator
   #   chart_ref: minio/operator

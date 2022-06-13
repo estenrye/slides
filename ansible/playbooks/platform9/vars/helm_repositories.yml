@@ -11,6 +11,9 @@ helm_repos:
   - name: democratic-csi
     url: https://democratic-csi.github.io/charts/
     github: https://github.com/democratic-csi/democratic-csi
+  - name: itzg
+    url: https://itzg.github.io/minecraft-server-charts/
+    github: https://github.com/itzg/minecraft-server-charts
   - name: csi-driver-nfs
     url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
     github: https://github.com/kubernetes-csi/csi-driver-nfs/

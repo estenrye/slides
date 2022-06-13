@@ -17,3 +17,7 @@ pihole:
     annotations: {}
 
 fast_retain_storage_class: ""
+
+minecraft:
+  load_balancer_ip: ""
+  annotations: {}

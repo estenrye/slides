@@ -64,4 +64,9 @@ pihole:
     annotations:
       metallb.universe.tf/allow-shared-ip: pihole-svc
 
+minecraft:
+  load_balancer_ip: 10.5.15.152
+  annotations:
+    metallb.universe.tf/allow-shared-ip: minecraft
+
 fast_retain_storage_class: nfs-csi-fast-retain
