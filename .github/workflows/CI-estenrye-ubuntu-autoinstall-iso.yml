@@ -1,4 +1,4 @@
-name: Build and Publish
+name: CI | Docker | docker/estenrye/ubuntu-autoinstall-iso
 
 on:
   # run it on push to the default repository branch
