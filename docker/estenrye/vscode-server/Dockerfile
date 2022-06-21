@@ -3,7 +3,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update 
   && apt install -y \
          build-essential \
-  && apt clean
+  && apt clean \
   && rm -rf /var/lib/apt/lists/*
 # TODO: Install Node
 # TODO: Install Oh-My-ZSH
