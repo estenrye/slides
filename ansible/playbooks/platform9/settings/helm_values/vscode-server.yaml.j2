@@ -16,7 +16,7 @@ vscode_server:
   password:
     enabled: true
     value: '{{ vscode_password | default(lookup('password', '/tmp/password_vscode chars=ascii_letters')) | b64encode }}'
-  ssh-key:
+  ssh_key:
     enabled: true
     id_rsa:
       key: '{{ vscode_ssh_private_key | default('') | b64encode }}'
