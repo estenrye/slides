@@ -47,7 +47,7 @@ jobs:
         id: tag_step
         with:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          package_root: docker/${{ inputs.DOCKER_IMAGENAME }}
+          package_root: docker/${{ inputs.DOCKER_ORGANIZATION_NAME }}/${{ inputs.DOCKER_IMAGENAME }}
           tag_prefix: "docker-${{ inputs.DOCKER_IMAGENAME }}-"
         if: "${{ inputs.PUSH_IMAGE }}"
 
