@@ -29,8 +29,9 @@ jobs:
     name: Build Docker image and push to repositories
     uses: ./.github/workflows/CI-Docker-Image-Build-Template.yml
     with:
-      DOCKER_IMAGENAME: fluentd-cloudtrail
-      DOCKER_USERNAME: estenrye
+      DOCKER_IMAGENAME: ansible
+      DOCKER_ORGANIZATION_NAME: estenrye
       PUSH_IMAGE: ${{ github.ref == 'refs/heads/master' }}
     secrets:
+      docker_username: estenrye
       docker_password: ${{ secrets.DOCKER_PASSWORD }}
