@@ -1,0 +1,36 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI | Docker | estenrye/vscode-server
+
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    paths:
+      - docker/estenrye/vscode-server/**
+      - .github/workflows/CI-estenrye-vscode-server.yml
+      - .github/workflows/CI-Docker-Image-Build-Template.yml
+
+  pull_request:
+    branches: [ master ]
+    paths:
+      - docker/estenrye/vscode-server/**
+      - .github/workflows/CI-estenrye-vscode-server.yml
+      - .github/workflows/CI-Docker-Image-Build-Template.yml
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # define job to build and publish docker image
+  build-and-push-docker-image:
+    name: Build Docker image and push to repositories
+    uses: ./.github/workflows/CI-Docker-Image-Build-Template.yml
+    with:
+      DOCKER_IMAGENAME: vscode-server
+      DOCKER_USERNAME: estenrye
+      PUSH_IMAGE: ${{ github.ref == 'refs/heads/master' }}
+    secrets:
+      docker_password: ${{ secrets.DOCKER_PASSWORD }}
