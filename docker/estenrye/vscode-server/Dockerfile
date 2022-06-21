@@ -1,6 +1,6 @@
 FROM linuxserver/code-server:4.4.0
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt update 
+RUN apt update \
   && apt install -y \
          build-essential \
   && apt clean \
