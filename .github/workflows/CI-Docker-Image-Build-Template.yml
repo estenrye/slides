@@ -56,7 +56,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           # relative path to the place where source code with Dockerfile is located
-          context: docker/${{ inputs.DOCKER_IMAGENAME }}
+          context: docker/${{ inputs.DOCKER_ORGANIZATION_NAME }}/${{ inputs.DOCKER_IMAGENAME }}
           # Note: tags has to be all lower-case
           tags: |
             ${{ inputs.DOCKER_ORGANIZATION_NAME }}/${{ inputs.DOCKER_IMAGENAME }}:latest,
