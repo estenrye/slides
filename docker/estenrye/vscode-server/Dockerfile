@@ -1,5 +1,7 @@
 FROM linuxserver/code-server:4.4.0
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+    HOME=/config
+
 RUN apt update \
   && apt install -y \
          build-essential \
