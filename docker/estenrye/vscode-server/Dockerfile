@@ -1,6 +1,6 @@
 FROM linuxserver/code-server:4.4.0
 ENV DEBIAN_FRONTEND=noninteractive \
-    HOMEBREW_PREFIX_DEFAULT=/config/.linuxbrew \
+    HOMEBREW_PREFIX=/config/.linuxbrew \
     NONINTERACTIVE=1
 
 RUN apt update \
