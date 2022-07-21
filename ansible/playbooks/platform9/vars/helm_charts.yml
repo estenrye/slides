@@ -85,6 +85,23 @@ helm_charts:
   #   targets:
   #     - aws
   #     - proxmox
+  - name: postgres-operator
+    namespace: pgo
+    chart_ref: postgres-operator-charts/postgres-operator
+    version:
+    values_files:
+      - /tmp/helm_values_postgres-operator.yaml
+    targets:
+      - dialtone
+      - proxmox
+  - name: postgres-operator-ui
+    namespace: pgo
+    chart_ref: postgres-operator-ui-charts/postgres-operator-ui
+    version:
+    values_files: []
+    targets:
+      - dialtone
+      - proxmox
   - name: redis-operator
     namespace: redis-operator
     chart_ref: redis-operator/redis-operator

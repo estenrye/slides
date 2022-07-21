@@ -20,6 +20,12 @@ helm_repos:
   - name: minio
     url: https://operator.min.io/
     github: https://github.com/minio/operator/tree/master/helm/operator
+  - name: postgres-operator
+    url: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+    github:
+  - name: postgres-operator-ui
+    url: https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui
+    github:
   - name: redis-operator
     url: https://spotahome.github.io/redis-operator
     github: https://github.com/spotahome/redis-operator

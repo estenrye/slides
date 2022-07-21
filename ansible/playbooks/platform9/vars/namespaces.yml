@@ -56,6 +56,12 @@ namespaces:
       app-stack: mssql-server
     targets:
       - disable
+  - name: pgo
+    labels:
+      app-stack: pgo
+    targets:
+      - dialtone
+      - proxmox
   - name: redis-operator
     labels:
       app-stack: redis-operator

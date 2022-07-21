@@ -98,7 +98,7 @@ configKubernetes:
   cluster_labels:
     application: spilo
   # label assigned to Kubernetes objects created by the operator
-  cluster_name_label: pgo.esten-growth.rye.ninja
+  cluster_name_label: pgo.{{ cluster_wildcard_tld }}
   # additional annotations to add to every database pod
   # custom_pod_annotations:
   #   keya: valuea
@@ -240,20 +240,20 @@ configTimeouts:
 # configure behavior of load balancers
 configLoadBalancer:
   # DNS zone for cluster DNS name when load balancer is configured for cluster
-  db_hosted_zone: pgo.esten-growth.rye.ninja
+  db_hosted_zone: pgo.{{ cluster_wildcard_tld }}
   # annotations to apply to service when load balancing is enabled
   # custom_service_annotations:
   #   keyx: valuez
   #   keya: valuea
 
   # toggles service type load balancer pointing to the master pod of the cluster
-  enable_master_load_balancer: false
+  enable_master_load_balancer: true
   # toggles service type load balancer pointing to the master pooler pod of the cluster
-  enable_master_pooler_load_balancer: false
+  enable_master_pooler_load_balancer: true
   # toggles service type load balancer pointing to the replica pod of the cluster
-  enable_replica_load_balancer: false
+  enable_replica_load_balancer: true
   # toggles service type load balancer pointing to the replica pooler pod of the cluster
-  enable_replica_pooler_load_balancer: false
+  enable_replica_pooler_load_balancer: true
   # define external traffic policy for the load balancer
   external_traffic_policy: "Cluster"
   # defines the DNS name string template for the master load balancer cluster
