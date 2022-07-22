@@ -12,6 +12,14 @@ on:
       PUSH_IMAGE:
         required: true
         type: boolean
+      BUILD_ARGS:
+        required: false
+        type: string
+        default: "VERSION=${{ steps.tag_step.outputs.version }}"
+      PLATFORMS:
+        required: false
+        type: string
+        default: "linux/amd64"
     secrets:
       docker_username:
         required: true
@@ -63,3 +71,5 @@ jobs:
             ${{ inputs.DOCKER_ORGANIZATION_NAME }}/${{ inputs.DOCKER_IMAGENAME }}:v${{ steps.tag_step.outputs.version }}
           # build on feature branches, push only on main branch
           push: ${{ inputs.PUSH_IMAGE }}
+          buildArgs: ${{ inputs.BUILD_ARGS }}
+          platforms: ${{ inputs.PLATFORMS }}
