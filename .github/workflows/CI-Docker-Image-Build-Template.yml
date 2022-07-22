@@ -70,5 +70,5 @@ jobs:
             ${{ inputs.DOCKER_ORGANIZATION_NAME }}/${{ inputs.DOCKER_IMAGENAME }}:v${{ steps.tag_step.outputs.version }}
           # build on feature branches, push only on main branch
           push: ${{ inputs.PUSH_IMAGE }}
-          buildArgs: "VERSION=${{ steps.tag_step.outputs.version }}"
+          build-args: "VERSION=${{ steps.tag_step.outputs.version }}"
           platforms: ${{ inputs.PLATFORMS }}
