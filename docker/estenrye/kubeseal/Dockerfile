@@ -1,13 +1,13 @@
 FROM golang:latest as build
 LABEL maintainer="Esten Rye <esten.rye+docker@ryezone.com>"
-ARG VERSION="0.18.1"
 WORKDIR /app
-ADD https://github.com/bitnami-labs/sealed-secrets/archive/refs/tags/v${VERSION}.tar.gz /app/src.tar.gz
-RUN tar -xzvf /app/src.tar.gz
-WORKDIR /app/sealed-secrets-${VERSION}/cmd/kubeseal
-RUN GO111MODULE=on CGO_ENABLED=0 go build -ldflags "-X main.VERSION=v${VERSION}" -o /app/kubeseal -a
+ARG VERSION="main"
+RUN GO111MODULE=on CGO_ENABLED=0 go install -a github.com/bitnami-labs/sealed-secrets/cmd/kubeseal@${VERSION}
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$(uname -m)/kubectl"
+RUN chmod 555 /app/kubectl /go/bin/kubeseal
 
 FROM scratch
 WORKDIR /
-COPY --from=build /app/kubeseal kubeseal
-ENTRYPOINT [ "/kubeseal" ]
+COPY --from=build /go/bin/kubeseal kubeseal
+COPY --from=build /app/kubectl kubectl
+CMD [ "/kubeseal", "--version" ]
