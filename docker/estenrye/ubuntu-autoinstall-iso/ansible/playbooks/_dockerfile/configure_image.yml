@@ -26,6 +26,7 @@
           - ca-certificates
           - curl
           - genisoimage
+          - gcc-multilib
           - gpg
           - isolinux
           - mkisofs
