@@ -1,5 +1,6 @@
 FROM alpine:3.16 AS base
 COPY vendor/ /vendor/
+RUN apk add zsh
 RUN mkdir /apk \
   && cp /vendor/linux/$(uname -m)/cdrkit-1.1.11-r2.apk /apk/cdrkit.apk \
   && cp /vendor/linux/$(uname -m)/xorriso-1.5.2-r0.apk /apk/xorriso.apk
