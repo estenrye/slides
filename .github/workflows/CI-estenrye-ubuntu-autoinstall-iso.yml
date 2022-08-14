@@ -24,7 +24,7 @@ jobs:
       DOCKER_IMAGENAME: ubuntu-autoinstall-iso
       DOCKER_ORGANIZATION_NAME: estenrye
       PUSH_IMAGE: ${{ github.ref == 'refs/heads/master' }}
-      PLATFORMS: "linux/amd64,linux/arm/v7"
+      PLATFORMS: "linux/amd64,linux/arm64,linux/arm/v7"
     secrets:
       docker_username: estenrye
       docker_password: ${{ secrets.DOCKER_PASSWORD }}
