@@ -58,11 +58,12 @@ The following code will execute the automation:
 ```bash
 ANSIBLE_SECRETS_DIR=`realpath ~/.ansible/secrets`
 LAB_AUTOMATION_DIR=`realpath ~/src/slides`
-SSH_KEY_PATH=`realpath ~/.ssh/id_rsa`
+SSH_KEY_PATH=`realpath ~/.ssh/home_id_rsa`
 
 mkdir -p ${LAB_AUTOMATION_DIR}/iso/.output
 
 docker run --rm -it \
+  --platform=linux/amd64 \
   --user 1000:$(id -u) \
   --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa,readonly \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
@@ -74,12 +75,13 @@ docker run --rm -it \
 
 ```bash
 ANSIBLE_SECRETS_DIR=`realpath ~/.ansible/secrets`
-LAB_AUTOMATION_DIR=`realpath ~/src/slides`
-SSH_KEY_PATH=`realpath ~/.ssh/id_rsa`
+LAB_AUTOMATION_DIR=`realpath ~/src/estenrye/slides`
+SSH_KEY_PATH=`realpath ~/.ssh/home_id_rsa`
 
 mkdir -p ${LAB_AUTOMATION_DIR}/iso/.output ${LAB_AUTOMATION_DIR}/iso/.cidata ${LAB_AUTOMATION_DIR}/iso/.ubuntu-iso
 
 docker run --rm -it \
+  --platform=linux/amd64 \
   --user 1000:$(id -u) \
   --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa,readonly \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
@@ -88,6 +90,7 @@ docker run --rm -it \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.ubuntu-iso,target=/tmp/ubuntu-iso \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/docker/estenrye/ubuntu-autoinstall-iso/ansible/inventories,target=/inventories,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/docker/estenrye/ubuntu-autoinstall-iso/ansible,target=/ansible,readonly \
+  --entrypoint ansible-playbook \
   estenrye/ubuntu-autoinstall-iso \
     -e @/secrets/creds.yml \
     --vault-password-file /secrets/secret.key \

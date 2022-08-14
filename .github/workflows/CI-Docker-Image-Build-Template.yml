@@ -15,7 +15,7 @@ on:
       PLATFORMS:
         required: false
         type: string
-        default: "linux/amd64,linux/arm/v7"
+        default: "linux/amd64"
     secrets:
       docker_username:
         required: true

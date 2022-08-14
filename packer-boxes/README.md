@@ -20,14 +20,11 @@ SSH_KEY_PATH=`realpath ~/.ssh/home_id_rsa`
 mkdir -p ${LAB_AUTOMATION_DIR}/iso/.output ${LAB_AUTOMATION_DIR}/iso/.cidata
 
 docker run --rm -it \
-  # -e ANSIBLE_CONFIG=/ansible/ansible.cfg \
+  --platform=linux/amd64 \
   --user 1000:$(id -u) \
   --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa,readonly \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
-  # --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.cidata,target=/tmp/cidata \
-  # --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible/inventories,target=/inventories,readonly \
-  # --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/ansible,target=/ansible,readonly \
   estenrye/ubuntu-autoinstall-iso \
     -e @/secrets/creds.yml \
     --vault-password-file /secrets/secret.key \
