@@ -1,9 +1,16 @@
+FROM alpine:3.16 AS base
+COPY vendor/ /vendor/
+RUN mkdir /apk \
+  && cp /vendor/linux/$(uname -m)/cdrkit-1.1.11-r2.apk /apk/cdrkit.apk \
+  && cp /vendor/linux/$(uname -m)/xorriso-1.5.2-r0.apk /apk/xorriso.apk
+
 FROM alpine:3.16
-RUN apk update && apk upgrade && apk add curl \
-  && curl -o cdrkit.apk https://dl-cdn.alpinelinux.org/alpine/v3.12/main/$(uname -m)/cdrkit-1.1.11-r2.apk \
-  && curl -o xorriso.apk https://dl-cdn.alpinelinux.org/alpine/v3.12/main/$(uname -m)/xorriso-1.5.2-r0.apk \
-  && apk add cdrkit.apk \
-  && apk add xorriso.apk \
+ARG TARGETPLATFORM
+
+COPY --from=base  /apk /apk
+RUN apk update && apk upgrade \
+  && apk add /apk/cdrkit.apk \
+  && apk add /apk/xorriso.apk \
   && apk add \
     ansible \
     gpg \
