@@ -27,7 +27,7 @@ packer_ubuntu:
 
 bare_metal_ubuntu:
   hosts:
-    maas01:
+    pf9bm01.rye.ninja:
     plex.rye.ninja:
 
 ubuntu:

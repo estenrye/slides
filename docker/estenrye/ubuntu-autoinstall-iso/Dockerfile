@@ -28,10 +28,11 @@ ENV VAULT_AUTH_METHOD="--vault-password-file=/secrets/secret.key" \
   INVENTORY_FILE=/ansible/inventories/inventory.yml \
   PACKER_LOG=1
 
-COPY requirements.yml entrypoint.sh  ansible /
+COPY requirements.yml entrypoint.sh /
 
 RUN mkdir -p /ansible_roles \
   && ansible-galaxy install -r /requirements.yml
 
 WORKDIR /ansible
+COPY ansible/ .
 ENTRYPOINT ["/entrypoint.sh"]
