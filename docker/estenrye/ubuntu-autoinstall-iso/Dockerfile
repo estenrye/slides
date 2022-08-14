@@ -16,6 +16,7 @@ RUN apt update \
   && apt install -y --no-install-recommends \
     python3 \
     python3-apt \
+    python3-dev \
     python3-pip \
   && pip3 install --no-warn-script-location -r /requirements.txt \
   && mkdir -p /ansible_roles \
