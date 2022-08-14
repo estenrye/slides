@@ -19,6 +19,8 @@ RUN apk update && apk upgrade \
     p7zip \
     zsh
 
+WORKDIR /ansible
+COPY ansible/ .
 
 ENV VAULT_AUTH_METHOD="--vault-password-file=/secrets/secret.key" \
   VAULT_FILE="/secrets/creds.yml" \
@@ -33,6 +35,4 @@ COPY requirements.yml entrypoint.sh /
 RUN mkdir -p /ansible_roles \
   && ansible-galaxy install -r /requirements.yml
 
-WORKDIR /ansible
-COPY ansible/ .
 ENTRYPOINT ["/entrypoint.sh"]

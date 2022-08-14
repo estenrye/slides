@@ -110,7 +110,7 @@ source "proxmox-iso" "proxmox" {
     disk_size = "{{ disks.boot.size }}"
     storage_pool = "local-lvm"
     storage_pool_type = "lvm-thin"
-    format = "qcow2"
+    format = "raw"
   }
 }
 

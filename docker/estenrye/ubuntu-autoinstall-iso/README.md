@@ -53,7 +53,14 @@ proxmox_pass: your-password-here
 
 For instructions on how to create an Ansible Vault file, read this [tutorial](../docs/ansible/creating-an-ansible-vault-file.md).
 
-The following code will execute the automation:
+The following code will execute the automation and do the following
+
+- Download the Ubuntu Install ISO.
+- Extract the Ubuntu Install ISO to a directory.
+- Preconfigures the Ubuntu Install ISO to install without prompting.
+- Updates the Ubuntu Install ISO checksum
+- Generates CIDATA iso files for machines in inventory
+- Publishes Ubuntu Install ISO and CIDATA iso files for proxmox hosts in inventory.
 
 ```bash
 ANSIBLE_SECRETS_DIR=`realpath ~/.ansible/secrets`
@@ -63,9 +70,7 @@ SSH_KEY_PATH=`realpath ~/.ssh/home_id_rsa`
 mkdir -p ${LAB_AUTOMATION_DIR}/iso/.output
 
 docker run --rm -it \
-  --platform=linux/amd64 \
-  --user 1000:$(id -u) \
-  --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa,readonly \
+  --mount type=bind,source=${SSH_KEY_PATH},target=/root/.ssh/id_rsa,readonly \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
   estenrye/ubuntu-autoinstall-iso
@@ -81,9 +86,7 @@ SSH_KEY_PATH=`realpath ~/.ssh/home_id_rsa`
 mkdir -p ${LAB_AUTOMATION_DIR}/iso/.output ${LAB_AUTOMATION_DIR}/iso/.cidata ${LAB_AUTOMATION_DIR}/iso/.ubuntu-iso
 
 docker run --rm -it \
-  --platform=linux/amd64 \
-  --user 1000:$(id -u) \
-  --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa,readonly \
+  --mount type=bind,source=${SSH_KEY_PATH},target=/root/.ssh/id_rsa,readonly \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.cidata,target=/tmp/cidata \
@@ -121,8 +124,7 @@ sudo dd if=${LAB_AUTOMATION_DIR}/iso/.output/maas01/cidata.iso of=${TARGET_DEVIC
 # Provision the template.
 # Note that in this example we override the existing values for proxmox_vm_id and proxmox_vm_name
 docker run --rm -it \
-  --user 1000:$(id -u) \
-  --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa,readonly \
+  --mount type=bind,source=${SSH_KEY_PATH},target=/root/.ssh/id_rsa,readonly \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets,readonly \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/iso/.output,target=/output \
   --entrypoint packer \
