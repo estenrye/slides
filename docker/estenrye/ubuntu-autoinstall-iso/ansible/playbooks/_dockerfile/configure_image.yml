@@ -26,7 +26,6 @@
           - ca-certificates
           - curl
           - genisoimage
-          - gcc-multilib
           - gpg
           - isolinux
           - mkisofs
@@ -35,6 +34,12 @@
           - sudo
           - unzip
           - xorriso
+
+    - ansible.builtin.apt:
+        install_recommends: false
+        name:
+          - gcc-arm*
+      when: packer_arch == 'arm64'
 
     - ansible.builtin.debug:
         var: ansible_architecture
