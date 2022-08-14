@@ -2,20 +2,12 @@
 - hosts: ubuntu
   connection: local
   tasks:
-    - name: Install Prerequisites
-      ansible.builtin.package:
-        name:
-          - genisoimage
-      become: true
-      tags:
-        - install_prerequisites
-
     - name: Clean cidata directory
       ansible.builtin.file:
         state: absent
         path: '{{ item }}'
       loop:
-        - /tmp//cidata/{{ inventory_hostname }}
+        - /tmp/cidata/{{ inventory_hostname }}
         - /output/{{ inventory_hostname }}
       become: true
 

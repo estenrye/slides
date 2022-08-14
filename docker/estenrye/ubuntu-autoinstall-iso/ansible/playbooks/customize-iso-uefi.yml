@@ -9,17 +9,6 @@
           - iso_checksum is defined
           - iso_name is defined
 
-    - name: Install Prerequisites
-      ansible.builtin.package:
-        name:
-          - genisoimage
-          - isolinux
-          - mkisofs
-          - p7zip-full
-          - xorriso
-      become: true
-      tags: install_prerequisites
-
     - name: Clean extract path
       ansible.builtin.file:
         path: /tmp/ubuntu_iso
@@ -29,6 +18,11 @@
     - name: Create extract path
       ansible.builtin.file:
         path: /tmp/ubuntu_iso
+        state: directory
+
+    - name: Create download path
+      ansible.builtin.file:
+        path: /output
         state: directory
 
     - name: Download Ubuntu ISO
@@ -90,8 +84,8 @@
           - xorriso
           - -as
           - mkisofs
-          - -isohybrid-mbr
-          - /usr/lib/ISOLINUX/isohdpfx.bin
+          - -b
+          - /tmp/ubuntu_iso/isolinux/isolinux.bin
           - -r
           - -V
           - "Ubuntu_Autoinstall"

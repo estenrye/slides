@@ -1,29 +1,30 @@
-FROM ubuntu:focal-20220105
+FROM alpine:3.16
+RUN apk update && apk upgrade && apk add curl \
+  && curl -o cdrkit.apk https://dl-cdn.alpinelinux.org/alpine/v3.12/main/$(uname -m)/cdrkit-1.1.11-r2.apk \
+  && curl -o xorriso.apk https://dl-cdn.alpinelinux.org/alpine/v3.12/main/$(uname -m)/xorriso-1.5.2-r0.apk \
+  && apk add cdrkit.apk \
+  && apk add xorriso.apk \
+  && apk add \
+    ansible \
+    gpg \
+    packer \
+    openssl \
+    p7zip \
+    zsh
+
 
 ENV VAULT_AUTH_METHOD="--vault-password-file=/secrets/secret.key" \
   VAULT_FILE="/secrets/creds.yml" \
-  SSH_KEY=/home/automation-user/.ssh/id_rsa \
+  SSH_KEY=/root/.ssh/id_rsa \
   ANSIBLE_CONFIG=/ansible/ansible.cfg \
   PLAYBOOK_FILE=/ansible/playbooks/playbook.yml \
   INVENTORY_FILE=/ansible/inventories/inventory.yml \
   PACKER_LOG=1
 
-COPY requirements.txt requirements.yml entrypoint.sh /
-COPY etc/sudoers /etc/sudoers
-COPY ansible /ansible
+COPY requirements.yml entrypoint.sh  ansible /
 
-RUN apt update \
-  && apt install -y --no-install-recommends \
-    python3 \
-    python3-apt \
-    python3-dev \
-    python3-pip \
-  && pip3 install --no-warn-script-location -r /requirements.txt \
-  && mkdir -p /ansible_roles \
-  && chmod 755 /ansible_roles \
-  && ansible-galaxy install -r /requirements.yml \
-  && ansible-playbook -i localhost, /ansible/playbooks/_dockerfile/configure_image.yml
+RUN mkdir -p /ansible_roles \
+  && ansible-galaxy install -r /requirements.yml
 
-USER automation-user
 WORKDIR /ansible
 ENTRYPOINT ["/entrypoint.sh"]
