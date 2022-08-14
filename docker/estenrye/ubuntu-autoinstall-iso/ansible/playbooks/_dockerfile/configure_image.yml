@@ -39,6 +39,7 @@
         install_recommends: false
         name:
           - gcc-arm*
+          - ia32-libs
       when: packer_arch == 'arm64'
 
     - ansible.builtin.debug:
