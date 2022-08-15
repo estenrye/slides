@@ -74,7 +74,7 @@
     ubuntu_2004_cis_require_ssh_macs: hmac-sha2-256,hmac-sha2-512
     ubuntu_2004_cis_require_ssh_kexalgorithms: ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256
   roles:
-    - darkwizard242.cis_ubuntu_2004
+    - estenrye.cis_ubuntu_2004
 
 - hosts: default
   become: true
