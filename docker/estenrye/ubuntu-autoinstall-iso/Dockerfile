@@ -15,6 +15,7 @@ RUN apk update && apk upgrade \
     ansible \
     gpg \
     packer \
+    openssh-client \
     openssl \
     p7zip \
     zsh
