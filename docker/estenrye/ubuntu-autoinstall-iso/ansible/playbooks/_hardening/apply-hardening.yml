@@ -31,6 +31,7 @@
             owner: vagrant
             mode: 0600
       when:
+        - packer_builder_type is defined
         - packer_builder_type == "virtualbox-iso"
 
     - name: vmware | Configure VMWare Prerequisites
@@ -56,6 +57,7 @@
             line: After=dbus.service
             path: /lib/systemd/system/open-vm-tools.service
       when:
+        - packer_build_name is defined
         - packer_build_name == "vmware"
 
 - hosts: default
@@ -96,22 +98,22 @@
       ansible.builtin.include_tasks:
         file: tasks/fstab.yml
       loop:
-        - src: "{{ disk_src_var_lib }}"
+        - src: "{{ disk_src_var_lib | default('/dev/mapper/ubuntu--vg-var--lib') }}"
           path: /var/lib
           options: defaults
-        - src: "{{ disk_src_var_log }}"
+        - src: "{{ disk_src_var_log | default('/dev/mapper/ubuntu--vg-var--log') }}"
           path: /var/log
           options: defaults
-        - src: "{{ disk_src_var_log_audit }}"
+        - src: "{{ disk_src_var_log_audit | default('/dev/mapper/ubuntu--vg-var--log--audit') }}"
           path: /var/log/audit
           options: defaults
-        - src: "{{ disk_src_var }}"
+        - src: "{{ disk_src_var | default('/dev/mapper/ubuntu--vg-var') }}"
           path: /var
           options: defaults
-        - src: "{{ disk_src_var_tmp }}"
+        - src: "{{ disk_src_var_tmp | default('/dev/mapper/ubuntu--vg-var--tmp') }}"
           path: /var/tmp
           options: defaults,nodev,nosuid,noexec
-        - src: "{{ disk_src_home }}"
+        - src: "{{ disk_src_home | default('/dev/mapper/ubuntu--vg-home') }}"
           path: /home
           options: defaults,nodev
 
@@ -126,26 +128,26 @@
         - /etc/udev/rules.d/70-persistent-net.rules
         - /etc/cloud/cloud.cfg.d/99-pve.cfg
       when:
-        - not packer_builder_type == 'bare_metal'
+        - packer_builder_type is defined
 
     - name: set persistent net rules
       ansible.builtin.copy:
         content: SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{dev_id}=="0x0", ATTR{type}=="1", NAME="eth0"
         dest: /etc/udev/rules.d/70-persistent-net.rules
       when:
-        - not packer_builder_type == 'bare_metal'
+        - packer_builder_type is defined
 
     - name: set cloud-init config
       ansible.builtin.copy:
         content: "datasource_list: [ConfigDrive, NoCloud]"
         dest: /etc/cloud/cloud.cfg.d/99-pve.cfg
       when:
-        - not packer_builder_type == 'bare_metal'
+        - packer_builder_type is defined
 
     - name: clean cloud init
       ansible.builtin.command: cloud-init clean
       when:
-        - not packer_builder_type == 'bare_metal'
+        - packer_builder_type is defined
 
     - name: remove /var/log contents
       file:
@@ -153,7 +155,9 @@
         state: absent
       when:
         - item != 'audit'
-        - not packer_builder_type == 'bare_metal'
+        - not packer_builder_type is defined
       become: true
       with_fileglob:
         - /var/log/*
+
+    - name:
