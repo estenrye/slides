@@ -37,6 +37,7 @@ RUN apk update && apk upgrade \
   && apk add \
     1password-cli \
     ansible \
+    git \
     gpg \
     jq \
     openssh-client \
