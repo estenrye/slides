@@ -4,6 +4,6 @@ collections:
   - name: community.general
     version: 4.7.0
   - name: kubernetes.core
-    version: 2.3.0
+    version: 2.3.2
   - name: nginxinc.nginx_core
     version: 0.6.0
