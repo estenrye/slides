@@ -8,10 +8,10 @@ RUN apk update && apk upgrade \
     1password-cli \
     ansible \
     gpg \
-    helm \
+    # helm \
     jq \
-    kubectl \
-    krew \
+    # kubectl \
+    # krew \
     openssh-client \
     openssl \
     p7zip \
