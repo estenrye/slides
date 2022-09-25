@@ -1,7 +1,10 @@
 FROM alpine:3.16 AS download
 RUN apk update \
   && apk add bash curl git openssl tar wget
-RUN wget https://dl.k8s.io/release/v1.25.0/bin/linux/amd64/kubectl --output-document=/kubectl
+RUN ( \
+  ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" && \
+  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl" \
+)
 RUN chmod 755 /kubectl
 RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 RUN ( \
