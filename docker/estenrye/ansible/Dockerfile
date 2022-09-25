@@ -47,6 +47,6 @@ RUN apk update && apk upgrade \
     zsh\
   && echo "export PATH=/root/.krew/bin:${PATH}" >> /etc/zsh/zshenv \
   && helm plugin install https://github.com/databus23/helm-diff
-RUN pip3 install --force -r /root/requirements.txt \
+RUN pip3 install -r /root/requirements.txt \
   && ansible-galaxy install -r /root/requirements.yml
 ENTRYPOINT ["zsh"]
