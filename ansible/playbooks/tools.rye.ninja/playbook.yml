@@ -1,0 +1,5 @@
+- hosts: tools_server
+  roles: []
+  tasks:
+    - name: ping the server
+      ansible.builtin.ping:

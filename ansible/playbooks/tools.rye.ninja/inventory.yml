@@ -1,0 +1,4 @@
+tools_server:
+  hosts:
+    tools.rye.ninja:
+      ansible_host: 10.5.7.10
