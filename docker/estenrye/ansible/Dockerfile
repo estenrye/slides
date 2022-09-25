@@ -31,11 +31,11 @@ COPY --from=download \
 COPY .ansible.cfg requirements.txt requirements.yml /root/
 RUN apk update && apk upgrade \
   && apk add wget \
-  && echo https://downloads.1password.com/linux/alpinelinux/stable/ >> /etc/apk/repositories \
-  && wget https://downloads.1password.com/linux/keys/alpinelinux/support@1password.com-61ddfc31.rsa.pub -P /etc/apk/keys \
+  # && echo https://downloads.1password.com/linux/alpinelinux/stable/ >> /etc/apk/repositories \
+  # && wget https://downloads.1password.com/linux/keys/alpinelinux/support@1password.com-61ddfc31.rsa.pub -P /etc/apk/keys \
   && apk update \
   && apk add \
-    1password-cli \
+    # 1password-cli \
     ansible \
     git \
     gpg \
@@ -43,9 +43,10 @@ RUN apk update && apk upgrade \
     openssh-client \
     openssl \
     p7zip \
+    py3-pip \
     zsh\
   && echo "export PATH=/root/.krew/bin:${PATH}" >> /etc/zsh/zshenv \
-  && helm plugin install https://github.com/databus23/helm-diff \
-  && pip3 install --force -r /root/requirements.txt \
+  && helm plugin install https://github.com/databus23/helm-diff
+RUN pip3 install --force -r /root/requirements.txt \
   && ansible-galaxy install -r /root/requirements.yml
 ENTRYPOINT ["zsh"]
