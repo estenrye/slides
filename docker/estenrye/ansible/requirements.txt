@@ -5,7 +5,7 @@ cryptography ==37.0.4
 kubernetes ==23.3.0
 
 # TODO: Review necessity.  Added to support plex configuration
-lxml ==4.8.0
+# lxml ==4.8.0
 
 # The ansible.utils.ipaddr filter requires netaddr
 netaddr == 0.8.0
