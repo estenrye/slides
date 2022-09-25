@@ -50,3 +50,4 @@ RUN apk update && apk upgrade \
 RUN pip3 install -r /root/requirements.txt \
   && ansible-galaxy install -r /root/requirements.yml
 ENTRYPOINT ["zsh"]
+WORKDIR /ansible
