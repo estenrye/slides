@@ -28,6 +28,7 @@ COPY --from=download \
   /linux-amd64/helm \
   /kubectl \
   /usr/bin/
+COPY .ansible.cfg requirements.txt requirements.yml /root/
 RUN apk update && apk upgrade \
   && apk add wget \
   && echo https://downloads.1password.com/linux/alpinelinux/stable/ >> /etc/apk/repositories \
@@ -42,5 +43,8 @@ RUN apk update && apk upgrade \
     openssl \
     p7zip \
     zsh\
-  && echo "export PATH=/root/.krew/bin:${PATH}" >> /etc/zsh/zshenv
+  && echo "export PATH=/root/.krew/bin:${PATH}" >> /etc/zsh/zshenv \
+  && helm plugin install https://github.com/databus23/helm-diff \
+  && pip3 install --force -r /root/requirements.txt \
+  && ansible-galaxy install -r /root/requirements.yml
 ENTRYPOINT ["zsh"]
