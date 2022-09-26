@@ -29,7 +29,7 @@ COPY --from=download \
   /kubectl \
   /usr/bin/
 COPY .ansible.cfg .ashrc pre-requirements.txt requirements.txt requirements.yml /root/
-ENV ENV=/root/.ashrc
+# ENV ENV=/root/.ashrc
 RUN apk update && apk upgrade \
   && apk add \
     git \
