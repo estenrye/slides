@@ -8,7 +8,7 @@ gem "oj", "= 3.13.11"
 
 gem "json", "= 2.6.1"
 
-gem "async-http", "= 0.56.5"
+gem "async-http", "= 0.59.2"
 
 gem "ext_monitor", "= 0.1.2"
 
