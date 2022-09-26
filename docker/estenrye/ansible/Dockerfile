@@ -52,3 +52,4 @@ RUN  pip3 install -r /root/pre-requirements.txt \
   && pip3 install -r /root/requirements.txt \
   && ansible-galaxy install -r /root/requirements.yml
 WORKDIR /ansible
+ENTRYPOINT [ "ash", "--login" ]
