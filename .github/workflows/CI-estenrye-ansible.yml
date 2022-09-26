@@ -32,6 +32,7 @@ jobs:
       DOCKER_IMAGENAME: ansible
       DOCKER_ORGANIZATION_NAME: estenrye
       PUSH_IMAGE: ${{ github.ref == 'refs/heads/master' }}
+      PLATFORMS: "linux/amd64,linux/arm64,linux/arm/v7"
     secrets:
       docker_username: estenrye
       docker_password: ${{ secrets.DOCKER_PASSWORD }}
