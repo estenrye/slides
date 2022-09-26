@@ -28,11 +28,10 @@ COPY --from=download \
   /usr/local/bin/helm \
   /kubectl \
   /usr/bin/
-COPY .ansible.cfg .ashrc requirements.txt requirements.yml /root/
+COPY .ansible.cfg .ashrc pre-requirements.txt requirements.txt requirements.yml /root/
 ENV ENV=/root/.ashrc
 RUN apk update && apk upgrade \
   && apk add \
-    ansible \
     git \
     gpg \
     jq \
@@ -49,6 +48,7 @@ RUN apk update && apk upgrade \
     && apk update && apk add 1password-cli \
   fi \
   helm plugin install https://github.com/databus23/helm-diff
-RUN pip3 install -r /root/requirements.txt \
+RUN  pip3 install -r /root/pre-requirements.txt \
+  && pip3 install -r /root/requirements.txt \
   && ansible-galaxy install -r /root/requirements.yml
 WORKDIR /ansible
