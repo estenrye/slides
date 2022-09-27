@@ -19,8 +19,10 @@ RUN ( \
 
 RUN /root/.krew/bin/kubectl-krew install \
   cert-manager \
-  minio \
-  neat
+  neat \
+  if [[ "$(uname -m)" == 'x86_64']] \
+    /root/.krew/bin/kubectl-krew install minio \
+  fi
 
 FROM alpine:3.16
 COPY --from=download /root/.krew /root/.krew
