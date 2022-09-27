@@ -19,6 +19,7 @@ RUN ( \
 
 RUN /root/.krew/bin/kubectl-krew install cert-manager neat; \
   if [[ "$(uname -m)" == 'x86_64']] \
+  then \
     /root/.krew/bin/kubectl-krew install minio \
   fi
 
