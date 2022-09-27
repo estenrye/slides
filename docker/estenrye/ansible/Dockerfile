@@ -17,9 +17,7 @@ RUN ( \
   ./"${KREW}" install krew \
 )
 
-RUN /root/.krew/bin/kubectl-krew install \
-  cert-manager \
-  neat \
+RUN /root/.krew/bin/kubectl-krew install cert-manager neat; \
   if [[ "$(uname -m)" == 'x86_64']] \
     /root/.krew/bin/kubectl-krew install minio \
   fi
