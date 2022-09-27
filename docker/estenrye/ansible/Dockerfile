@@ -17,10 +17,10 @@ RUN ( \
   ./"${KREW}" install krew \
 )
 
-RUN /root/.krew/bin/kubectl-krew install cert-manager neat; \
-  if [[ "$(uname -m)" == 'x86_64']] \
+RUN /root/.krew/bin/kubectl-krew install cert-manager neat
+RUN if [[ "$(uname -m)" == 'x86_64']]; \
   then \
-    /root/.krew/bin/kubectl-krew install minio \
+    /root/.krew/bin/kubectl-krew install minio; \
   fi
 
 FROM alpine:3.16
