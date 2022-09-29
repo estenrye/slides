@@ -1,0 +1,8 @@
+tftp_user: tftp
+tftp_uid: 35000
+tftp_group: tftp
+tftp_gid: 35000
+tftp_directory: /var/lib/pxeroot
+tftp_address: :69
+tftp_options:
+  - --secure

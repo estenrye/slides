@@ -1,0 +1,16 @@
+- name: Download Shoelaces Artifact
+  ansible.builtin.get_url:
+    url: "{{ shoelaces_release_url }}"
+    dest: /tmp/shoelaces.tar.gz
+
+- name: Unarchive Shoelaces Artifact
+  ansible.builtin.unarchive:
+    src: /tmp/shoelaces.tar.gz
+    remote_src: true
+    dest: /usr/bin
+    mode: 755
+    owner: root
+    group: root
+    include:
+      - shoelaces
+  become: true

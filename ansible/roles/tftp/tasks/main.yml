@@ -1,0 +1,47 @@
+- name: Create tftp Group if it does not exist
+  ansible.builtin.group:
+    gid: "{{ tftp_gid | int }}"
+    name: "{{ tftp_group }}"
+  become: true
+
+- name: Create tftp User if it does not exist
+  ansible.builtin.user:
+    uid: "{{ tftp_uid | int }}"
+    name: "{{ tftp_user }}"
+    group: "{{ tftp_group }}"
+  become: true
+
+- name: set ownership of tftp_directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ tftp_directory }}"
+    owner: "{{ tftp_user }}"
+    group: "{{ tftp_group }}"
+  become: true
+
+- name: Install tftp-hpa package
+  ansible.builtin.package:
+    name:
+      - tftp-hpa
+      - tftpd-hpa
+
+  become: true
+
+- name: Create Configuration Files
+  ansible.builtin.template:
+    src: tftpd-hpa.conf.j2
+    dest: /etc/default/tftpd-hpa
+  notify: restart tftpd-hpa
+  become: true
+
+- name: Ensure keepalived is enabled on boot.
+  ansible.builtin.service:
+    name: tftpd-hpa
+    enabled: yes
+  become: true
+
+- name: Ensure keepalived is started.
+  ansible.builtin.service:
+    name: tftpd-hpa
+    state: started
+  become: true

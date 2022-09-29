@@ -8,5 +8,74 @@
         update_cache: yes
         cache_valid_time: 3600
       become: true
+
+    - name: task for creating volume group
+      community.general.lvg:
+          vg: data-vg
+          pvs: /dev/sdb
+          pesize: 16
+      become: true
+
+    - name: Install lvm2 dependency
+      ansible.builtin.package:
+        name: lvm2
+        state: present
+      become: true
+
+    - name: task for creating logical volume
+      community.general.lvol:
+          vg: data-vg
+          lv:  "{{ lv_item.lv }}"
+          size: "{{ lv_item.size }}"
+      loop_control:
+        loop_var: lv_item
+      loop:
+        - lv: apt-lv
+          size: 1024g
+        - lv: pxe-lv
+          size: 500g
+      become: true
+
+    - name: Create directory data1 if does not exist
+      ansible.builtin.file:
+        path: "{{ lv_path }}"
+        state: directory
+        mode: '0755'
+      loop_control:
+        loop_var: lv_path
+      loop:
+        - /var/lib/apt-mirror
+        - /var/lib/pxeroot
+      become: true
+
+    - name: format the xfs filesystem
+      ansible.builtin.filesystem:
+        fstype: xfs
+        dev: "{{ lv_dev }}"
+      loop_control:
+        loop_var: lv_dev
+      loop:
+        - /dev/data-vg/apt-lv
+        - /dev/data-vg/pxe-lv
+      become: true
+
+    - name: mount the lv on /data1
+      ansible.builtin.mount:
+        path: "{{ lv_mount.path }}"
+        src: "{{ lv_mount.src }}"
+        fstype: xfs
+        state: mounted
+      loop_control:
+        loop_var: lv_mount
+      loop:
+        - path: /var/lib/apt-mirror
+          src: /dev/data-vg/apt-lv
+        - path: /var/lib/pxeroot
+          src: /dev/data-vg/pxe-lv
+      become: true
+
+- hosts: tools_server
   roles:
     - keepalived
+    - shoelaces
+    - tftp
