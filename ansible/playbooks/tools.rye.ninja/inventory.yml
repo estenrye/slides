@@ -3,3 +3,8 @@ tools_server:
     tools.rye.ninja:
       ansible_host: 10.5.7.10
       ansible_user: automation-user
+      #TODO: Pull auth_pass and virtual_router_id from 1Password
+      keepalived_auth_pass: 346728
+      keepalived_virtual_router_id: 141
+      keepalived_vip: 10.5.7.2/16
+      keepalived_interface: enp2s0.61

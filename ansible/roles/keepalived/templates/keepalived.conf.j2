@@ -1,0 +1,36 @@
+! /etc/keepalived/keepalived.conf
+! Configuration File for keepalived
+! {{ ansible_managed }}
+
+global_defs {
+    router_id {{ keepalived_router_id }}
+}
+
+{% if keepalived_check_server_script %}
+vrrp_script check_server {
+  script "{{ keepalived_check_server_script }}"
+  interval 3
+  weight -2
+  fall 10
+  rise 2
+}
+{% endif %}
+
+vrrp_instance VI_1 {
+    state {{ keepalived_state }}
+    interface {{ keepalived_interface }}
+    virtual_router_id {{ keepalived_virtual_router_id }}
+    priority {{ keepalived_priority }}
+    authentication {
+        auth_type PASS
+        auth_pass {{ keepalived_auth_pass }}
+    }
+    virtual_ipaddress {
+        {{ keepalived_vip }}
+    }
+{% if keepalived_check_server_script %}
+    track_script {
+        check_server
+    }
+{% endif %}
+}

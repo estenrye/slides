@@ -1,5 +1,12 @@
 - hosts: tools_server
-  roles: []
   tasks:
     - name: ping the server
       ansible.builtin.ping:
+
+    - name: update apt package cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: true
+  roles:
+    - keepalived
