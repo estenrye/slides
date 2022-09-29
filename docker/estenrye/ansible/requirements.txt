@@ -2,7 +2,7 @@
 cryptography ==37.0.4
 
 # Required to interact with Kubernetes Clusters
-kubernetes ==23.3.0
+kubernetes ==23.6.0
 
 # TODO: Review necessity.  Added to support plex configuration
 # lxml ==4.8.0
