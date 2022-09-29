@@ -1,0 +1,5 @@
+#!/bin/ash
+
+source ~/.ashrc
+
+$@

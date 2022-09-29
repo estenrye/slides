@@ -29,7 +29,7 @@ COPY --from=download \
   /usr/local/bin/helm \
   /kubectl \
   /usr/bin/
-COPY .ansible.cfg .ashrc requirements.txt requirements.yml /root/
+COPY .ansible.cfg .ashrc entrypoint.sh requirements.txt requirements.yml /root/
 # ENV ENV=/root/.ashrc
 RUN apk update && apk upgrade \
   && apk add \
@@ -53,4 +53,4 @@ RUN apk update && apk upgrade \
 RUN  pip3 install -r /root/requirements.txt \
   && ansible-galaxy install -r /root/requirements.yml
 WORKDIR /ansible
-ENTRYPOINT [ "ash", "--login" ]
+ENTRYPOINT [ "/root/entrypoint.sh" ]
