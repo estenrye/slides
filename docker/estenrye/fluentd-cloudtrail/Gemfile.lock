@@ -40,12 +40,12 @@ GEM
     console (1.15.0)
       fiber-local
     cool.io (1.7.1)
-    elasticsearch (7.14.0)
-      elasticsearch-api (= 7.14.0)
-      elasticsearch-transport (= 7.14.0)
-    elasticsearch-api (7.14.0)
+    elasticsearch (7.17.1)
+      elasticsearch-api (= 7.17.1)
+      elasticsearch-transport (= 7.17.1)
+    elasticsearch-api (7.17.1)
       multi_json
-    elasticsearch-transport (7.14.0)
+    elasticsearch-transport (7.17.1)
       faraday (~> 1)
       multi_json
     excon (0.92.5)
@@ -140,7 +140,7 @@ PLATFORMS
 DEPENDENCIES
   async-http (= 0.56.5)
   bigdecimal (= 3.1.2)
-  elasticsearch (= 7.14)
+  elasticsearch (= 7.17.1)
   ext_monitor (= 0.1.2)
   fluent-plugin-elasticsearch (= 5.2.4)
   fluent-plugin-record_splitter (= 0.2.1)
