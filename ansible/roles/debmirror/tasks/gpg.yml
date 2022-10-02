@@ -17,7 +17,8 @@
     group: "{{ debmirror_group_name }}"
   loop_control:
     loop_var: aptmirror
-  loop: "{{ mirror_repos | default([]) }}"
+    label: "{{ aptmirror.mirror.name }}"
+  loop: "{{ mirror_repos | selectattr('remote.gpg_key', 'defined') }}"
   when:
     - aptmirror.remote.gpg_key is defined
   become: true
@@ -30,7 +31,8 @@
     GNUPGHOME: /home/{{ debmirror_user_name }}/.gnupg
   loop_control:
     loop_var: aptmirror
-  loop: "{{ mirror_repos | default([]) }}"
+    label: "{{ aptmirror.mirror.name }}"
+  loop: "{{ mirror_repos | selectattr('remote.gpg_key', 'defined') }}"
   when:
     - aptmirror.remote.gpg_key is defined
     - key_download.changed
@@ -67,7 +69,8 @@
     path: "{{ mirror_dir }}/www/{{ aptmirror.mirror.name }}/gpg"
   loop_control:
     loop_var: aptmirror
-  loop: "{{ mirror_repos | default([]) }}"
+    label: "{{ aptmirror.mirror.name }} ==> { src={{ mirror_dir }}/gpg/{{ aptmirror.mirror.name }}.gpg, path={{ mirror_dir }}/www/{{ aptmirror.mirror.name }}/gpg }"
+  loop: "{{ mirror_repos | selectattr('remote.gpg_key', 'defined') }}"
   when:
     - aptmirror.remote.gpg_key is defined
   become: true

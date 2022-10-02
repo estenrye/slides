@@ -9,9 +9,10 @@
   become: true
   loop_control:
     loop_var: aptmirror
-  loop: "{{ mirror_repos | default([]) }}"
+    label: "{{ aptmirror.mirror.name }} ==> { handler='{{ aptmirror.handler | default('debmirror') }}', path='{{ mirror_dir }}/mirror/{{ aptmirror.mirror.name }}' }"
+  loop: "{{ mirror_repos | selectattr('handler', '==', 'debmirror') }}"
   when:
-    - aptmirror.handler | default('debmirror') == 'debmirror'
+    - aptmirror.handler == 'debmirror'
 
 - name: Write debmirror config files
   ansible.builtin.template:
@@ -23,9 +24,10 @@
   become: true
   loop_control:
     loop_var: aptmirror
-  loop: "{{ mirror_repos | default([]) }}"
+    label: "{{ aptmirror.mirror.name }} ==> { handler='{{ aptmirror.handler | default('debmirror') }}', path='/etc/debmirror.d/{{ aptmirror.mirror.name }}.conf' }"
+  loop: "{{ mirror_repos | selectattr('handler', '==', 'debmirror') }}"
   when:
-    - aptmirror.handler | default('debmirror') == 'debmirror'
+    - aptmirror.handler == 'debmirror'
 
 - name: Create debmirror www Symlinks
   ansible.builtin.file:
@@ -34,7 +36,8 @@
     path: "{{ mirror_dir }}/www/{{ aptmirror.mirror.name }}"
   loop_control:
     loop_var: aptmirror
-  loop: "{{ mirror_repos | default([]) }}"
+    label: "{{ aptmirror.mirror.name }} ==> { handler='{{ aptmirror.handler | default('debmirror') }}', src='{{ mirror_dir }}/mirror/{{ aptmirror.mirror.name }}', path='{{ mirror_dir }}/www/{{ aptmirror.mirror.name }}' }"
+  loop: "{{ mirror_repos | selectattr('handler', '==', 'debmirror') }}"
   become: true
   when:
-    - aptmirror.handler | default('debmirror') == 'debmirror'
+    - aptmirror.handler == 'debmirror'

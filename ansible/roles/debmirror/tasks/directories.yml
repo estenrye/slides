@@ -42,6 +42,7 @@
   become: true
   loop_control:
     loop_var: mirror_dir_item
+    label: "{{ mirror_dir_item.mirror.name }} ==> { path={{ mirror_dir }}/www/status/{{ mirror_dir_item.mirror.name }} }"
   loop: "{{ mirror_repos | default([]) }}"
 
 

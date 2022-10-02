@@ -16,7 +16,8 @@ debmirror_archive_keyring: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 mirror_dir: /var/lib/apt-mirror
 
 mirror_repos:
-  - remote:
+  - handler: debmirror
+    remote:
       host: mirror.genesisadaptive.com
       root: ubuntu
     mirror:
@@ -45,7 +46,8 @@ mirror_repos:
       on_calendar: '*-*-* 01/6:30:00'
       accuracy_sec: 1m
 
-  - remote:
+  - handler: debmirror
+    remote:
       host: download.docker.com
       root: linux/ubuntu
       gpg_key: https://download.docker.com/linux/ubuntu/gpg
@@ -82,7 +84,8 @@ mirror_repos:
     download:
       source: false
 
-  - remote:
+  - handler: debmirror
+    remote:
       host: packages.microsoft.com
       root: ubuntu/20.04/prod
       gpg_key: https://packages.microsoft.com/keys/microsoft.asc
@@ -100,7 +103,8 @@ mirror_repos:
     output:
       verbose: true
 
-  - remote:
+  - handler: debmirror
+    remote:
       host: ppa.launchpadcontent.net
       root: maas/3.1/ubuntu
       gpg_key: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3ab6dcf1f234e78daa9c104204e7fdc5684d4a1c
@@ -118,7 +122,8 @@ mirror_repos:
     output:
       verbose: true
 
-  - remote:
+  - handler: debmirror
+    remote:
       host: ppa.launchpadcontent.net
       root: yubico/stable/ubuntu
       gpg_key: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3653e21064b19d134466702e43d5c49532cba1a9
@@ -136,7 +141,8 @@ mirror_repos:
     output:
       verbose: true
 
-  - remote:
+  - handler: debmirror
+    remote:
       host: apt.kubernetes.io
       root: ''
       gpg_key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -154,7 +160,8 @@ mirror_repos:
     output:
       verbose: true
 
-  - remote:
+  - handler: debmirror
+    remote:
       host: dl.google.com
       root: linux/chrome/deb
       gpg_key: https://dl.google.com/linux/linux_signing_key.pub
@@ -172,7 +179,8 @@ mirror_repos:
     output:
       verbose: true
 
-  - remote:
+  - handler: debmirror
+    remote:
       host: pkg.surfacelinux.com
       root: debian
       gpg_key: https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc
@@ -190,7 +198,8 @@ mirror_repos:
     output:
       verbose: true
 
-  - remote:
+  - handler: debmirror
+    remote:
       host: baltocdn.com
       root: /helm/stable/debian
       gpg_key: https://baltocdn.com/helm/signing.asc
@@ -208,7 +217,7 @@ mirror_repos:
     output:
       verbose: true
 
-  - handler: apt-mirror
+  - handler: debmirror
     remote:
       host: downloads.plex.tv
       root: /repo/deb
@@ -226,3 +235,21 @@ mirror_repos:
       method: http
     output:
       verbose: true
+
+  - handler: apt-mirror
+    remote:
+      host: www.ui.com
+      root: downloads/unifi/debian
+      gpg_key: https://dl.ui.com/unifi/unifi-repo.gpg
+    mirror:
+      name: ubiquiti
+      dists:
+        - stable
+      sections:
+        - ubiquiti
+      arches:
+        - amd64
+      state_cache_days: 0
+      download: http
+      output:
+        verbose: true

@@ -47,10 +47,10 @@ cloudflare_api_token: <your api token here>
 ## Example Execution
 
 ```bash
-docker run --rm -it --platform=linux/amd64 \
+docker run --rm -it \
   --mount type=bind,source=${LAB_AUTOMATION_DIR}/ansible,target=/ansible,readonly \
   --mount type=bind,source=${ANSIBLE_SECRETS_DIR},target=/secrets \
-  --mount type=bind,source=${SSH_KEY_PATH},target=/home/automation-user/.ssh/id_rsa \
+  --mount type=bind,source=${SSH_KEY_PATH},target=/root/.ssh/id_rsa \
   -e ANSIBLE_CONFIG=/ansible/ansible.cfg \
    estenrye/ansible:latest \
   ansible-playbook \

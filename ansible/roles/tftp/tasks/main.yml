@@ -14,10 +14,16 @@
 - name: set ownership of tftp_directory
   ansible.builtin.file:
     state: directory
-    path: "{{ tftp_directory }}"
+    path: "{{ tftp_dir }}"
     owner: "{{ tftp_user }}"
     group: "{{ tftp_group }}"
+    mode: 0755
   become: true
+  loop_control:
+    loop_var: tftp_dir
+  loop:
+    - "{{ tftp_directory }}"
+    - "{{ tftp_directory }}/firmware"
 
 - name: Install tftp-hpa package
   ansible.builtin.package:
@@ -45,3 +51,19 @@
     name: tftpd-hpa
     state: started
   become: true
+
+- name: Download IPXE firmware
+  ansible.builtin.get_url:
+    url: "{{ ipxe_firmware.src }}"
+    dest: "{{ ipxe_firmware.dest }}"
+    owner: "{{ tftp_user }}"
+    group: "{{ tftp_group }}"
+  become: true
+  loop_control:
+    loop_var: ipxe_firmware
+  loop:
+    - src: http://boot.ipxe.org/undionly.kpxe
+      dest: "{{ tftp_directory }}/firmware/undionly.kpxe"
+    - src: http://boot.ipxe.org/ipxe.efi
+      dest: "{{ tftp_directory }}/firmware/ipxe.efi"
+

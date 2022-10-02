@@ -7,6 +7,7 @@
   notify: systemd daemon reload
   loop_control:
     loop_var: aptmirror
+    label: "{{ aptmirror.mirror.name }} ==> { path=/lib/systemd/system/debmirror.{{ aptmirror.mirror.name }}.update.service }"
   loop: "{{ mirror_repos | default([]) }}"
 
 - name: Install SystemD Update Timer
@@ -18,6 +19,7 @@
   notify: systemd daemon reload
   loop_control:
     loop_var: aptmirror
+    label: "{{ aptmirror.mirror.name }} ==> { path=/lib/systemd/system/debmirror.{{ aptmirror.mirror.name }}.update.timer }"
   loop: "{{ mirror_repos | default([]) }}"
 
 - name: Flush handlers
@@ -31,4 +33,5 @@
   become: true
   loop_control:
     loop_var: aptmirror
+    label: "{{ aptmirror.mirror.name }} ==> debmirror.{{ aptmirror.mirror.name }}.update.timer"
   loop: "{{ mirror_repos | default([]) }}"
