@@ -1,0 +1,24 @@
+#!/bin/sh
+
+MIRROR_NAME=$1
+MIRROR_STATUS_DIR={{ image_mirror_dir }}/status
+LAST_EXIT_CODE=$EXIT_STATUS
+
+case "$LAST_EXIT_CODE" in
+  0) STATUS='OK' ;;
+  *) STATUS='FAILED' ;;
+esac
+
+if [ -f "${MIRROR_STATUS_DIR}/${MIRROR_NAME}/lastlog" ]; then
+  rm ${MIRROR_STATUS_DIR}/${MIRROR_NAME}/lastlog
+fi
+
+journalctl -q -u imagemirror.${MIRROR_NAME}.update.service --lines=30 > ${MIRROR_STATUS_DIR}/${MIRROR_NAME}/lastlog.txt
+cat > ${MIRROR_STATUS_DIR}/${MIRROR_NAME}/status.json << EOF
+{
+  "service_name": "debmirror.${MIRROR_NAME}.update.service",
+  "last_exit_code": ${LAST_EXIT_CODE},
+  "last_update_time": "$(date --iso-8601=seconds)",
+  "status": "${STATUS}"
+}
+EOF

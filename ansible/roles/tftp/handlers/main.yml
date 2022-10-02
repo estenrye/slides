@@ -4,3 +4,9 @@
     name: tftpd-hpa
     state: restarted
   become: true
+
+- name: systemd daemon reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+  listen: systemd daemon reload

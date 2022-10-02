@@ -11,7 +11,7 @@
     group: "{{ tftp_group }}"
   become: true
 
-- name: set ownership of tftp_directory
+- name: create tftp directories
   ansible.builtin.file:
     state: directory
     path: "{{ tftp_dir }}"
@@ -24,6 +24,35 @@
   loop:
     - "{{ tftp_directory }}"
     - "{{ tftp_directory }}/firmware"
+    - "{{ image_mirror_dir }}"
+    - "{{ image_mirror_dir }}/bin"
+    - "{{ image_mirror_dir }}/status"
+
+- name: create image mirror directories
+  ansible.builtin.file:
+    state: directory
+    path: "{{ image_mirror_dir }}/{{ tftp_dir.name }}"
+    owner: "{{ tftp_user }}"
+    group: "{{ tftp_group }}"
+    mode: 0755
+  become: true
+  loop_control:
+    loop_var: tftp_dir
+    label: "{{ tftp_dir.name }} ==> {{ image_mirror_dir }}/{{ tftp_dir.name }}"
+  loop: "{{ image_mirrors }}"
+
+- name: create image status directories
+  ansible.builtin.file:
+    state: directory
+    path: "{{ image_mirror_dir }}/status/{{ tftp_dir.name }}"
+    owner: "{{ tftp_user }}"
+    group: "{{ tftp_group }}"
+    mode: 0755
+  become: true
+  loop_control:
+    loop_var: tftp_dir
+    label: "{{ tftp_dir.name }} ==> {{ image_mirror_dir }}/status/{{ tftp_dir.name }}"
+  loop: "{{ image_mirrors }}"
 
 - name: Install tftp-hpa package
   ansible.builtin.package:
@@ -67,3 +96,62 @@
     - src: http://boot.ipxe.org/ipxe.efi
       dest: "{{ tftp_directory }}/firmware/ipxe.efi"
 
+- name: copy image mirror scripts
+  ansible.builtin.template:
+    src: templates/imagemirror.{{ image_mirror.name }}.sh.j2
+    dest: "{{ image_mirror_dir }}/bin/imagemirror.{{ image_mirror.name }}.sh"
+    owner: root
+    group: root
+    mode: 0755
+  become: true
+  loop_control:
+    loop_var: image_mirror
+    label: "{{ image_mirror.name }} ==> {{ image_mirror_dir }}/bin/imagemirror.{{ image_mirror.name }}.sh"
+  loop: "{{ image_mirrors }}"
+
+- name: copy status update script
+  ansible.builtin.template:
+    src: templates/update-status.sh.j2
+    dest: "{{ image_mirror_dir }}/bin/update-status.sh"
+    owner: root
+    group: root
+    mode: 0755
+  become: true
+
+- name: Install SystemD Update Service
+  ansible.builtin.template:
+    src: imagemirror.update.service.j2
+    dest: /lib/systemd/system/imagemirror.{{ image_mirror.name }}.update.service
+    mode: 0644
+  become: true
+  notify: systemd daemon reload
+  loop_control:
+    loop_var: image_mirror
+    label: "{{ image_mirror.name }} ==> /lib/systemd/system/imagemirror.{{ image_mirror.name }}.update.service"
+  loop: "{{ image_mirrors }}"
+
+- name: Install SystemD Update Timer
+  ansible.builtin.template:
+    src: imagemirror.update.timer.j2
+    dest: /lib/systemd/system/imagemirror.{{ image_mirror.name }}.update.timer
+    mode: 0644
+  become: true
+  notify: systemd daemon reload
+  loop_control:
+    loop_var: image_mirror
+    label: "{{ image_mirror.name }} ==> /lib/systemd/system/imagemirror.{{ image_mirror.name }}.update.timer"
+  loop: "{{ image_mirrors }}"
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Enable and Start debmirror Timer
+  ansible.builtin.systemd:
+    name: imagemirror.{{ image_mirror.name }}.update.timer
+    state: started
+    enabled: true
+  become: true
+  loop_control:
+    loop_var: image_mirror
+    label: "{{ image_mirror.name }}"
+  loop: "{{ image_mirrors }}"

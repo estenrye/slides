@@ -1,0 +1,12 @@
+[Unit]
+Description=Updates {{ image_mirror.name }} apt mirrors
+Requires=imagemirror.{{ image_mirror.name }}.update.service
+
+[Timer]
+Unit=imagemirror.{{ image_mirror.name }}.update.service
+
+OnCalendar={{ image_mirror.systemd.on_calendar | default(imagemirror_on_calendar) }}
+AccuracySec={{ image_mirror.systemd.accuracy_sec | default(imagemirror_accuracy_sec) }}
+
+[Install]
+WantedBy=timers.target

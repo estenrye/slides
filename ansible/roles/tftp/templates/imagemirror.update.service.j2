@@ -1,0 +1,14 @@
+[Unit]
+Description=Updates {{ image_mirror.name }} image mirror
+Wants=imagemirror.{{ image_mirror.name }}.update.timer
+
+[Service]
+Type=oneshot
+User={{ tftp_user }}
+Group={{ tftp_group }}
+
+ExecStart=/bin/sh {{ image_mirror_dir }}/bin/imagemirror.{{ image_mirror.name }}.sh
+ExecStopPost=/bin/sh {{ image_mirror_dir }}/bin/update-status.sh {{ image_mirror.name }}
+
+[Install]
+WantedBy=multi-user.target

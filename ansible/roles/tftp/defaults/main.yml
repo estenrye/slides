@@ -6,3 +6,11 @@ tftp_directory: /var/lib/pxeroot
 tftp_address: :69
 tftp_options:
   - --secure
+
+image_mirror_dir: "{{ tftp_directory }}/images"
+imagemirror_on_calendar: '*-*-* 02/6:30:00'
+imagemirror_accuracy_sec: 1m
+
+image_mirrors:
+  - name: ubuntu
+    mirror: rsync://mirror.math.princeton.edu/pub/ubuntu-iso/
