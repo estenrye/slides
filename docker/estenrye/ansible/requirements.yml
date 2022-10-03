@@ -1,6 +1,8 @@
 collections:
   - name: community.crypto
     version: 2.2.4
+  - name: community.postgresql
+    version: 2.2.0
   - name: community.general
     version: 4.7.0
   - name: kubernetes.core
