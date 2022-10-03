@@ -37,6 +37,7 @@ RUN apk update && apk upgrade \
     git \
     gpg \
     jq \
+    libpq-dev \
     openssh-client \
     openssl \
     p7zip \
