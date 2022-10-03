@@ -34,7 +34,6 @@ COPY .ansible.cfg .ashrc entrypoint.sh requirements.txt requirements.yml /root/
 RUN apk update && apk upgrade \
   && apk add \
     ansible \
-    build-base \
     git \
     gpg \
     jq \
