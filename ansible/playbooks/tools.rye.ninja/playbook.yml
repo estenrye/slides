@@ -76,7 +76,11 @@
 
 - hosts: tools_server
   roles:
+    - debmirror
+    - httpd
+
+- hosts: tools_server
+  roles:
     - keepalived
     - shoelaces
     - tftp
-    - debmirror

@@ -8,3 +8,15 @@ tools_server:
       keepalived_virtual_router_id: 141
       keepalived_vip: 10.5.7.2/16
       keepalived_interface: enp2s0.61
+      httpd_sites_enabled:
+        - site: 000-default.conf
+          port: "{{ httpd_http_port }}"
+          documentRoot: /var/www/html
+        - site: 100-apt-mirror.conf
+          port: 30081
+          documentRoot: /var/lib/apt-mirror/www
+          directory:
+            path: /var/lib/apt-mirror/www
+            options: Indexes followSymLinks
+            allowOverride: None
+            require: all granted

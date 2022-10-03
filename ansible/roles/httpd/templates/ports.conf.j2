@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+
+# If you just change the port or add more ports here, you will likely also
+# have to change the VirtualHost statement in
+# /etc/apache2/sites-enabled/000-default.conf
+
+{% for site in httpd_sites_enabled %}
+Listen {{ site.port | int | mandatory }} http
+{% endfor %}
+
+<IfModule ssl_module>
+	Listen {{ httpd_https_port }} https
+</IfModule>
+
+<IfModule mod_gnutls.c>
+	Listen {{ httpd_https_port }} https
+</IfModule>
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet

@@ -1,0 +1,7 @@
+httpd_http_port: 30080
+httpd_https_port: 30443
+
+httpd_sites_enabled:
+  - site: 000-default.conf
+    port: "{{ httpd_http_port }}"
+    path: /var/www/html

@@ -1,0 +1,6 @@
+- name: restart apache2
+  ansible.builtin.service:
+    state: restarted
+    name: apache2
+  become: true
+  listen: restart apache2

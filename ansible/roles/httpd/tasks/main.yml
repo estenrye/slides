@@ -1,0 +1,35 @@
+- name: install apache2
+  ansible.builtin.package:
+    name: apache2
+  become: true
+
+- name: change port config
+  ansible.builtin.template:
+    src: templates/ports.conf.j2
+    dest: /etc/apache2/ports.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: restart apache2
+
+- name: configure sites enabled
+  ansible.builtin.template:
+    src: templates/site.conf.j2
+    dest: /etc/apache2/sites-enabled/{{ site.site }}
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  loop_control:
+    loop_var: site
+    label: "{{ site.site }}"
+  loop: "{{ httpd_sites_enabled }}"
+  notify: restart apache2
+
+- name: Enable and Start apache2
+  ansible.builtin.systemd:
+    name: apache2
+    state: started
+    enabled: true
+  become: true
