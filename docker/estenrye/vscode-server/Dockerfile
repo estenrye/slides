@@ -1,4 +1,4 @@
-FROM linuxserver/code-server:4.4.0
+FROM linuxserver/code-server:4.7.1
 ENV DEBIAN_FRONTEND=noninteractive \
     HOMEBREW_PREFIX=/config/.linuxbrew \
     NONINTERACTIVE=1
