@@ -78,9 +78,19 @@
   roles:
     - debmirror
     - httpd
+  tags:
+    - apt
 
 - hosts: tools_server
   roles:
     - keepalived
     - shoelaces
     - tftp
+  tags:
+    tftp
+
+- hosts: tools_server
+  roles:
+    - postgres
+  tags:
+    - netbox

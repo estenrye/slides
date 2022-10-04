@@ -1,0 +1,31 @@
+- name: install Postgres package
+  ansible.builtin.package:
+    name: postgresql
+  become: true
+
+- name: Enable and Start postgres
+  ansible.builtin.systemd:
+    name: postgresql
+    state: started
+    enabled: true
+  become: true
+
+- name: Install pip
+  ansible.builtin.package:
+    name: python3-pip
+  become: true
+
+- name: Install python support libraries
+  ansible.builtin.pip:
+    name: psycopg2-binary
+  become: true
+
+- name: Create Databases
+  community.postgresql.postgresql_db:
+    name: "{{ db.name }}"
+  become: true
+  loop_control:
+    loop_var: db
+  loop: "{{ postgres_databases }}"
+  vars:
+    ansible_become_user: postgres

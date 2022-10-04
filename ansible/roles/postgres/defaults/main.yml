@@ -1,0 +1,3 @@
+postgres_databases:
+  - name: netbox
+  - name: smallstep
