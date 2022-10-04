@@ -1,6 +1,8 @@
 - name: install Postgres package
   ansible.builtin.package:
-    name: postgresql
+    name:
+      - acl
+      - postgresql
   become: true
 
 - name: Enable and Start postgres
@@ -24,8 +26,31 @@
   community.postgresql.postgresql_db:
     name: "{{ db.name }}"
   become: true
+  become_user: postgres
   loop_control:
     loop_var: db
   loop: "{{ postgres_databases }}"
-  vars:
-    ansible_become_user: postgres
+
+- name: Connect to each database and create database owner user
+  community.postgresql.postgresql_user:
+    db: "{{ db.name }}"
+    user: "{{ db.owner_username }}"
+    password: "{{ db.owner_password }}"
+  become: true
+  become_user: postgres
+  loop_control:
+    loop_var: db
+  loop: "{{ postgres_databases }}"
+
+- name: Grant all privileges to database owner user
+  community.postgresql.postgresql_privs:
+    database: "{{ db.name }}"
+    privs: ALL
+    type: database
+    roles: "{{ db.owner_username }}"
+  become: true
+  become_user: postgres
+  loop_control:
+    loop_var: db
+  loop: "{{ postgres_databases }}"
+

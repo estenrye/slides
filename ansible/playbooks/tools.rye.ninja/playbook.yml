@@ -83,6 +83,12 @@
 
 - hosts: tools_server
   roles:
+    - base
+  tags:
+    - base
+
+- hosts: tools_server
+  roles:
     - keepalived
     - shoelaces
     - tftp

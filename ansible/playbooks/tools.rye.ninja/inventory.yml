@@ -20,3 +20,10 @@ tools_server:
             options: Indexes followSymLinks
             allowOverride: None
             require: all granted
+      postgres_databases:
+        - name: netbox
+          owner_username: dbo_netbox
+          owner_password: "{{ netbox_dbo_password | default(lookup('ansible.builtin.password', 'tmp/netbox_dbo_password chars=ascii_letters,digits length=50')) }}"
+        - name: smallstep
+          owner_username: dbo_smallstep
+          owner_password: "{{ smallstep_dbo_password | default(lookup('ansible.builtin.password', 'tmp/smallstep_dbo_password chars=ascii_letters,digits length=50')) }}"
