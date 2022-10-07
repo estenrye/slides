@@ -1,0 +1,12 @@
+[Unit]
+Description=Performs hourly netbox cleanup tasks.
+Requires=netbox.cleanup.service
+
+[Timer]
+Unit=netbox.cleanup.service
+
+OnCalendar=*-*-* *:45:00
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target

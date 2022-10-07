@@ -1,0 +1,98 @@
+- name: install prerequisites
+  ansible.builtin.package:
+    name:
+      - acl
+      - git
+      - python3
+      - python3-pip
+      - python3-venv
+      - python3-dev
+      - build-essential
+      - libxml2-dev
+      - libxslt1-dev
+      - libffi-dev
+      - libpq-dev
+      - libssl-dev
+      - zlib1g-dev
+  become: true
+
+- name: create netbox group
+  ansible.builtin.group:
+    name: netbox
+    gid: "{{ netbox_group_gid | int }}"
+  become: true
+
+- name: create netbox user
+  ansible.builtin.user:
+    name: "{{ netbox_user_name }}"
+    group: "{{ netbox_group_name }}"
+    uid: "{{ netbox_user_uid | int }}"
+    create_home: false
+  become: true
+
+- name: create netbox folder
+  ansible.builtin.file:
+    path: /opt/netbox
+    state: directory
+    owner: "{{ netbox_user_name }}"
+    group: "{{ netbox_group_name }}"
+    mode: 0755
+  become: true
+
+- name: checkout netbox
+  ansible.builtin.git:
+    depth: 1
+    dest: /opt/netbox
+    repo: https://github.com/netbox-community/netbox.git
+    version: "{{ netbox_version_tag }}"
+  become: true
+  become_user: netbox
+
+- name: generate configuration
+  ansible.builtin.template:
+    src: templates/configuration.py.j2
+    dest: /opt/netbox/netbox/netbox/configuration.py
+    owner: netbox
+    group: netbox
+    mode: 0755
+  become: true
+
+- name: generate local requirements
+  ansible.builtin.template:
+    src: templates/local_requirements.txt.j2
+    dest: /opt/netbox/local_requirements.txt
+    owner: netbox
+    group: netbox
+    mode: 0644
+  become: true
+
+- name: run upgrade script
+  ansible.builtin.command:
+    cmd: /opt/netbox/upgrade.sh
+  become: true
+
+- name: Install SystemD Update Service
+  ansible.builtin.template:
+    src: netbox.cleanup.service.j2
+    dest: /lib/systemd/system/netbox.cleanup.service
+    mode: 0644
+  become: true
+  notify: systemd daemon reload
+
+- name: Install SystemD Update Timer
+  ansible.builtin.template:
+    src: netbox.cleanup.timer.j2
+    dest: /lib/systemd/system/netbox.cleanup.timer
+    mode: 0644
+  become: true
+  notify: systemd daemon reload
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Enable and Start Timer
+  ansible.builtin.systemd:
+    name: netbox.cleanup.timer
+    state: started
+    enabled: true
+  become: true

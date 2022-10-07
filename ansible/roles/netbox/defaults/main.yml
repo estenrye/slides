@@ -1,0 +1,87 @@
+netbox_user_name: netbox
+netbox_user_uid: 10002
+netbox_group_name: netbox
+netbox_group_gid: 10002
+netbox_version_tag: v3.3.4
+
+netbox_allowed_hosts:
+  - '*'
+
+netbox_db_username:
+netbox_db_password:
+netbox_db_host: localhost
+netbox_db_port: 5432
+netbox_db_conn_max_age: 300
+
+netbox_secret_key:
+
+netbox_base_path: ''
+
+netbox_redis_tasks:
+  host: localhost
+  port: 6379
+  password: ''
+  database: 0
+  ssl: false
+  insecure_skip_tls_verify: false
+  sentinel:
+    enable: false
+    service: netbox
+
+netbox_redis_caching:
+  host: localhost
+  port: 6379
+  password: ''
+  database: 1
+  ssl: false
+  insecure_skip_tls_verify: false
+  sentinel:
+    enable: false
+    service: netbox
+
+netbox_admins: []
+netbox_auth_password_validators: []
+netbox_cors:
+  allow_all: false
+  whitelist: []
+  regex_whitelist: []
+
+netbox_debug: false
+netbox_enable_napalm: false
+
+netbox_email:
+  server: localhost
+  port: 25
+  username: ''
+  password: ''
+  use_ssl: false
+  use_tls: false
+  timeout: 10
+  from_email: ''
+
+netbox_login_persistence: false
+netbox_login_required: false
+netbox_login_timeout: 1209600
+
+netbox_storage:
+  enabled: false
+  backend: storages.backends.s3boto3.S3Boto3Storage
+  config:
+    access_key_id: key_id
+    secret_access_key: secret
+    bucket_name: netbox
+    region_name: us-east-2
+
+netbox_metrics_enabled: false
+netbox_plugins: []
+netbox_plugins_config: {}
+
+netbox_remote_auth:
+  enabled: false
+  backend: netbox.authentication.RemoteUserBackend
+  header: HTTP_REMOTE_USER
+  auto_create_user: true
+  default_groups: []
+  default_permissions: {}
+
+netbox_exempt_view_permissions: []

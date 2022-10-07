@@ -1,0 +1,4 @@
+- name: install redis package
+  ansible.builtin.package:
+    name: redis
+  become: true

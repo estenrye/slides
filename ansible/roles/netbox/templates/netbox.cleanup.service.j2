@@ -1,0 +1,13 @@
+[Unit]
+Description=Performs daily cleanup tasks for netbox.
+Wants=netbox.cleanup.timer
+
+[Service]
+Type=oneshot
+User={{ netbox_user_name }}
+Group={{ netbox_group_name }}
+
+ExecStart=/opt/netbox/contrib/netbox-housekeeping.sh
+
+[Install]
+WantedBy=multi-user.target

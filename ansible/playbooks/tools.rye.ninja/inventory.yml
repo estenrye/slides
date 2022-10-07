@@ -27,3 +27,12 @@ tools_server:
         - name: smallstep
           owner_username: dbo_smallstep
           owner_password: "{{ smallstep_dbo_password | default(lookup('ansible.builtin.password', 'tmp/smallstep_dbo_password chars=ascii_letters,digits length=50')) }}"
+      netbox_allowed_hosts:
+        - netbox.tools.rye.ninja
+        - 127.0.0.1
+        - localhost
+      netbox_db_username: dbo_netbox
+      netbox_db_password: "{{ netbox_dbo_password | default(lookup('ansible.builtin.password', 'tmp/netbox_dbo_password chars=ascii_letters,digits length=50')) }}"
+      netbox_secret_key: "{{ netbox_secret_key_value | default(lookup('ansible.builtin.password', 'tmp/netbox_secret_key chars=ascii_letters,digits length=60')) }}"
+      netbox_metrics_enabled: true
+      netbox_enable_napalm: true
