@@ -13,6 +13,23 @@
   become: true
   notify: restart apache2
 
+- name: Enable and Start apache2
+  ansible.builtin.systemd:
+    name: apache2
+    state: started
+    enabled: true
+  become: true
+
+- name: enable modules
+  community.general.apache2_module:
+    name: "{{ apache_module }}"
+    state: present
+  become: true
+  loop_control:
+    loop_var: apache_module
+  loop: "{{ httpd_modules }}"
+  notify: restart apache2
+
 - name: configure sites enabled
   ansible.builtin.template:
     src: templates/site.conf.j2
@@ -26,10 +43,3 @@
     label: "{{ site.site }}"
   loop: "{{ httpd_sites_enabled }}"
   notify: restart apache2
-
-- name: Enable and Start apache2
-  ansible.builtin.systemd:
-    name: apache2
-    state: started
-    enabled: true
-  become: true

@@ -8,6 +8,10 @@ tools_server:
       keepalived_virtual_router_id: 141
       keepalived_vip: 10.5.7.2/16
       keepalived_interface: enp2s0.61
+      httpd_modules:
+        - proxy
+        - proxy_http
+        - headers
       httpd_sites_enabled:
         - site: 000-default.conf
           port: "{{ httpd_http_port }}"
@@ -20,6 +24,27 @@ tools_server:
             options: Indexes followSymLinks
             allowOverride: None
             require: all granted
+        - site: 101-netbox.conf
+          port: 30082
+          directory:
+            path: /opt/netbox/netbox/static
+            options: Indexes FollowSymLinks MultiViews
+            allowOverride: None
+            require: all granted
+          locations:
+            - path: /static
+              proxyPass: '!'
+          aliases:
+            - path: /static
+              dest: /opt/netbox/netbox/static
+          proxyPreserveHost: true
+          requestHeader: set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
+          proxyPass:
+            - from: /
+              to: http://127.0.0.1:8001/
+          proxyPassReverse:
+            - from: /
+              to: http://127.0.0.1:8001/
       postgres_databases:
         - name: netbox
           owner_username: dbo_netbox

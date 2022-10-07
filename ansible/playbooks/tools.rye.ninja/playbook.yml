@@ -76,16 +76,15 @@
 
 - hosts: tools_server
   roles:
-    - debmirror
-    - httpd
+    - base
   tags:
-    - apt
+    - base
 
 - hosts: tools_server
   roles:
-    - base
+    - debmirror
   tags:
-    - base
+    - apt
 
 - hosts: tools_server
   roles:
@@ -101,4 +100,11 @@
     - redis
     - netbox
   tags:
+    - netbox
+
+- hosts: tools_server
+  roles:
+    - httpd
+  tags:
+    - apt
     - netbox

@@ -2,7 +2,7 @@ netbox_user_name: netbox
 netbox_user_uid: 10002
 netbox_group_name: netbox
 netbox_group_gid: 10002
-netbox_version_tag: v3.3.4
+netbox_version_tag: v3.3.5
 
 netbox_allowed_hosts:
   - '*'
@@ -12,6 +12,15 @@ netbox_db_password:
 netbox_db_host: localhost
 netbox_db_port: 5432
 netbox_db_conn_max_age: 300
+
+netbox_gunicorn:
+  host: 127.0.0.1
+  port: 8001
+  workers: 5
+  threads: 3
+  timeout: 120
+  max_requests: 5000
+  max_requests_jitter: 500
 
 netbox_secret_key:
 

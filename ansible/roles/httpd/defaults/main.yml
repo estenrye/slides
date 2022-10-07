@@ -5,3 +5,5 @@ httpd_sites_enabled:
   - site: 000-default.conf
     port: "{{ httpd_http_port }}"
     path: /var/www/html
+
+httpd_modules: []

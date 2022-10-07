@@ -29,6 +29,7 @@
   become_user: postgres
   loop_control:
     loop_var: db
+    label: "{{ db.name }}"
   loop: "{{ postgres_databases }}"
 
 - name: Connect to each database and create database owner user
@@ -40,6 +41,7 @@
   become_user: postgres
   loop_control:
     loop_var: db
+    label: "{{ db.name }} ==> {{ db.owner_username }}"
   loop: "{{ postgres_databases }}"
 
 - name: Grant all privileges to database owner user
@@ -52,5 +54,6 @@
   become_user: postgres
   loop_control:
     loop_var: db
+    label: "{{ db.name }} ==> {{ db.owner_username }}"
   loop: "{{ postgres_databases }}"
 

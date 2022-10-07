@@ -1,0 +1,16 @@
+# The IP address (typically localhost) and port that the Netbox WSGI process should listen on
+bind = '{{ netbox_gunicorn.host }}:{{ netbox_gunicorn.port | int }}'
+
+# Number of gunicorn workers to spawn. This should typically be 2n+1, where
+# n is the number of CPU cores present.
+workers = {{ netbox_gunicorn.workers | int }}
+
+# Number of threads per worker process
+threads = {{ netbox_gunicorn.threads | int }}
+
+# Timeout (in seconds) for a request to complete
+timeout = {{ netbox_gunicorn.timeout | int }}
+
+# The maximum number of requests a worker can handle before being respawned
+max_requests = {{ netbox_gunicorn.max_requests | int }}
+max_requests_jitter = {{ netbox_gunicorn.max_requests_jitter | int }}

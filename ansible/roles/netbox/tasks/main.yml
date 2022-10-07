@@ -47,15 +47,23 @@
     version: "{{ netbox_version_tag }}"
   become: true
   become_user: netbox
+  register: checkout_info
 
 - name: generate configuration
   ansible.builtin.template:
-    src: templates/configuration.py.j2
-    dest: /opt/netbox/netbox/netbox/configuration.py
+    src: "{{ config.src }}"
+    dest: "{{ config.dest }}"
     owner: netbox
     group: netbox
     mode: 0755
   become: true
+  loop_control:
+    loop_var: config
+  loop:
+    - src: configuration.py.j2
+      dest: /opt/netbox/netbox/netbox/configuration.py
+    - src: gunicorn.py.j2
+      dest: /opt/netbox/gunicorn.py
 
 - name: generate local requirements
   ansible.builtin.template:
@@ -70,14 +78,24 @@
   ansible.builtin.command:
     cmd: /opt/netbox/upgrade.sh
   become: true
+  when: checkout_info.changed
 
 - name: Install SystemD Update Service
   ansible.builtin.template:
-    src: netbox.cleanup.service.j2
-    dest: /lib/systemd/system/netbox.cleanup.service
+    src: "{{ service.src }}"
+    dest: /lib/systemd/system/{{ service.dest }}
     mode: 0644
   become: true
   notify: systemd daemon reload
+  loop_control:
+    loop_var: service
+  loop:
+    - src:  netbox.cleanup.service.j2
+      dest: netbox.cleanup.service
+    - src:  netbox-rq.service.j2
+      dest: netbox-rq.service
+    - src:  netbox.service.j2
+      dest: netbox.service
 
 - name: Install SystemD Update Timer
   ansible.builtin.template:
@@ -92,7 +110,13 @@
 
 - name: Enable and Start Timer
   ansible.builtin.systemd:
-    name: netbox.cleanup.timer
+    name: "{{ service }}"
     state: started
     enabled: true
   become: true
+  loop_control:
+    loop_var: service
+  loop:
+    - netbox.cleanup.timer
+    - netbox.service
+    - netbox-rq.service
