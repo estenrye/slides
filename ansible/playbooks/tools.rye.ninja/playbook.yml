@@ -108,3 +108,10 @@
   tags:
     - apt
     - netbox
+
+- hosts: tools_server
+  roles:
+    - nitrokey_hsm
+  tags:
+    - hsm
+    - smallstep

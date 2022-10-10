@@ -61,3 +61,5 @@ tools_server:
       netbox_secret_key: "{{ netbox_secret_key_value | default(lookup('ansible.builtin.password', 'tmp/netbox_secret_key chars=ascii_letters,digits length=60')) }}"
       netbox_metrics_enabled: true
       netbox_enable_napalm: true
+      nitrokey_hsm_label: lab-hsm
+      # nitrokey_hsm_init_status_override: true

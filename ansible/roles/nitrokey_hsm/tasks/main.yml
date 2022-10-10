@@ -28,6 +28,10 @@
   changed_when: false
   register: hsm_status
 
+- name: debug hsm_status
+  ansible.builtin.debug:
+    var: hsm_status
+
 - name: set initialization status
   ansible.builtin.set_fact:
     hsm_init_status: "{{ hsm_status | regex_search('SmartCard-HSM has never been initialized') == 'SmartCard-HSM has never been initialized' }}"
