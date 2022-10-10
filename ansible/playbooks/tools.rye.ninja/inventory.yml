@@ -63,3 +63,7 @@ tools_server:
       netbox_enable_napalm: true
       nitrokey_hsm_label: lab-hsm
       # nitrokey_hsm_init_status_override: true
+      nitrokey_hsm_keys_to_generate:
+        - label: smallstep_root_certificate
+          key_type: rsa:2048
+      nitrokey_hsm_export_certificates: false

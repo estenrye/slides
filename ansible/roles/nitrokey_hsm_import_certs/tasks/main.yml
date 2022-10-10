@@ -7,10 +7,18 @@
     group: root
   become: true
 
+- name: create hsm certificate directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ nitrokey_certificate_dir }}"
+    mode: 0750
+  delegate_to: localhost
+
 - name: copy extracted bank-vaults key to node
   ansible.builtin.copy:
-    src: /tmp/pki/
+    src: "{{ nitrokey_certificate_dir }}"
     dest: /etc/hsm
+  become: true
 
 - name: find all keys to import
   ansible.builtin.find:
@@ -21,6 +29,7 @@
     patterns:
       - '*.wrap-key.bin'
   register: keys_to_import
+  become: true
 
 - name: debug keys_to_import
   ansible.builtin.debug:

@@ -1,4 +1,6 @@
-hsm_token_label: lab-hsm
-hsm_keys_to_generate:
-  - label: bank-vaults
-    key_type: rsa:2048
+nitrokey_hsm_label: lab-hsm
+nitrokey_hsm_keys_to_generate: []
+  # - label: smallstep_root_certificate
+  #   key_type: rsa:2048
+nitrokey_hsm_export_certificates: false
+nitrokey_certificate_dir: tmp/pki

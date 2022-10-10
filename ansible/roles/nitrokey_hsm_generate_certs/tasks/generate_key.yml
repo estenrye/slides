@@ -4,7 +4,7 @@
       - pkcs11-tool
       - --list-objects
       - --pin={{ nitrokey_hsm_pin }}
-      - --token-label={{ hsm_token_label }}
+      - --token-label={{ nitrokey_hsm_label }}
       - --label={{ key.label }}
   changed_when: false
   register: hsm_key_status_raw
@@ -26,7 +26,7 @@
       - --pin={{ nitrokey_hsm_pin }}
       - --keypairgen
       - --key-type={{ key.key_type }}
-      - --token-label={{ hsm_token_label }}
+      - --token-label={{ nitrokey_hsm_label }}
       - --label={{ key.label }}
   when:
     - not hsm_key_present
@@ -38,7 +38,7 @@
       - --list-objects
       - --login
       - --pin={{ nitrokey_hsm_pin }}
-      - --token-label={{ hsm_token_label }}
+      - --token-label={{ nitrokey_hsm_label }}
       - --label={{ key.label }}
       - --type=privkey
   changed_when: false
@@ -91,14 +91,23 @@
       - sc-hsm-tool
       - --wrap-key=/etc/hsm/{{ hsm_key_ref_id }}.{{ key.label }}.wrap-key.bin
       - --pin={{ nitrokey_hsm_pin }}
-      - --label={{ hsm_token_label }}
+      - --label={{ nitrokey_hsm_label }}
       - --key-reference={{ hsm_key_ref_id }}
     creates: /etc/hsm/{{ hsm_key_ref_id }}.{{ key.label }}.wrap-key.bin
   become: true
+  when: nitrokey_hsm_export_certificates
+
+- name: create hsm certificate directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ nitrokey_certificate_dir }}"
+    mode: 0750
+  delegate_to: localhost
 
 - name: Fetch extracted key from node.
   ansible.builtin.fetch:
     src: /etc/hsm/{{ hsm_key_ref_id }}.{{ key.label }}.wrap-key.bin
-    dest: /tmp/pki/{{ hsm_key_ref_id }}.{{ key.label }}.wrap-key.bin
+    dest: "{{ nitrokey_certificate_dir }}/{{ hsm_key_ref_id }}.{{ key.label }}.wrap-key.bin"
     flat: yes
   become: true
+  when: nitrokey_hsm_export_certificates

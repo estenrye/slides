@@ -12,4 +12,4 @@
     file: generate_key.yml
   loop_control:
     loop_var: key
-  loop: "{{ hsm_keys_to_generate }}"
+  loop: "{{ nitrokey_hsm_keys_to_generate }}"
