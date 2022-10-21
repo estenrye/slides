@@ -1,0 +1,33 @@
+- name: create config directory
+  ansible.builtin.file:
+    state: directory
+    path: /etc/pihole
+    owner: root
+    group: root
+    mode: 0755
+  become: true
+
+- name: create setupvars
+  ansible.builtin.template:
+    src: setupVars.conf.j2
+    dest: /etc/pihole/setupVars.conf
+    mode: 0640
+    owner: root
+    group: root
+  become: true
+
+- name: download install script
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/pi-hole/pi-hole/master/automated%20install/basic-install.sh
+    dest: /etc/pihole/install.sh
+    mode: 0750
+    owner: root
+    group: root
+  become: true
+
+- name: install pihole
+  ansible.builtin.command:
+    argv:
+      - /etc/pihole/install.sh
+      - --unattended
+  become: true

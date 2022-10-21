@@ -1,0 +1,23 @@
+pihole_web_password: FunDNSTest!
+pihole_ipv4_address:
+pihole_ipv6_address:
+pihole_query_logging: true
+pihole_install_web: true
+pihole_dnsmasq_listening: single
+pihole_dns_servers:
+  - 1.1.1.1
+  - 1.0.0.1
+  - 2606:4700:4700::1111
+  - 2606:4700:4700::1001
+pihole_dns_fqdn_required: true
+pihole_dns_bogus_priv: true
+pihole_dnssec: true
+pihole_temperature_unit: C
+pihole_webui_boxed_layout: traditional
+pihole_api_query_log_show: all
+pihole_api_privacy_mode: false
+pihole_install_web_server: true
+pihole_install_web_interface: true
+pihole_lightpd_enable: true
+pihole_cache_size: 10000
+pihole_blocking_enabled: true
