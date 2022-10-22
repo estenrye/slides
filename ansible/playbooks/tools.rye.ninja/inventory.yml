@@ -67,3 +67,5 @@ tools_server:
         - label: smallstep_root_certificate
           key_type: rsa:2048
       nitrokey_hsm_export_certificates: false
+      pihole_web_password: "{{ pihole_web_password_value | default(lookup('ansible.builtin.password', 'tmp/pihole_web_password chars=ascii_letters,digits length=32')) }}"
+      pihole_ipv4_address: 10.5.7.2
