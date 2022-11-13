@@ -1,0 +1,64 @@
+- name: Create dists directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mirror_dir }}/mirror/local/dists"
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  tags:
+      - locallisttag
+
+- name: Create dists/{{ local_dist.name }} directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mirror_dir }}/mirror/local/dists/{{ local_dist.name }}"
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  tags:
+      - locallisttag
+
+- name: Create dists/{{ local_dist.name }}/{{ local_dist.section }} directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mirror_dir }}/mirror/local/dists/{{ local_dist.name }}/{{ local_dist.section }}"
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  tags:
+      - locallisttag
+
+- name: Create dists/{{ local_dist.name }}/{{ local_dist.section }}/binary-{{ local_dist.arch }} directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mirror_dir }}/mirror/local/dists/{{ local_dist.name }}/{{ local_dist.section }}/binary-{{ local_dist.arch }}"
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  tags:
+      - locallisttag
+
+- name: Create dists/{{ local_dist.name }}/{{ local_dist.section }}/source directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mirror_dir }}/mirror/local/dists/{{ local_dist.name }}/{{ local_dist.section }}/binary-{{ local_dist.arch }}"
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  tags:
+      - locallisttag
+
+- name: build package list for {{ local_dist.name }}_{{ local_dist.section }}_{{ local_dist.arch }}
+  ansible.builtin.include_tasks:
+    file: local_repo_list_package.yml
+  loop_control:
+    loop_var: local_package
+    label: "{{ local_package.name }}"
+  loop: "{{ local_dist.packages }}"
+  tags:
+      - locallisttag

@@ -15,6 +15,26 @@ debmirror_archive_keyring: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
 mirror_dir: /var/lib/apt-mirror
 
+local_apt_repo:
+  dists:
+    - name: focal
+      section: main
+      arch: amd64
+      packages:
+        - name: step-cli
+          max_version: 0.23.0
+
+  packages:
+    - package: step-cli
+      section: main
+      deb_files:
+        - url: https://dl.step.sm/gh-release/cli/gh-release-header/v0.21.0/step-cli_0.21.0_amd64.deb
+          checksum: sha256:673ce228ee65c8a1dc901f61660b65f1148fc7a1548df8e143bbd176ca92882c
+        - url: https://dl.step.sm/gh-release/cli/gh-release-header/v0.22.0/step-cli_0.22.0_amd64.deb
+          checksum: sha256:5e06c0729e774bf9e7d2107c7a000071b9c626e8d956de746aa53806465cb34a
+        - url: https://dl.step.sm/gh-release/cli/gh-release-header/v0.23.0/step-cli_0.23.0_amd64.deb
+          checksum: sha256:1f18c1c5eb632fad4f8254d64ea1dcef735a2fcefe6e94457184a122309d4c90
+
 mirror_repos:
   - handler: debmirror
     remote:

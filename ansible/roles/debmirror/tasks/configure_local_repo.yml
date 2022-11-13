@@ -1,0 +1,76 @@
+- name: Create apt mirror directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mirror_dir_item }}"
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  loop_control:
+    loop_var: mirror_dir_item
+  loop:
+    - "{{ mirror_dir }}"
+    - "{{ mirror_dir }}/mirror"
+    - "{{ mirror_dir }}/mirror/local"
+    - "{{ mirror_dir }}/mirror/local/pool"
+    - "{{ mirror_dir }}/mirror/local/lists"
+    - "{{ mirror_dir }}/gpg"
+    - "{{ mirror_dir }}/www"
+    - "{{ mirror_dir }}/www/status/local"
+
+- name: Create www Symlink
+  ansible.builtin.file:
+    state: link
+    src: "{{ mirror_dir }}/mirror/local"
+    path: "{{ mirror_dir }}/www/local"
+  become: true
+
+- name: Download Packages
+  ansible.builtin.include_tasks:
+    file: local_repo_download_packages.yml
+  loop_control:
+    loop_var: local_mirror_package
+    label: pool/{{ local_mirror_package.section }}/{{ local_mirror_package.package }}
+  loop: "{{ local_apt_repo.packages }}"
+
+- name: Create File Lists
+  ansible.builtin.include_tasks:
+    file: local_repo_list.yml
+  loop_control:
+    loop_var: local_dist
+    label: "{{ local_dist.name }}_{{ local_dist.section }}_{{ local_dist.arch }}"
+  loop: "{{ local_apt_repo.dists }}"
+  tags:
+      - locallisttag
+
+- name: Create apt-ftparchive configuration
+  ansible.builtin.template:
+    src: apt-ftparchive.conf.j2
+    dest: "{{ mirror_dir }}/mirror/local/apt-ftparchive.conf"
+    mode: 0644
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  tags:
+      - locallisttag
+
+- name: Create Packages List
+  ansible.builtin.command:
+    argv:
+      - apt-ftparchive
+      - generate
+      - apt-ftparchive.conf
+    chdir: "{{ mirror_dir }}/mirror/local"
+  become: true
+  tags:
+      - locallisttag
+
+- name: set permissions on dists folders
+  ansible.builtin.file:
+    path: "{{ mirror_dir }}/mirror/local/dists"
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+    recurse: true
+  become: true
+  tags:
+      - locallisttag

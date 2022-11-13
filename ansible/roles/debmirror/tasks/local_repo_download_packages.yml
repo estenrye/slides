@@ -1,0 +1,30 @@
+- name: Create {{ local_mirror_package.package }} pool/{{ local_mirror_package.section }} directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mirror_dir }}/mirror/local/pool/{{ local_mirror_package.section }}"
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+
+- name: Create pool/{{ local_mirror_package.section }}/{{ local_mirror_package.package }} directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mirror_dir }}/mirror/local/pool/{{ local_mirror_package.section }}/{{ local_mirror_package.package }}"
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+
+- name: Download {{ local_mirror_package.package }} deb packages
+  ansible.builtin.get_url:
+    url: "{{ mirror_dir_item.url }}"
+    checksum: "{{ mirror_dir_item.checksum }}"
+    dest: "{{ mirror_dir }}/mirror/local/pool/{{ local_mirror_package.section }}/{{ local_mirror_package.package }}"
+    mode: 0644
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  loop_control:
+    loop_var: mirror_dir_item
+  loop: "{{ local_mirror_package.deb_files }}"

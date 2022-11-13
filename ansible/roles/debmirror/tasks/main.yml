@@ -9,6 +9,9 @@
     - directories.yml
     - configure_apt-mirror.yml
     - configure_debmirror.yml
+    - configure_local_repo.yml
     - scripts.yml
     - gpg.yml
     - systemd_timer.yml
+  tags:
+      - locallisttag

@@ -1,0 +1,24 @@
+- shell:
+    cmd: ls {{ mirror_dir }}/mirror/local/pool/{{ local_dist.section }}/{{ local_package.name }}/*_{{ local_dist.arch }}.deb
+  register: package_file_list
+  changed_when: false
+  tags:
+      - locallisttag
+
+- lineinfile:
+    create: true
+    line: "{{ local_package_file }}"
+    path: "{{ mirror_dir }}/mirror/local/lists/{{ local_dist.name }}_{{ local_dist.section }}_{{ local_dist.arch }}"
+    mode: 0644
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  become: true
+  loop: "{{ package_file_list.stdout_lines }}"
+  loop_control:
+    loop_var: local_package_file
+    label: "{{ local_package_file | basename }}"
+  when:
+    - (local_package_file | basename | split('_'))[1] is version(local_package.max_version, operator='le', version_type='semver')
+    - (local_package_file | basename | split('_'))[1] is version((local_package.min_version | default('0.0.0')), operator='ge', version_type='semver')
+  tags:
+      - locallisttag

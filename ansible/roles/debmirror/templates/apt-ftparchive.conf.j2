@@ -1,0 +1,36 @@
+// This config is for use with the pool-structure for the packages, thus we
+// don't use a Tree Section in here
+
+// The debian archive should be in the current working dir
+Dir {
+  ArchiveDir ".";
+  CacheDir ".";
+  FileListDir "./lists";
+};
+
+// Create Packages, Packages.gz and Packages.bz2, remove what you don't need
+Default {
+  Packages::Compress ". gzip bzip2";
+  Sources::Compress ". gzip bzip2";
+  Contents::Compress ". gzip bzip2";
+};
+
+// Includes the main section. You can structure the directory tree under
+// ./pool/main any way you like, apt-ftparchive will take any deb (and
+// source package) it can find. This creates a Packages a Sources and a
+// Contents file for these in the main section of the sid release
+{% for local_dist in local_apt_repo.dists %}
+BinDirectory "pool/{{ local_dist.section }}" {
+  Packages "dists/{{ local_dist.name }}/main/binary-{{ local_dist.arch }}/Packages";
+  SrcPackages "dists/{{ local_dist.name }}/main/source/Sources";
+  Contents "dists/{{ local_dist.name }}/Contents-{{ local_dist.arch }}";
+  FileList "{{ local_dist.name }}_{{ local_dist.section }}_{{ local_dist.arch }}"
+}
+{% endfor %}
+
+// By default all Packages should have the extension ".deb"
+Default {
+	Packages {
+		Extensions ".deb";
+	};
+};
