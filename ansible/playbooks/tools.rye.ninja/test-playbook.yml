@@ -1,0 +1,8 @@
+- hosts: tools_server
+  connection: local
+  roles:
+    - nitrokey_hsm_generate_certs
+  tags:
+    - hsm
+    - smallstep
+    - nitrokey_hsm_generate_certs

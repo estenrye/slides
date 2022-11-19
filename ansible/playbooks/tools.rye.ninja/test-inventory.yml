@@ -1,0 +1,10 @@
+tools_server:
+  hosts:
+    localhost:
+      nitrokey_hsm_keys_to_generate:
+        - label: smallstep_root_certificate
+          key_type: rsa:2048
+        - label: gnupg_local_apt_root_keypair
+          key_type: rsa:2048
+      nitrokey_hsm_gpg_certs_to_generate:
+        - label: gnupg_local_apt_root_keypair

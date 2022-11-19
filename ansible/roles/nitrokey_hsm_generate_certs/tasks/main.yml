@@ -6,6 +6,8 @@
       - nitrokey_hsm_label is defined
       - nitrokey_hsm_dkek_share_password is defined
       - nitrokey_hsm_dkek_share_b64 is defined
+  tags:
+    - nitrokey_hsm_generate_certs
 
 - name: Generate Keys
   ansible.builtin.include_tasks:
@@ -13,3 +15,5 @@
   loop_control:
     loop_var: key
   loop: "{{ nitrokey_hsm_keys_to_generate }}"
+  tags:
+    - nitrokey_hsm_generate_certs

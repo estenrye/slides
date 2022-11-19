@@ -118,3 +118,4 @@
   tags:
     - hsm
     - smallstep
+    - nitrokey_hsm_generate_certs

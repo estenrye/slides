@@ -1,91 +1,82 @@
-- name: Query HSM for key object
-  ansible.builtin.command:
-    argv:
-      - pkcs11-tool
-      - --list-objects
-      - --pin={{ nitrokey_hsm_pin }}
-      - --token-label={{ nitrokey_hsm_label }}
-      - --label={{ key.label }}
+- name: try to read key
+  block:
+    - name: Query HSM for key object - {{ key.label }}
+      ansible.builtin.command:
+        argv:
+          - pkcs11-tool
+          - --read-object
+          - --type=pubkey
+          - --pin={{ nitrokey_hsm_pin }}
+          - --token-label={{ nitrokey_hsm_label }}
+          - --label={{ key.label }}
+      changed_when: false
+      register: hsm_key_status_raw
+      tags:
+        - nitrokey_hsm_generate_certs
+  rescue:
+    - name: Generate Key - {{ key.label }}
+      ansible.builtin.command:
+        argv:
+          - pkcs11-tool
+          - --login
+          - --pin={{ nitrokey_hsm_pin }}
+          - --keypairgen
+          - --key-type={{ key.key_type }}
+          - --token-label={{ nitrokey_hsm_label }}
+          - --label={{ key.label }}
+      tags:
+        - nitrokey_hsm_generate_certs
+
+- name: Get Key PKCS11 HSM Data - {{ key.label }}
+  ansible.builtin.shell:
+    cmd: |
+      pkcs11-tool --list-objects --pin={{ nitrokey_hsm_pin }} --token-label={{ nitrokey_hsm_label }} --type=privkey \
+      | sed 's/Private Key Object;/\nPrivate Key Object;/g' \
+      | sed '1d' \
+      | awk -v label='{{ key.label }}' -v RS="" -F "\n  " '$2 ~ "label:      " label' \
+      | awk '$0 ~ "  ID:"' \
+      | awk '{ print $2 }'
   changed_when: false
-  register: hsm_key_status_raw
+  register: hsm_key_id
+  tags:
+    - nitrokey_hsm_generate_certs
 
-- name: Determine whether key object is present
-  ansible.builtin.set_fact:
-    hsm_key_present: "{{ hsm_key_status_raw.stdout | length > 0 }}"
-
-- name: debug hsm_key_present
-  ansible.builtin.debug:
-    var: hsm_key_present
-
-- name: Generate Key
-  ansible.builtin.command:
-    argv:
-      - pkcs11-tool
-      - --module=opensc-pkcs11.so
-      - --login
-      - --pin={{ nitrokey_hsm_pin }}
-      - --keypairgen
-      - --key-type={{ key.key_type }}
-      - --token-label={{ nitrokey_hsm_label }}
-      - --label={{ key.label }}
-  when:
-    - not hsm_key_present
-
-- name: Get Key PKCS11 HSM Data
-  ansible.builtin.command:
-    argv:
-      - pkcs11-tool
-      - --list-objects
-      - --login
-      - --pin={{ nitrokey_hsm_pin }}
-      - --token-label={{ nitrokey_hsm_label }}
-      - --label={{ key.label }}
-      - --type=privkey
-  changed_when: false
-  register: hsm_key_pkcs11_data
-
-- name: Get Key ID
-  ansible.builtin.set_fact:
-    hsm_key_id: "{{ hsm_key_pkcs11_data.stdout_lines[2] | replace(' ','') }}"
-    hsm_key_ref_regex: "\tRSA.+{{ hsm_key_pkcs11_data.stdout_lines[2] | replace(' ','') }}.+"
-
-- name: Assert ID starts with 'ID:'
-  ansible.builtin.assert:
-    that:
-      - hsm_key_id.startswith('ID:')
-
-- name: Debug ID
+- name: Debug ID - {{ key.label }}
   ansible.builtin.debug:
     var: hsm_key_id
+  tags:
+    - nitrokey_hsm_generate_certs
 
-- name: Get PKCS15 HSM Data
-  ansible.builtin.command:
-    argv:
-      - pkcs15-tool
-      - --list-keys
-      - --short
-      - --pin={{ nitrokey_hsm_pin }}
+- name: Get PKCS15 HSM Data - {{ key.label }}
+  ansible.builtin.shell:
+    cmd: |
+      pkcs15-tool --list-keys --short --pin={{ nitrokey_hsm_pin }} \
+      | awk -v id='{{ hsm_key_id.stdout_lines[0] }}' '$2 ~ "ID:" id' \
+      | awk '{ split($3, a, ":"); print a[2] }'
   changed_when: false
-  register: hsm_pkcs15_data
+  register: hsm_key_ref_id
+  tags:
+    - nitrokey_hsm_generate_certs
 
-- name: debug hsm_pkcs15_data
-  ansible.builtin.debug:
-    var: hsm_pkcs15_data
-    verbosity: 2
-
-- name: find Key Reference Id
-  ansible.builtin.set_fact:
-    hsm_key_pkcs15: "{{ hsm_pkcs15_data.stdout_lines | select('match', hsm_key_ref_regex)}}"
-
-- name: extract bank-vaults RSA Key Reference Id from PKCS15 output.
-  ansible.builtin.set_fact:
-    hsm_key_ref_id: "{{ (hsm_key_pkcs15[0] | split(' ') | select('match', 'Ref:.+'))[0] | replace('Ref:', '') | int(base=16) }}"
-
-- name: debug hsm_key_ref_id
+- name: debug hsm_pkcs15_data - {{ key.label }}
   ansible.builtin.debug:
     var: hsm_key_ref_id
+  tags:
+    - nitrokey_hsm_generate_certs
 
-- name: Export Generated bank-vaults RSA Key
+- name: extract bank-vaults RSA Key Reference Id from PKCS15 output. - {{ key.label }}
+  ansible.builtin.set_fact:
+    hsm_key_ref_id: "{{ hsm_key_ref_id.stdout_lines[0] | int(base=16) }}"
+  tags:
+    - nitrokey_hsm_generate_certs
+
+- name: debug hsm_key_ref_id - {{ key.label }}
+  ansible.builtin.debug:
+    var: hsm_key_ref_id
+  tags:
+    - nitrokey_hsm_generate_certs
+
+- name: Export Generated bank-vaults RSA Key - {{ key.label }}
   ansible.builtin.command:
     argv:
       - sc-hsm-tool
@@ -96,18 +87,24 @@
     creates: /etc/hsm/{{ hsm_key_ref_id }}.{{ key.label }}.wrap-key.bin
   become: true
   when: nitrokey_hsm_export_certificates
+  tags:
+    - nitrokey_hsm_generate_certs
 
-- name: create hsm certificate directory
+- name: create hsm certificate directory - {{ key.label }}
   ansible.builtin.file:
     state: directory
     path: "{{ nitrokey_certificate_dir }}"
     mode: 0750
   delegate_to: localhost
+  tags:
+    - nitrokey_hsm_generate_certs
 
-- name: Fetch extracted key from node.
+- name: Fetch extracted key from node. - {{ key.label }}
   ansible.builtin.fetch:
     src: /etc/hsm/{{ hsm_key_ref_id }}.{{ key.label }}.wrap-key.bin
     dest: "{{ nitrokey_certificate_dir }}/{{ hsm_key_ref_id }}.{{ key.label }}.wrap-key.bin"
     flat: yes
   become: true
   when: nitrokey_hsm_export_certificates
+  tags:
+    - nitrokey_hsm_generate_certs

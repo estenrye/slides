@@ -5,6 +5,8 @@
       - opensc-pkcs11
       - pcscd
       - pcsc-tools
+      - gnupg-pkcs11-scd
+      - gnupg
   become: true
 
 - name: enable pcscd service
