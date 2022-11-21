@@ -1,5 +1,10 @@
 - hosts: tools_server
   connection: local
+  tasks:
+    - ansible.builtin.debug:
+        var: ansible_os_family
+    - ansible.builtin.debug:
+        var: ansible_architecture
   roles:
     - nitrokey_hsm_generate_certs
   tags:

@@ -1,0 +1,70 @@
+- name: create directory for dkek share
+  ansible.builtin.file:
+    path: /etc/hsm
+    mode: 0750
+    state: directory
+    owner: root
+    group: "{{ nitrokey_hsm_root_group }}"
+  become: true
+
+- name: write cert template
+  ansible.builtin.template:
+    src: openssl_hsm.conf.j2
+    dest: /etc/hsm/openssl_hsm_{{ gpg_cert.label }}.conf
+    mode: 0640
+    owner: root
+    group: "{{ nitrokey_hsm_root_group }}"
+  become: true
+
+- name: Get Slot Number
+  ansible.builtin.shell:
+    cmd: |
+      pkcs11-tool --list-slots \
+      | sed 's/Slot/\nSlot/g' \
+      | sed '1d' \
+      | awk -v RS='' -v label={{ nitrokey_hsm_label }} '$10 ~ label' \
+      | awk '$1 ~ "Slot"' \
+      | awk '{print $2}'
+  register: slot_info
+  changed_when: false
+
+- name: Set Slot
+  ansible.builtin.set_fact:
+    slot: "{{ slot_info.stdout_lines | first }}"
+- debug:
+    var: slot
+
+- name: Get Key PKCS11 HSM Data - {{ gpg_cert.label }}
+  ansible.builtin.shell:
+    cmd: |
+      pkcs11-tool --list-objects --pin={{ nitrokey_hsm_pin }} --token-label={{ nitrokey_hsm_label }} --type=privkey \
+      | sed 's/Private Key Object;/\nPrivate Key Object;/g' \
+      | sed '1d' \
+      | awk -v label='{{ gpg_cert.label }}' -v RS="" -F "\n  " '$2 ~ "label:      " label' \
+      | awk '$0 ~ "  ID:"' \
+      | awk '{ print $2 }'
+  changed_when: false
+  register: hsm_key_id
+  tags:
+    - nitrokey_hsm_generate_certs
+
+- name: set hsm key id
+  ansible.builtin.set_fact:
+    hsm_key_id: "{{ hsm_key_id.stdout_lines | first }}"
+- name: debug hsm key id
+  ansible.builtin.debug:
+    var: hsm_key_id
+
+- name: create pem certificate
+  ansible.builtin.command:
+    cmd: "{{ nitrokey_openssl_bin }} req -new -x509 -engine pkcs11 -keyform engine -key {{ slot }}:{{ hsm_key_id }} -sha256 -out  /etc/hsm/{{ gpg_cert.label }}.pem -days 3650"
+    creates: "/etc/hsm/{{ gpg_cert.label }}.pem"
+  environment:
+    OPENSSL_CONF: /etc/hsm/openssl_hsm_{{ gpg_cert.label }}.conf
+  become: true
+
+- name: create der certificate
+  ansible.builtin.command:
+    cmd: "{{ nitrokey_openssl_bin }} x509 -in /etc/hsm/{{ gpg_cert.label }}.pem -out /etc/hsm/{{ gpg_cert.label }}.der -outform der"
+    creates: "/etc/hsm/{{ gpg_cert.label }}.der"
+  become: true

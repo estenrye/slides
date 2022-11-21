@@ -8,3 +8,4 @@ tools_server:
           key_type: rsa:2048
       nitrokey_hsm_gpg_certs_to_generate:
         - label: gnupg_local_apt_root_keypair
+          cn: Esten Rye

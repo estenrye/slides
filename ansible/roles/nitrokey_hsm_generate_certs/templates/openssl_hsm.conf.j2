@@ -1,0 +1,26 @@
+openssl_conf = openssl_def
+
+[ req ]
+# Options for the `req` tool (`man req`).
+distinguished_name  = req_distinguished_name
+string_mask         = utf8only
+prompt              = no
+
+# SHA-1 is deprecated, so use SHA-2 instead.
+default_md          = sha512
+
+[ req_distinguished_name ]
+CN                  = {{ gpg_cert.cn }}
+
+[openssl_def]
+engines = engine_section
+
+[engine_section]
+pkcs11 = pkcs11_section
+
+[pkcs11_section]
+engine_id = pkcs11
+dynamic_path = {{ nitrokey_hsm_engine_path }}
+MODULE_PATH    = {{ nitrokey_hsm_module_path }}
+PIN = {{ nitrokey_hsm_pin }}
+# init = 0

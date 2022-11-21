@@ -9,11 +9,24 @@
   tags:
     - nitrokey_hsm_generate_certs
 
+- name: Import Variables
+  ansible.builtin.include_vars:
+    file: "{{ ansible_os_family }}_{{ ansible_architecture }}.yml"
+
 - name: Generate Keys
   ansible.builtin.include_tasks:
     file: generate_key.yml
   loop_control:
     loop_var: key
   loop: "{{ nitrokey_hsm_keys_to_generate }}"
+  tags:
+    - nitrokey_hsm_generate_certs
+
+- name: Generate Keys
+  ansible.builtin.include_tasks:
+    file: generate_gpg_cert.yml
+  loop_control:
+    loop_var: gpg_cert
+  loop: "{{ nitrokey_hsm_gpg_certs_to_generate }}"
   tags:
     - nitrokey_hsm_generate_certs

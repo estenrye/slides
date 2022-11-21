@@ -51,7 +51,7 @@
   ansible.builtin.shell:
     cmd: |
       pkcs15-tool --list-keys --short --pin={{ nitrokey_hsm_pin }} \
-      | awk -v id='{{ hsm_key_id.stdout_lines[0] }}' '$2 ~ "ID:" id' \
+      | awk -v id='{{ hsm_key_id.stdout_lines | first }}' '$2 ~ "ID:" id' \
       | awk '{ split($3, a, ":"); print a[2] }'
   changed_when: false
   register: hsm_key_ref_id

@@ -1,0 +1,9 @@
+- name: install packages
+  community.general.homebrew:
+    name:
+      - openssl
+      - opensc
+      - libp11
+      - gnupg
+      - gnupg-pkcs11-scd
+  become: true
