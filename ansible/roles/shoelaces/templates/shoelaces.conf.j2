@@ -1,6 +1,6 @@
+base-url={{ shoelaces_domain }}
 bind-addr={{ shoelaces_bind_addr }}
-data-dir={{ shoelaces_data_dir }}
-domain={{ shoelaces_domain }}
+data-dir=/etc/shoelaces/data
 template-extension={{ shoelaces_template_extension }}
-mappings-file={{ shoelaces_mappings_file }}
-debug={{ shoelaces_debug | boolean | lower }}
+mappings-file=mappings.yaml
+debug={{ shoelaces_debug | bool | lower }}

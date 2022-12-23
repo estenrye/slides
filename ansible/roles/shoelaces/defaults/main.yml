@@ -1,12 +1,16 @@
-shoelaces_version: 1.2.0
+shoelaces_version: 1.2.4
 shoelaces_repo_url: https://github.com/estenrye/shoelaces
 shoelaces_system: "{{ ansible_system | lower }}"
 shoelaces_arch: "{% if ansible_architecture == 'x86_64' %}amd64{% else %}arm64{% endif %}"
 shoelaces_release_url: "{{ shoelaces_repo_url }}/releases/download/v{{ shoelaces_version }}/shoelaces_{{ shoelaces_version }}_{{ shoelaces_system }}_{{ shoelaces_arch }}.tar.gz"
 
-shoelaces_bind_addr: localhost:8081
-shoelaces_data_dir: configs/data-dir
-shoelaces_domain: localhost
-shoelaces_template_extenstion: .slc
+shoelaces_bind_addr: 0.0.0.0:30083
+shoelaces_domain: shoelaces.tools.rye.ninja:30083
+shoelaces_template_extension: .slc
 shoelaces_mappings_file: mappings.yaml
 shoelaces_debug: true
+shoelaces_gid: 10003
+shoelaces_uid: 10003
+
+shoelaces_network_maps: []
+shoelaces_hostname_maps: []

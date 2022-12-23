@@ -1,0 +1,13 @@
+[Unit]
+Description=Shoelaces is an iPXE Server
+
+[Service]
+Type=simple
+User=shoelaces
+Group=shoelaces
+
+WorkingDirectory=/usr/bin/shoelaces
+ExecStart=/usr/bin/shoelaces/shoelaces -config=/etc/shoelaces/shoelaces.conf
+
+[Install]
+WantedBy=multi-user.target

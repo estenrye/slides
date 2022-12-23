@@ -1,16 +1,90 @@
+- name: Create shoelaces Group if it does not exist
+  ansible.builtin.group:
+    gid: "{{ shoelaces_gid | int }}"
+    name: shoelaces
+  become: true
+
+- name: Create shoelaces User if it does not exist
+  ansible.builtin.user:
+    uid: "{{ shoelaces_uid | int }}"
+    name: shoelaces
+    group: "{{ tftp_group }}"
+  become: true
+
 - name: Download Shoelaces Artifact
   ansible.builtin.get_url:
     url: "{{ shoelaces_release_url }}"
     dest: /tmp/shoelaces.tar.gz
 
+- name: write bin directory
+  ansible.builtin.file:
+    state: directory
+    path: /usr/bin/shoelaces
+    mode: 0755
+  become: true
+
 - name: Unarchive Shoelaces Artifact
   ansible.builtin.unarchive:
     src: /tmp/shoelaces.tar.gz
     remote_src: true
-    dest: /usr/bin
-    mode: 755
+    dest: /usr/bin/shoelaces/
+    mode: 0755
     owner: root
     group: root
-    include:
-      - shoelaces
+  become: true
+
+- name: create shoelaces configuration directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ dir }}"
+    owner: root
+    group: shoelaces
+    mode: 0755
+  become: true
+  loop_control:
+    loop_var: dir
+  loop:
+    - /etc/shoelaces
+    - /etc/shoelaces/data
+    - /etc/shoelaces/data/cloud-config
+    - /etc/shoelaces/data/env_overrides
+    - /etc/shoelaces/data/kickstart
+    - /etc/shoelaces/data/ipxe
+    - /etc/shoelaces/data/preeseed
+    - /etc/shoelaces/data/static
+
+- name: write config file
+  ansible.builtin.template:
+    src: shoelaces.conf.j2
+    dest: /etc/shoelaces/shoelaces.conf
+    mode: 0644
+    owner: root
+    group: shoelaces
+  become: true
+
+- name: write mappings file
+  ansible.builtin.template:
+    src: mapping.yaml.j2
+    dest: /etc/shoelaces/data/mappings.yaml
+    mode: 0644
+    owner: root
+    group: shoelaces
+  become: true
+
+- name: Install SystemD Service
+  ansible.builtin.template:
+    src: shoelaces.service.j2
+    dest: /lib/systemd/system/shoelaces.service
+    mode: 0644
+  become: true
+  notify: systemd daemon reload
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Enable and Start Service
+  ansible.builtin.systemd:
+    name: shoelaces.service
+    state: started
+    enabled: true
   become: true

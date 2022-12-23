@@ -113,8 +113,8 @@
 - hosts: tools_server
   roles:
     - nitrokey_hsm
-    - nitrokey_hsm_generate_certs
-    - nitrokey_hsm_import_certs
+    # - nitrokey_hsm_generate_certs
+    # - nitrokey_hsm_import_certs
   tags:
     - hsm
     - smallstep
