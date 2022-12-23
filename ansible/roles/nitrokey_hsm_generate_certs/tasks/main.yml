@@ -9,9 +9,34 @@
   tags:
     - nitrokey_hsm_generate_certs
 
-- name: Import Variables
+- name: Import OS Specific Variables
   ansible.builtin.include_vars:
     file: "{{ ansible_os_family }}_{{ ansible_architecture }}.yml"
+
+- name: Import OS Specific tasks
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_os_family }}_{{ ansible_architecture }}.yml"
+
+- name: Replace Lines in gpg-agent config files
+  ansible.builtin.lineinfile:
+    path: "{{ item.path }}"
+    regexp: "{{ item.regexp}}"
+    line: "{{ item.line }}"
+    create: true
+  loop:
+    - regexp: ^scdaemon-program
+      line: scdaemon-program {{ nitrokey_gpg_pkcs11_scd_path }}
+      path: ~/.gnupg/gpg-agent.conf
+    - regexp: ^pinentry-program
+      line: pinentry-program {{ nitrokey_pinentry_path }}
+      path: ~/.gnupg/gpg-agent.conf
+    - regexp: ^providers
+      line: providers nitrokey
+      path: ~/.gnupg/gnupg-pkcs11-scd.conf
+    - regexp: ^provider-nitrokey-library
+      line: provider-nitrokey-library {{ nitrokey_hsm_module_path }}
+      path: ~/.gnupg/gnupg-pkcs11-scd.conf
+
 
 - name: Generate Keys
   ansible.builtin.include_tasks:

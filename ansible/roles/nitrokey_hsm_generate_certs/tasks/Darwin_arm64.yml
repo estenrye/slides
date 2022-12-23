@@ -6,4 +6,3 @@
       - libp11
       - gnupg
       - gnupg-pkcs11-scd
-  become: true

@@ -3,3 +3,5 @@ nitrokey_openssl_bin: "{{ homebrew_prefix }}/opt/openssl@1.1/bin/openssl"
 nitrokey_hsm_module_path: "{{ homebrew_prefix }}/lib/opensc-pkcs11.so"
 nitrokey_hsm_engine_path: "{{ homebrew_prefix }}/opt/libp11/lib/engines-1.1/pkcs11.dylib"
 nitrokey_hsm_root_group: wheel
+nitrokey_gpg_pkcs11_scd_path: "{{ homebrew_prefix }}/bin/gnupg-pkcs11-scd"
+nitrokey_pinentry_path: "{{ homebrew_prefix }}/bin/pinentry-mac"
