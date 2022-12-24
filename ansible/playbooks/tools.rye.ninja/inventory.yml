@@ -24,6 +24,14 @@ tools_server:
             options: Indexes followSymLinks
             allowOverride: None
             require: all granted
+        - site: 100-apt-mirror.conf
+          port: 30084
+          documentRoot: /var/lib/pxeroot
+          directory:
+            path: /var/lib/pxeroot
+            options: Indexes followSymLinks
+            allowOverride: None
+            require: all granted
         - site: 101-netbox.conf
           port: 30082
           directory:

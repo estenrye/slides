@@ -24,6 +24,9 @@
   loop:
     - "{{ tftp_directory }}"
     - "{{ tftp_directory }}/firmware"
+    - "{{ tftp_directory }}/boot"
+    - "{{ tftp_directory }}/boot/bios"
+    - "{{ tftp_directory }}/boot/efi64"
     - "{{ image_mirror_dir }}"
     - "{{ image_mirror_dir }}/bin"
     - "{{ image_mirror_dir }}/status"
@@ -57,10 +60,52 @@
 - name: Install tftp-hpa package
   ansible.builtin.package:
     name:
+      - casper
       - tftp-hpa
       - tftpd-hpa
-
+      - pxelinux
+      - rsync
   become: true
+
+- name: Copy pxelinux
+  ansible.builtin.synchronize:
+    src: "{{ pxelinux_file.src }}"
+    dest: "{{ pxelinux_file.dest }}"
+    owner: false
+    group: false
+  become: true
+  delegate_to: "{{ inventory_hostname }}"
+  loop_control:
+    loop_var: pxelinux_file
+  loop:
+    - src: /usr/lib/PXELINUX/
+      dest: "{{ tftp_directory }}/boot/bios"
+    - src: /usr/lib/PXELINUX/
+      dest: "{{ tftp_directory }}/boot/efi64"
+    - src: /usr/lib/syslinux/modules/bios/
+      dest: "{{ tftp_directory }}/boot/bios"
+    - src: /usr/lib/syslinux/modules/efi64/
+      dest: "{{ tftp_directory }}/boot/efi64"
+
+- name: Copy kernel image
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ kernel_file.src }}"
+    dest: "{{ kernel_file.dest }}"
+    owner: "{{ tftp_user }}"
+    group: "{{ tftp_group }}"
+  become: true
+  loop_control:
+    loop_var: kernel_file
+  loop:
+    - src: /boot/vmlinuz
+      dest: "{{ tftp_directory }}/boot/bios/vmlinuz"
+    - src: /boot/vmlinuz
+      dest: "{{ tftp_directory }}/boot/efi64/vmlinuz"
+    - src: /boot/initrd.img
+      dest: "{{ tftp_directory }}/boot/bios/initrd"
+    - src: /boot/initrd.img
+      dest: "{{ tftp_directory }}/boot/efi64/initrd"
 
 - name: Create Configuration Files
   ansible.builtin.template:
@@ -95,6 +140,14 @@
       dest: "{{ tftp_directory }}/firmware/undionly.kpxe"
     - src: http://boot.ipxe.org/ipxe.efi
       dest: "{{ tftp_directory }}/firmware/ipxe.efi"
+
+- name: copy shoelaces IPXE firmware
+  ansible.builtin.copy:
+    src: undionly.shoelaces.kpxe
+    dest: "{{ tftp_directory }}/firmware/undionly.shoelaces.kpxe"
+    owner: "{{ tftp_user }}"
+    group: "{{ tftp_group }}"
+  become: true
 
 - name: copy image mirror scripts
   ansible.builtin.template:
