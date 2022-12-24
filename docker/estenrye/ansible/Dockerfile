@@ -42,6 +42,7 @@ RUN apk update && apk upgrade \
     openssl \
     p7zip \
     py3-pip \
+    rsync \
     wget \
   && echo "export PATH=/root/.krew/bin:${PATH}" >> /root/.bash \
   if [[ "$(uname -m)" == 'x86_64']] \
