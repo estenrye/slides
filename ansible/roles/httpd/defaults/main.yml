@@ -1,5 +1,5 @@
-httpd_http_port: 30080
-httpd_https_port: 30443
+httpd_http_port: 80
+httpd_https_port: 443
 
 httpd_sites_enabled:
   - site: 000-default.conf

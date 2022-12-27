@@ -1,0 +1,182 @@
+{{define "cloud-config-ubuntu-storage"}}
+
+  storage:
+    config:
+      - ptable: msdos
+        path: /dev/sda
+        wipe: superblock
+        preserve: false
+        name: 'ubuntu'
+        grub_device: true
+        type: disk
+        id: disk-ubuntu
+
+      - device: disk-ubuntu
+        size: 1024M
+        wipe: superblock
+        flag: bios_grub
+        number: 1
+        preserve: false
+        type: partition
+        name: boot
+        id: partition-0
+      - fstype: ext4
+        volume: partition-0
+        preserve: false
+        type: format
+        id: format-0
+
+      - device: disk-ubuntu
+        size: -1
+        wipe: superblock
+        flag: ''
+        number: 2
+        preserve: false
+        grub_device: false
+        type: partition
+        id: partition-1
+
+      - name: ubuntu-vg
+        devices:
+          - partition-1
+        preserve: false
+        type: lvm_volgroup
+        id: lvm_volgroup-0
+
+      # root partition
+      - id: partition-root
+        type: lvm_partition
+        volgroup: lvm_volgroup-0
+        size: 40G
+        name: root
+
+      - id: format-root
+        type: format
+        fstype: ext4
+        volume: partition-root
+        preserve: false
+
+      - id: mount-root
+        type: mount
+        device: format-root
+        path: /
+
+      # var partition
+      - id: partition-var
+        type: lvm_partition
+        volgroup: lvm_volgroup-0
+        size: 2G
+        name: var
+
+      - id: format-var
+        type: format
+        fstype: ext4
+        volume: partition-var
+        preserve: false
+
+      - id: mount-var
+        type: mount
+        device: format-var
+        path: /var
+
+      # var-log partition
+      - id: partition-var-log
+        type: lvm_partition
+        volgroup: lvm_volgroup-0
+        size: 15G
+        name: var-log
+
+      - id: format-var-log
+        type: format
+        fstype: ext4
+        volume: partition-var-log
+        preserve: false
+
+      - id: mount-var-log
+        type: mount
+        device: format-var-log
+        path: /var/log
+
+      # var-log-audit partition
+      - id: partition-var-log-audit
+        type: lvm_partition
+        volgroup: lvm_volgroup-0
+        size: 4G
+        name: var-log-audit
+
+      - id: format-var-log-audit
+        type: format
+        fstype: ext4
+        volume: partition-var-log-audit
+        preserve: false
+
+      - id: mount-var-log-audit
+        type: mount
+        device: format-var-log-audit
+        path: /var/log/audit
+
+      # var-tmp partition
+      - id: partition-var-tmp
+        type: lvm_partition
+        volgroup: lvm_volgroup-0
+        size: 7G
+        name: var-tmp
+
+      - id: format-var-tmp
+        type: format
+        fstype: ext4
+        volume: partition-var-tmp
+        preserve: false
+
+      - id: mount-var-tmp
+        type: mount
+        device: format-var-tmp
+        path: /var/tmp
+        options: nodev,nosuid,noexec
+
+      # home partition
+      - id: partition-home
+        type: lvm_partition
+        volgroup: lvm_volgroup-0
+        size: 2G
+        name: home
+
+      - id: format-home
+        type: format
+        fstype: ext4
+        volume: partition-home
+        preserve: false
+
+      - id: mount-home
+        type: mount
+        device: format-home
+        path: /home
+        options: nodev
+
+      # var-lib partition
+      - id: partition-var-lib
+        type: lvm_partition
+        volgroup: lvm_volgroup-0
+        size: -1
+        name: var-lib
+
+      - id: format-var-lib
+        type: format
+        fstype: ext4
+        volume: partition-var-lib
+        preserve: false
+
+      - id: mount-var-lib
+        type: mount
+        device: format-var-lib
+        path: /var/lib
+
+      - device: format-0
+        path: /boot
+        type: mount
+        id: mount-0
+
+    swap:
+      swap: 0
+
+{{end}}

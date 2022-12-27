@@ -1,4 +1,4 @@
-<VirtualHost {{ site.host | default('*') }}:{{ site.port | int | mandatory }}>
+<VirtualHost {{ site.host | default('*') }}:{{ site.port | default(httpd_http_port) | int }}>
   # The ServerName directive sets the request scheme, hostname and port that
   # the server uses to identify itself. This is used when creating
   # redirection URLs. In the context of virtual hosts, the ServerName
@@ -29,21 +29,21 @@ SSLCertificateKeyFile {{ ssl.key }}
 {% endfor %}
 
 {% if site.documentRoot is defined %}
-  DocumentRoot {{ site.documentRoot | mandatory }}
+  DocumentRoot {{ site.documentRoot }}
 {% endif %}
-{% if site.directory is defined %}
-  <Directory {{ site.directory.path }}>
-    {% if site.directory.options %}
-    Options {{ site.directory.options }}
+{% for directory in site.directories | default([])%}
+  <Directory {{ directory.path }}>
+    {% if directory.options %}
+    Options {{ directory.options }}
     {% endif %}
-    {% if site.directory.allowOverride is defined %}
-    AllowOverride {{ site.directory.allowOverride }}
+    {% if directory.allowOverride is defined %}
+    AllowOverride {{ directory.allowOverride }}
     {% endif %}
-    {% if site.directory.require is defined %}
-    Require {{ site.directory.require }}
+    {% if directory.require is defined %}
+    Require {{ directory.require }}
     {% endif %}
   </Directory>
-{% endif %}
+{% endfor %}
 
 {% for location in site.locations | default([]) %}
   <Location {{ location.path }}>

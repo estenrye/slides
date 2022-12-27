@@ -53,6 +53,30 @@
     - /etc/shoelaces/data/preeseed
     - /etc/shoelaces/data/static
 
+- name: copy config files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /etc/shoelaces/data/cloud-config/
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  with_fileglob:
+      - "cloud-config/*.slc"
+  notify: restart shoelaces
+
+- name: copy ipxe files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /etc/shoelaces/data/ipxe/
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  with_fileglob:
+      - "ipxe/*.slc"
+  notify: restart shoelaces
+
 - name: write config file
   ansible.builtin.template:
     src: shoelaces.conf.j2
@@ -61,6 +85,7 @@
     owner: root
     group: shoelaces
   become: true
+  notify: restart shoelaces
 
 - name: write mappings file
   ansible.builtin.template:
@@ -70,6 +95,7 @@
     owner: root
     group: shoelaces
   become: true
+  notify: restart shoelaces
 
 - name: Install SystemD Service
   ansible.builtin.template:

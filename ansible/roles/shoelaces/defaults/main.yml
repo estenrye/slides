@@ -5,7 +5,7 @@ shoelaces_arch: "{% if ansible_architecture == 'x86_64' %}amd64{% else %}arm64{%
 shoelaces_release_url: "{{ shoelaces_repo_url }}/releases/download/v{{ shoelaces_version }}/shoelaces_{{ shoelaces_version }}_{{ shoelaces_system }}_{{ shoelaces_arch }}.tar.gz"
 
 shoelaces_bind_addr: 0.0.0.0:30083
-shoelaces_domain: shoelaces.tools.rye.ninja:30083
+shoelaces_domain: pxe.tools.rye.ninja
 shoelaces_template_extension: .slc
 shoelaces_mappings_file: mappings.yaml
 shoelaces_debug: true

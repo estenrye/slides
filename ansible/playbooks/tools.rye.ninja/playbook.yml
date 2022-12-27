@@ -89,11 +89,17 @@
 - hosts: tools_server
   roles:
     - keepalived
-    - shoelaces
-    - tftp
     - pihole
   tags:
-    tftp
+    - pihole
+
+- hosts: tools_server
+  roles:
+    - tftp
+    - shoelaces
+  tags:
+    - tftp
+    - shoelaces
 
 - hosts: tools_server
   roles:
@@ -109,6 +115,8 @@
   tags:
     - apt
     - netbox
+    - tftp
+    - httpd
 
 - hosts: tools_server
   roles:

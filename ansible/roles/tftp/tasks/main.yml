@@ -89,7 +89,6 @@
 
 - name: Copy kernel image
   ansible.builtin.copy:
-    remote_src: true
     src: "{{ kernel_file.src }}"
     dest: "{{ kernel_file.dest }}"
     owner: "{{ tftp_user }}"
@@ -98,13 +97,13 @@
   loop_control:
     loop_var: kernel_file
   loop:
-    - src: /boot/vmlinuz
+    - src: vmlinuz
       dest: "{{ tftp_directory }}/boot/bios/vmlinuz"
-    - src: /boot/vmlinuz
+    - src: vmlinuz
       dest: "{{ tftp_directory }}/boot/efi64/vmlinuz"
-    - src: /boot/initrd.img
+    - src: initrd
       dest: "{{ tftp_directory }}/boot/bios/initrd"
-    - src: /boot/initrd.img
+    - src: initrd
       dest: "{{ tftp_directory }}/boot/efi64/initrd"
 
 - name: Create Configuration Files

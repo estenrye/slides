@@ -4,9 +4,7 @@
 # have to change the VirtualHost statement in
 # /etc/apache2/sites-enabled/000-default.conf
 
-{% for site in httpd_sites_enabled %}
-Listen {{ site.port | int | mandatory }} http
-{% endfor %}
+Listen {{ httpd_http_port }} http
 
 <IfModule ssl_module>
 	Listen {{ httpd_https_port }} https

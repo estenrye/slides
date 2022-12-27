@@ -4,3 +4,10 @@
     daemon_reload: true
   become: true
   listen: systemd daemon reload
+
+- name: restart shoelaces
+  ansible.builtin.service:
+    state: restarted
+    name: shoelaces
+  become: true
+  listen: restart shoelaces

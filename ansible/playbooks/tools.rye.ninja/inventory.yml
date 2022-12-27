@@ -14,31 +14,44 @@ tools_server:
         - headers
       httpd_sites_enabled:
         - site: 000-default.conf
-          port: "{{ httpd_http_port }}"
+          host: tools.rye.ninja
           documentRoot: /var/www/html
         - site: 100-apt-mirror.conf
-          port: 30081
+          host: apt.tools.rye.ninja
           documentRoot: /var/lib/apt-mirror/www
-          directory:
-            path: /var/lib/apt-mirror/www
-            options: Indexes followSymLinks
-            allowOverride: None
-            require: all granted
-        - site: 100-apt-mirror.conf
-          port: 30084
-          documentRoot: /var/lib/pxeroot
-          directory:
-            path: /var/lib/pxeroot
-            options: Indexes followSymLinks
-            allowOverride: None
-            require: all granted
+          directories:
+            - path: /var/lib/apt-mirror/www
+              options: Indexes followSymLinks
+              allowOverride: None
+              require: all granted
+        - site: 100-pxe-mirror.conf
+          host: pxe.tools.rye.ninja
+          locations:
+            - path: /tftp
+              proxyPass: '!'
+          aliases:
+            - path: /tftp
+              dest: /var/lib/pxeroot
+          directories:
+            - path: /var/lib/pxeroot
+              options: Indexes followSymLinks
+              allowOverride: None
+              require: all granted
+          proxyPreserveHost: true
+          requestHeader: set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
+          proxyPass:
+            - from: /
+              to: http://127.0.0.1:30083/
+          proxyPassReverse:
+            - from: /
+              to: http://127.0.0.1:30083/
         - site: 101-netbox.conf
-          port: 30082
-          directory:
-            path: /opt/netbox/netbox/static
-            options: Indexes FollowSymLinks MultiViews
-            allowOverride: None
-            require: all granted
+          host: netbox.tools.rye.ninja
+          directories:
+            - path: /opt/netbox/netbox/static
+              options: Indexes FollowSymLinks MultiViews
+              allowOverride: None
+              require: all granted
           locations:
             - path: /static
               proxyPass: '!'
@@ -53,6 +66,17 @@ tools_server:
           proxyPassReverse:
             - from: /
               to: http://127.0.0.1:8001/
+        - site: 102-pihole.conf
+          host: pihole.tools.rye.ninja
+          proxyPreserveHost: true
+          requestHeader: set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
+          proxyPass:
+            - from: /
+              to: http://127.0.0.1:30085/
+          proxyPassReverse:
+            - from: /
+              to: http://127.0.0.1:30085/
+
       postgres_databases:
         - name: netbox
           owner_username: dbo_netbox
@@ -82,3 +106,12 @@ tools_server:
       nitrokey_hsm_export_certificates: false
       pihole_web_password: "{{ pihole_web_password_value | default(lookup('ansible.builtin.password', 'tmp/pihole_web_password chars=ascii_letters,digits length=32')) }}"
       pihole_ipv4_address: 10.5.7.2
+      shoelaces_network_maps:
+        - network: 10.5.11.1/32
+          script:
+            name: ubuntu.ipxe
+            params:
+              release: 20.04.5
+              bios_type: bios
+              hostname: zbox-01.usmnblm01.rye.ninja
+              password_hash: "{{ default_automation_user_passwordhash | urlencode }}"

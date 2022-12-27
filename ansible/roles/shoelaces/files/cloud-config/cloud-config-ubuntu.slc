@@ -1,0 +1,35 @@
+{{define "cloud-config-ubuntu" -}}
+#cloud-config
+autoinstall:
+  refresh-installer:
+    update: false
+  apt:
+    geoip: false
+    preserve_sources_list: false
+    primary:
+      - arches: [amd64, i386]
+        uri: http://apt.tools.rye.ninja/ubuntu
+      - arches: [default]
+        uri: http://apt.tools.rye.ninja/ubuntu
+  identity:
+    hostname: {{.hostname}}
+    password: {{.password_hash}}
+    realname: Automation User
+    username: automation-user
+  keyboard:
+    layout: us
+    toggle: alt_caps_toggle
+    variant: ''
+  locale: en_US.utf8
+
+  late-commands:
+    - echo 'automation-user ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/automation-user
+
+{{template "cloud-config-ubuntu-packages"}}
+{{template "cloud-config-ubuntu-ssh"}}
+{{template "cloud-config-ubuntu-storage"}}
+
+  version: 1
+
+{{end}}
+

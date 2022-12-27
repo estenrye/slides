@@ -31,3 +31,13 @@
       - /etc/pihole/install.sh
       - --unattended
   become: true
+
+- name: configure lightpd external port
+  ansible.builtin.template:
+    src: lightpd-external.conf.j2
+    dest: /etc/lighttpd/external.conf
+    mode: 0644
+    owner: root
+    group: root
+  become: true
+  notify: restart lighttpd

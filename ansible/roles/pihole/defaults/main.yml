@@ -21,3 +21,4 @@ pihole_install_web_interface: true
 pihole_lightpd_enable: true
 pihole_cache_size: 10000
 pihole_blocking_enabled: true
+pihole_lightpd_server_port: 30085

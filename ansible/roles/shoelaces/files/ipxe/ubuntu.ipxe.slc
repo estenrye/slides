@@ -1,0 +1,18 @@
+{{define "ubuntu.ipxe" -}}
+#!ipxe
+
+echo This automatically overwrites data!
+echo Ubuntu {{.release}} minimal
+
+set mirror http://{{.baseURL}}/tftp/boot/{{.bios_type}}
+set iso_url http://{{.baseURL}}/tftp/images/ubuntu/{{.release}}/ubuntu-{{.release}}-live-server-amd64.iso
+set ds_url http://{{.baseURL}}/configs/cloud-config-ubuntu?release={{.release}}&hostname={{.hostname}}&password_hash={{.password_hash}}
+
+chain http://{{.baseURL}}/configs/linux.cfg?hostname={{.hostname}}
+
+imgfree
+
+kernel ${mirror}/vmlinuz initrd=initrd root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=${iso_url} autoinstall ds=nocloud-net;s=${ds_url} cloud-config-url=/dev/null ${linuxargs}
+initrd ${mirror}/initrd
+boot
+{{end}}
