@@ -32,6 +32,7 @@
     owner: root
     group: root
   become: true
+  notify: restart shoelaces
 
 - name: create shoelaces configuration directory
   ansible.builtin.file:

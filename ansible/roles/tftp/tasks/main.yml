@@ -27,6 +27,7 @@
     - "{{ tftp_directory }}/boot"
     - "{{ tftp_directory }}/boot/bios"
     - "{{ tftp_directory }}/boot/efi64"
+    - "{{ tftp_directory }}/boot/talos"
     - "{{ image_mirror_dir }}"
     - "{{ image_mirror_dir }}/bin"
     - "{{ image_mirror_dir }}/status"
@@ -105,6 +106,21 @@
       dest: "{{ tftp_directory }}/boot/bios/initrd"
     - src: initrd
       dest: "{{ tftp_directory }}/boot/efi64/initrd"
+
+- name: download talos linux kernel
+  ansible.builtin.get_url:
+    url: https://github.com/siderolabs/talos/releases/download/{{ talos_linux_version }}/{{ talos_kernel_file }}
+    dest: "{{ tftp_directory }}/boot/talos/{{ talos_kernel_file }}"
+    owner: "{{ tftp_user }}"
+    group: "{{ tftp_group }}"
+  become: true
+  loop_control:
+    loop_var: talos_kernel_file
+  loop:
+    - initramfs-amd64.xz
+    - initramfs-arm64.xz
+    - vmlinuz-amd64
+    - vmlinuz-arm64
 
 - name: Create Configuration Files
   ansible.builtin.template:

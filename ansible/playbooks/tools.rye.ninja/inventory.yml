@@ -11,6 +11,7 @@ tools_server:
       httpd_modules:
         - proxy
         - proxy_http
+        - remoteip
         - headers
       httpd_sites_enabled:
         - site: 000-default.conf
@@ -38,7 +39,8 @@ tools_server:
               allowOverride: None
               require: all granted
           proxyPreserveHost: true
-          requestHeader: set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
+          requestHeaders:
+            - set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
           proxyPass:
             - from: /
               to: http://127.0.0.1:30083/
@@ -69,7 +71,8 @@ tools_server:
         - site: 102-pihole.conf
           host: pihole.tools.rye.ninja
           proxyPreserveHost: true
-          requestHeader: set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
+          requestHeaders:
+            - set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
           proxyPass:
             - from: /
               to: http://127.0.0.1:30085/
@@ -115,3 +118,9 @@ tools_server:
               bios_type: bios
               hostname: zbox-01.usmnblm01.rye.ninja
               password_hash: "{{ default_automation_user_passwordhash | urlencode }}"
+        - network: 10.5.11.2/32
+          script:
+            name: talos.ipxe
+            params:
+              arch: amd64
+              hostname: zbox-02.usmnblm01.rye.ninja

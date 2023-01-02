@@ -117,6 +117,7 @@
     - netbox
     - tftp
     - httpd
+    - shoelaces
 
 - hosts: tools_server
   roles:

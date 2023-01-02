@@ -14,7 +14,7 @@
   ServerAdmin {{ site.serverAdmin }}
 {% endif %}
 
-{% if site.proxyPreserveHost is defined and site.proxyPreserveHost %}
+{% if site.proxyPreserveHost | default(false) %}
   ProxyPreserveHost On
 {% endif %}
 
@@ -67,10 +67,34 @@ SSLCertificateKeyFile {{ ssl.key }}
   # following line enables the CGI configuration for this host only
   # after it has been globally disabled with "a2disconf".
   #Include conf-available/serve-cgi-bin.conf
-
-{% if site.requestHeader is defined %}
-  RequestHeader {{ site.requestHeader }}
+{% if site.remoteIPHeader is defined %}
+RemoteIPHeader {{ site.remoteIpHeader }}
 {% endif %}
+{% for remoteIPInternalProxy in site.remoteIPInternalProxy | default([]) %}
+RemoteIPInternalProxy {{ remoteIPInternalProxy }}
+{% endfor %}
+{% if site.remoteIPInternalProxyList is defined %}
+RemoteIPInternalProxyList {{ site.remoteIPInternalProxyList }}
+{% endif %}
+{% if site.remoteIPProxiesHeader is defined %}
+RemoteIPProxiesHeader {{ site.remoteIPProxiesHeader }}
+{% endif %}
+{% if site.remoteIPProxyProtocol | default(false) %}
+RemoteIPProxyProtocol On
+{% endif %}
+{% if site.remoteIPProxyProtocolExceptions is defined %}
+RemoteIPProxyProtocolExceptions {{ site.remoteIPProxyProtocolExceptions | join(' ') }}
+{% endif %}
+{% for remoteIPTrustedProxy in  site.RemoteIPTrustedProxys | default([]) %}
+RemoteIPTrustedProxy {{ remoteIPTrustedProxy }}
+{% endfor %}
+{% if site.remoteIPTrustedProxyList is defined %}
+RemoteIPTrustedProxyList {{ site.remoteIPTrustedProxyList }}
+{% endif %}
+
+{% for requestHeader in site.requestHeaders | default([]) %}
+  RequestHeader {{ requestHeader }}
+{% endfor %}
 {% for proxyPass in site.proxyPass | default([]) %}
   ProxyPass {{ proxyPass.from }} {{ proxyPass.to }}
 {% endfor %}
