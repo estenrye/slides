@@ -1,0 +1,16 @@
+{{define "talos.ipxe" -}}
+#!ipxe
+
+echo This automatically overwrites data!
+echo Talos Linux Install
+
+set mirror http://{{.baseURL}}/tftp/boot/talos
+set talos_config http://{{.baseURL}}/configs/talos-{{.node_type}}
+chain http://{{.baseURL}}/configs/linux.cfg?hostname={{.hostname}}
+
+imgfree
+
+kernel ${mirror}/vmlinuz-{{.arch}} initrd=initramfs-{{.arch}}.xz init_on_alloc=1 init_on_free=1 slab_nomerge pti=on printk.devkmsg=on talos.platform=metal talos.config=${talos_config} ip=dhcp ${linuxargs}
+initrd ${mirror}/initramfs-{{.arch}}.xz
+boot
+{{end}}

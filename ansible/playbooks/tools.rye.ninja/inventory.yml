@@ -124,3 +124,68 @@ tools_server:
             params:
               arch: amd64
               hostname: zbox-02.usmnblm01.rye.ninja
+              node_type: controlplane
+              talos_secrets:
+                k8s:
+                  clusterName: k8s-bare-metal
+                  hostname: k8s-bare-metal.usmnblm01.rye.ninja
+                  port: '6443'
+                cluster:
+                    id: "{{ bare_metal_talos_secrets.cluster.id | urlencode }}"
+                    secret: "{{ bare_metal_talos_secrets.cluster.secret | urlencode }}"
+                secrets:
+                    bootstraptoken: "{{ bare_metal_talos_secrets.secrets.bootstraptoken | urlencode }}"
+                    aescbcencryptionsecret: "{{ bare_metal_talos_secrets.secrets.aescbcencryptionsecret | urlencode }}"
+                trustdinfo:
+                    token: "{{ bare_metal_talos_secrets.trustdinfo.token | urlencode }}"
+                certs:
+                    etcd:
+                        crt: "{{ bare_metal_talos_secrets.certs.etcd.crt | urlencode }}"
+                        key: "{{ bare_metal_talos_secrets.certs.etcd.key | urlencode }}"
+                    k8s:
+                        crt: "{{ bare_metal_talos_secrets.certs.k8s.crt | urlencode }}"
+                        key: "{{ bare_metal_talos_secrets.certs.k8s.key | urlencode }}"
+                    k8saggregator:
+                        crt: "{{ bare_metal_talos_secrets.certs.k8saggregator.crt | urlencode }}"
+                        key: "{{ bare_metal_talos_secrets.certs.k8saggregator.key | urlencode }}"
+                    k8sserviceaccount:
+                        key: "{{ bare_metal_talos_secrets.certs.k8sserviceaccount.key | urlencode }}"
+                    os:
+                        crt: "{{ bare_metal_talos_secrets.certs.os.crt | urlencode }}"
+                        key: "{{ bare_metal_talos_secrets.certs.os.key | urlencode }}"
+        - network: 10.5.255.101/32
+          script:
+            name: talos.ipxe
+            params:
+              arch: amd64
+              hostname: macbook
+              node_type: controlplane
+              talos_secrets:
+                k8s:
+                  clusterName: foo
+                  hostname: foo.rye.ninja
+                  port: '6443'
+                cluster:
+                    id: "{{ bare_metal_talos_secrets.cluster.id | urlencode }}"
+                    secret: "{{ bare_metal_talos_secrets.cluster.secret | urlencode }}"
+                secrets:
+                    bootstraptoken: "{{ bare_metal_talos_secrets.secrets.bootstraptoken | urlencode }}"
+                    aescbcencryptionsecret: "{{ bare_metal_talos_secrets.secrets.aescbcencryptionsecret | urlencode }}"
+                trustdinfo:
+                    token: "{{ bare_metal_talos_secrets.trustdinfo.token | urlencode }}"
+                certs:
+                    etcd:
+                        crt: "{{ bare_metal_talos_secrets.certs.etcd.crt | urlencode }}"
+                        key: "{{ bare_metal_talos_secrets.certs.etcd.key | urlencode }}"
+                    k8s:
+                        crt: "{{ bare_metal_talos_secrets.certs.k8s.crt | urlencode }}"
+                        key: "{{ bare_metal_talos_secrets.certs.k8s.key | urlencode }}"
+                    k8saggregator:
+                        crt: "{{ bare_metal_talos_secrets.certs.k8saggregator.crt | urlencode }}"
+                        key: "{{ bare_metal_talos_secrets.certs.k8saggregator.key | urlencode }}"
+                    k8sserviceaccount:
+                        key: "{{ bare_metal_talos_secrets.certs.k8sserviceaccount.key | urlencode }}"
+                    os:
+                        crt: "{{ bare_metal_talos_secrets.certs.os.crt | urlencode }}"
+                        key: "{{ bare_metal_talos_secrets.certs.os.key | urlencode }}"
+
