@@ -1,0 +1,65 @@
+{{define "talos-worker" -}}
+version: v1alpha1
+debug: false
+persist: true
+machine:
+    type: worker
+    token: "{{.talos_secrets.trustdinfo.token}}"
+    ca:
+        crt: "{{.talos_secrets.certs.os.crt}}"
+        key: ""
+    certSANs:
+      - {{.hostname}}
+    kubelet:
+        image: ghcr.io/siderolabs/kubelet:v1.25.4
+        defaultRuntimeSeccompProfileEnabled: true
+    network:
+      hostname: {{.hostname}}
+      interfaces:
+        - addresses:
+            - {{.ip_address}}/{{.ip_address_prefix}}
+          deviceSelector:
+            hardwareAddr: {{.mac_address_pattern}}
+          routes:
+            - network: 0.0.0.0/0
+              gateway: {{.gateway_ip_address}}
+    install:
+        disk: /dev/sda
+        image: ghcr.io/siderolabs/installer:v1.2.7
+        bootloader: true
+    registries:
+        mirrors:
+            k8s.gcr.io:
+                endpoints:
+                    - https://registry.k8s.io
+                    - https://k8s.gcr.io
+    features:
+        rbac: true
+        stableHostname: true
+    time:
+        servers:
+          - time.cloudflare.com
+        bootTimeout: 1m0s
+cluster:
+    id: "{{.talos_secrets.cluster.id}}"
+    secret: "{{.talos_secrets.cluster.secret}}"
+    controlPlane:
+        endpoint: https://{{.talos_secrets.k8s.hostname}}:{{.talos_secrets.k8s.port}}
+    network:
+        dnsDomain: cluster.local
+        podSubnets:
+            - 10.244.0.0/16
+        serviceSubnets:
+            - 10.96.0.0/12
+    token: "{{.talos_secrets.secrets.bootstraptoken}}"
+    aescbcEncryptionSecret: ""
+    ca:
+        crt: "{{.talos_secrets.certs.k8s.crt}}"
+        key: ""
+    discovery:
+        enabled: true
+        registries:
+            kubernetes:
+                disabled: true
+            service: {}
+{{end}}

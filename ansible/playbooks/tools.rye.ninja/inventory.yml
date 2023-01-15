@@ -110,82 +110,43 @@ tools_server:
       pihole_web_password: "{{ pihole_web_password_value | default(lookup('ansible.builtin.password', 'tmp/pihole_web_password chars=ascii_letters,digits length=32')) }}"
       pihole_ipv4_address: 10.5.7.2
       shoelaces_network_maps:
-        - network: 10.5.11.1/32
-          script:
-            name: ubuntu.ipxe
-            params:
-              release: 20.04.5
-              bios_type: bios
-              hostname: zbox-01.usmnblm01.rye.ninja
-              password_hash: "{{ default_automation_user_passwordhash | urlencode }}"
-        - network: 10.5.11.2/32
-          script:
-            name: talos.ipxe
-            params:
-              arch: amd64
-              hostname: zbox-02.usmnblm01.rye.ninja
-              node_type: controlplane
-              talos_secrets:
-                k8s:
-                  clusterName: k8s-bare-metal
-                  hostname: k8s-bare-metal.usmnblm01.rye.ninja
-                  port: '6443'
-                cluster:
-                    id: "{{ bare_metal_talos_secrets.cluster.id | urlencode }}"
-                    secret: "{{ bare_metal_talos_secrets.cluster.secret | urlencode }}"
-                secrets:
-                    bootstraptoken: "{{ bare_metal_talos_secrets.secrets.bootstraptoken | urlencode }}"
-                    aescbcencryptionsecret: "{{ bare_metal_talos_secrets.secrets.aescbcencryptionsecret | urlencode }}"
-                trustdinfo:
-                    token: "{{ bare_metal_talos_secrets.trustdinfo.token | urlencode }}"
-                certs:
-                    etcd:
-                        crt: "{{ bare_metal_talos_secrets.certs.etcd.crt | urlencode }}"
-                        key: "{{ bare_metal_talos_secrets.certs.etcd.key | urlencode }}"
-                    k8s:
-                        crt: "{{ bare_metal_talos_secrets.certs.k8s.crt | urlencode }}"
-                        key: "{{ bare_metal_talos_secrets.certs.k8s.key | urlencode }}"
-                    k8saggregator:
-                        crt: "{{ bare_metal_talos_secrets.certs.k8saggregator.crt | urlencode }}"
-                        key: "{{ bare_metal_talos_secrets.certs.k8saggregator.key | urlencode }}"
-                    k8sserviceaccount:
-                        key: "{{ bare_metal_talos_secrets.certs.k8sserviceaccount.key | urlencode }}"
-                    os:
-                        crt: "{{ bare_metal_talos_secrets.certs.os.crt | urlencode }}"
-                        key: "{{ bare_metal_talos_secrets.certs.os.key | urlencode }}"
-        - network: 10.5.255.101/32
+        # - network: 10.5.11.1/29
+        #   script:
+        #     name: ubuntu.ipxe
+        #     params:
+        #       bios_type: bios
+        #       release: 20.04.5
+        #       password_hash: $6$automation-user$KJJd3iL8sCfkc4YTLOqDAQYnmMj/2VPKZxScl8sDeWZ2VcdoXEJHrAo.VGEVSP8h550ma6ok3NTss7i9elMVP/
+        - network: 10.5.11.0/30
           script:
             name: talos.ipxe
             params:
               arch: amd64
-              hostname: macbook
               node_type: controlplane
-              talos_secrets:
-                k8s:
-                  clusterName: foo
-                  hostname: foo.rye.ninja
-                  port: '6443'
-                cluster:
-                    id: "{{ bare_metal_talos_secrets.cluster.id | urlencode }}"
-                    secret: "{{ bare_metal_talos_secrets.cluster.secret | urlencode }}"
-                secrets:
-                    bootstraptoken: "{{ bare_metal_talos_secrets.secrets.bootstraptoken | urlencode }}"
-                    aescbcencryptionsecret: "{{ bare_metal_talos_secrets.secrets.aescbcencryptionsecret | urlencode }}"
-                trustdinfo:
-                    token: "{{ bare_metal_talos_secrets.trustdinfo.token | urlencode }}"
-                certs:
-                    etcd:
-                        crt: "{{ bare_metal_talos_secrets.certs.etcd.crt | urlencode }}"
-                        key: "{{ bare_metal_talos_secrets.certs.etcd.key | urlencode }}"
-                    k8s:
-                        crt: "{{ bare_metal_talos_secrets.certs.k8s.crt | urlencode }}"
-                        key: "{{ bare_metal_talos_secrets.certs.k8s.key | urlencode }}"
-                    k8saggregator:
-                        crt: "{{ bare_metal_talos_secrets.certs.k8saggregator.crt | urlencode }}"
-                        key: "{{ bare_metal_talos_secrets.certs.k8saggregator.key | urlencode }}"
-                    k8sserviceaccount:
-                        key: "{{ bare_metal_talos_secrets.certs.k8sserviceaccount.key | urlencode }}"
-                    os:
-                        crt: "{{ bare_metal_talos_secrets.certs.os.crt | urlencode }}"
-                        key: "{{ bare_metal_talos_secrets.certs.os.key | urlencode }}"
-
+              mac_address_pattern: 00:01:2e:*
+              ip_address_prefix: 16
+              gateway_ip_address: 10.5.0.1
+              vip_address: 10.5.11.0
+              talos_secrets: "{{ bare_metal_talos_secrets }}"
+        - network: 10.5.11.4/29
+          script:
+            name: talos.ipxe
+            params:
+              arch: amd64
+              node_type: worker
+              mac_address_pattern: 00:01:2e:*
+              ip_address_prefix: 16
+              gateway_ip_address: 10.5.0.1
+              vip_address: 10.5.11.0
+              talos_secrets: "{{ bare_metal_talos_secrets }}"
+        - network: 10.5.255.0/24
+          script:
+            name: talos.ipxe
+            params:
+              arch: amd64
+              node_type: controlplane
+              mac_address_pattern: 00:01:2e:*
+              ip_address_prefix: 16
+              gateway_ip_address: 10.5.0.1
+              vip_address: 10.5.11.0
+              talos_secrets: "{{ bare_metal_talos_secrets }}"

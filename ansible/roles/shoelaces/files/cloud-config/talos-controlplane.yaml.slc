@@ -1,0 +1,118 @@
+{{define "talos-controlplane" -}}
+version: v1alpha1
+debug: false
+persist: true
+machine:
+    type: controlplane
+    token: "{{.talos_secrets.trustdinfo.token}}"
+    ca:
+        crt: "{{.talos_secrets.certs.os.crt}}"
+        key: "{{.talos_secrets.certs.os.key}}"
+    certSANs:
+      - {{.hostname}}
+      - {{.talos_secrets.k8s.hostname}}
+      - {{.ip_address}}
+      - {{.vip_address}}
+    kubelet:
+        image: ghcr.io/siderolabs/kubelet:v1.25.4
+        defaultRuntimeSeccompProfileEnabled: true
+    network:
+      hostname: {{.hostname}}
+      interfaces:
+        - addresses:
+            - {{.ip_address}}/{{.ip_address_prefix}}
+          vip:
+            ip: {{.vip_address}}
+          deviceSelector:
+            hardwareAddr: {{.mac_address_pattern}}
+          routes:
+            - network: 0.0.0.0/0
+              gateway: {{.gateway_ip_address}}
+      nameservers:
+        - 10.5.0.1
+        - 1.1.1.1
+    install:
+        disk: /dev/sda
+        image: ghcr.io/siderolabs/installer:v1.2.7
+        bootloader: true
+    registries:
+        mirrors:
+            k8s.gcr.io:
+                endpoints:
+                    - https://registry.k8s.io
+                    - https://k8s.gcr.io
+    features:
+        rbac: true
+        stableHostname: true
+        kubernetesTalosAPIAccess:
+            enabled: true
+            allowedRoles:
+                - os:reader
+            allowedKubernetesNamespaces:
+                - kube-system
+    time:
+        servers:
+          - time.cloudflare.com
+        bootTimeout: 1m0s
+cluster:
+    id: "{{.talos_secrets.cluster.id}}"
+    secret: "{{.talos_secrets.cluster.secret}}"
+    controlPlane:
+        endpoint: "https://{{.talos_secrets.k8s.hostname}}:{{.talos_secrets.k8s.port}}"
+    clusterName: "{{.talos_secrets.k8s.clusterName}}"
+    network:
+        dnsDomain: cluster.local
+        podSubnets:
+            - 10.244.0.0/16
+        serviceSubnets:
+            - 10.96.0.0/12
+    token: "{{.talos_secrets.secrets.bootstraptoken}}"
+    aescbcEncryptionSecret: "{{.talos_secrets.secrets.aescbcencryptionsecret}}"
+    ca:
+        crt: "{{.talos_secrets.certs.k8s.crt}}"
+        key: "{{.talos_secrets.certs.k8s.key}}"
+    aggregatorCA:
+        crt: "{{.talos_secrets.certs.k8saggregator.crt}}"
+        key: "{{.talos_secrets.certs.k8saggregator.key}}"
+    serviceAccount:
+        key: "{{.talos_secrets.certs.k8sserviceaccount.key}}"
+    apiServer:
+        image: k8s.gcr.io/kube-apiserver:v1.25.4
+        certSANs:
+            - "{{.talos_secrets.k8s.hostname}}"
+            - "{{.vip_address}}"
+        disablePodSecurityPolicy: true
+        admissionControl:
+            - name: PodSecurity
+              configuration:
+                apiVersion: pod-security.admission.config.k8s.io/v1alpha1
+                defaults:
+                    audit: restricted
+                    audit-version: latest
+                    enforce: baseline
+                    enforce-version: latest
+                    warn: restricted
+                    warn-version: latest
+                exemptions:
+                    namespaces:
+                        - kube-system
+                    runtimeClasses: []
+                    usernames: []
+                kind: PodSecurityConfiguration
+    controllerManager:
+        image: k8s.gcr.io/kube-controller-manager:v1.25.4
+    proxy:
+        image: k8s.gcr.io/kube-proxy:v1.25.4
+    scheduler:
+        image: k8s.gcr.io/kube-scheduler:v1.25.4
+    discovery:
+        enabled: true
+        registries:
+            kubernetes:
+                disabled: true
+            service: {}
+    etcd:
+        ca:
+            crt: "{{.talos_secrets.certs.etcd.crt}}"
+            key: "{{.talos_secrets.certs.etcd.key}}"
+{{end}}
