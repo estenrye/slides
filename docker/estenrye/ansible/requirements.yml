@@ -8,4 +8,4 @@ collections:
   - name: kubernetes.core
     version: 2.3.2
   - name: nginxinc.nginx_core
-    version: 0.6.0
+    version: 0.8.0
