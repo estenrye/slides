@@ -1,0 +1,107 @@
+{{define "talos-worker-dell-r610" -}}
+version: v1alpha1
+debug: false
+persist: true
+machine:
+    type: worker
+    token: "{{.talos_secrets.trustdinfo.token}}"
+    ca:
+        crt: "{{.talos_secrets.certs.os.crt}}"
+        key: ""
+    certSANs:
+      - {{.hostname}}
+    kubelet:
+        image: ghcr.io/siderolabs/kubelet:v1.25.4
+        defaultRuntimeSeccompProfileEnabled: true
+        extraArgs:
+          node-labels: openebs.io/engine=mayastor
+        extraMounts:
+          - destination: /var/local
+            type: bind
+            source: /var/local
+            options:
+              - rbind
+              - rshared
+              - rw
+        nodeIP:
+          validSubnets:
+            - '!{{.ip_address}}/32'
+    network:
+      hostname: {{.hostname}}
+      interfaces:
+        - deviceSelector:
+            hardwareAddr: {{.eth0_mac_address}}
+          dhcp: true
+        - deviceSelector:
+            hardwareAddr: {{.eth1_mac_address}}
+          dhcp: false
+        - deviceSelector:
+            hardwareAddr: {{.eth2_mac_address}}
+          dhcp: false
+        - deviceSelector:
+            hardwareAddr: {{.eth3_mac_address}}
+          dhcp: false
+        - interface: bond0
+          addresses:
+            - {{.ip_address_bond}}/{{.ip_address_prefix}}
+          routes:
+            - network: 0.0.0.0/0
+              gateway: {{.gateway_ip_address}}
+          bond:
+            mode: 802.3ad
+            lacpRate: fast
+            xmitHashPolicy: layer3+4
+            miimon: 100
+            updelay: 200
+            downdelay: 200
+            interfaces:
+              - eth1
+              - eth2
+              - eth3
+    install:
+        diskSelector:
+          size: {{.install_disk_size}}
+        image: ghcr.io/siderolabs/installer:v1.2.7
+        bootloader: true
+    disks: []
+    sysctls:
+      vm.nr_hugepages: 1024
+    registries:
+        mirrors:
+            k8s.gcr.io:
+                endpoints:
+                    - https://registry.k8s.io
+                    - https://k8s.gcr.io
+            docker.io:
+                endpoints:
+                    - https://index.docker.io/v2/
+    features:
+        rbac: true
+        stableHostname: true
+    time:
+        servers:
+          - time.cloudflare.com
+        bootTimeout: 1m0s
+cluster:
+    id: "{{.talos_secrets.cluster.id}}"
+    secret: "{{.talos_secrets.cluster.secret}}"
+    controlPlane:
+        endpoint: https://{{.talos_secrets.k8s.hostname}}:{{.talos_secrets.k8s.port}}
+    network:
+        dnsDomain: cluster.local
+        podSubnets:
+            - 10.244.0.0/16
+        serviceSubnets:
+            - 10.96.0.0/12
+    token: "{{.talos_secrets.secrets.bootstraptoken}}"
+    aescbcEncryptionSecret: ""
+    ca:
+        crt: "{{.talos_secrets.certs.k8s.crt}}"
+        key: ""
+    discovery:
+        enabled: true
+        registries:
+            kubernetes:
+                disabled: true
+            service: {}
+{{end}}

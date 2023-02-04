@@ -5,7 +5,7 @@ echo This automatically overwrites data!
 echo Talos Linux Install
 
 set mirror http://{{.baseURL}}/tftp/boot/talos
-set talos_config http://{{.baseURL}}/configs/talos-{{.node_type}}
+set talos_config http://{{.baseURL}}/configs/talos-{{.node_type}}-{{.machine_type}}
 chain http://{{.baseURL}}/configs/linux.cfg?hostname={{.hostname}}
 
 imgfree

@@ -1,4 +1,4 @@
-{{define "talos-worker" -}}
+{{define "talos-worker-zbox-ci320" -}}
 version: v1alpha1
 debug: false
 persist: true
@@ -13,6 +13,16 @@ machine:
     kubelet:
         image: ghcr.io/siderolabs/kubelet:v1.25.4
         defaultRuntimeSeccompProfileEnabled: true
+        extraArgs:
+          node-labels: openebs.io/engine=mayastor
+        extraMounts:
+        - destination: /var/local
+            type: bind
+            source: /var/local
+            options:
+            - rbind
+            - rshared
+            - rw
     network:
       hostname: {{.hostname}}
       interfaces:
@@ -27,12 +37,18 @@ machine:
         disk: /dev/sda
         image: ghcr.io/siderolabs/installer:v1.2.7
         bootloader: true
+    disks: []
+    sysctls:
+      vm.nr_hugepages: 1024
     registries:
         mirrors:
             k8s.gcr.io:
                 endpoints:
                     - https://registry.k8s.io
                     - https://k8s.gcr.io
+            docker.io:
+                endpoints:
+                    - https://index.docker.io/v2/
     features:
         rbac: true
         stableHostname: true

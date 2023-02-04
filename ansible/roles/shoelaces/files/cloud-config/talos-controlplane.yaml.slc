@@ -41,6 +41,9 @@ machine:
                 endpoints:
                     - https://registry.k8s.io
                     - https://k8s.gcr.io
+            docker.io:
+                endpoints:
+                    - https://index.docker.io/v2/
     features:
         rbac: true
         stableHostname: true

@@ -110,7 +110,7 @@ tools_server:
       pihole_web_password: "{{ pihole_web_password_value | default(lookup('ansible.builtin.password', 'tmp/pihole_web_password chars=ascii_letters,digits length=32')) }}"
       pihole_ipv4_address: 10.5.7.2
       shoelaces_network_maps:
-        # - network: 10.5.11.1/29
+        # - network: 10.5.11.4/29
         #   script:
         #     name: ubuntu.ipxe
         #     params:
@@ -123,29 +123,37 @@ tools_server:
             params:
               arch: amd64
               node_type: controlplane
+              machine_type: zbox-ci320
               mac_address_pattern: 00:01:2e:*
               ip_address_prefix: 16
               gateway_ip_address: 10.5.0.1
               vip_address: 10.5.11.0
               talos_secrets: "{{ bare_metal_talos_secrets }}"
-        - network: 10.5.11.4/29
+        - network: 10.5.11.4/30
           script:
             name: talos.ipxe
             params:
               arch: amd64
               node_type: worker
+              machine_type: zbox-ci320
               mac_address_pattern: 00:01:2e:*
               ip_address_prefix: 16
               gateway_ip_address: 10.5.0.1
               vip_address: 10.5.11.0
               talos_secrets: "{{ bare_metal_talos_secrets }}"
-        - network: 10.5.255.0/24
+        - network: 10.5.11.16/32
           script:
             name: talos.ipxe
             params:
               arch: amd64
-              node_type: controlplane
-              mac_address_pattern: 00:01:2e:*
+              node_type: worker
+              machine_type: dell-r610
+              install_disk_size: <=1TB
+              eth0_mac_address: f0:4d:a2:0b:fd:f4
+              eth1_mac_address: f0:4d:a2:0b:fd:f6
+              eth2_mac_address: f0:4d:a2:0b:fd:f8
+              eth3_mac_address: f0:4d:a2:0b:fd:fa
+              ip_address_bond: 10.5.11.17
               ip_address_prefix: 16
               gateway_ip_address: 10.5.0.1
               vip_address: 10.5.11.0

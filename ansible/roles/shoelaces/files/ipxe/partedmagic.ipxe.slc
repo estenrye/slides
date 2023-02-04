@@ -1,0 +1,7 @@
+{{define "partedmagic.ipxe" -}}
+#!ipxe
+set boot-url http://{{.baseURL}}
+kernel ${boot-url}/memdisk iso
+initrd ${boot-url}/images/pmagic/pmagic_2013_02_28.iso
+boot
+{{end}}
