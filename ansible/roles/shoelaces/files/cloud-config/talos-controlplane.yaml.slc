@@ -117,6 +117,8 @@ cluster:
                 disabled: true
             service: {}
     etcd:
+        extraArgs:
+            listen-metrics-urls: http://0.0.0.0:2381
         ca:
             crt: "{{.talos_secrets.certs.etcd.crt}}"
             key: "{{.talos_secrets.certs.etcd.key}}"
