@@ -112,6 +112,8 @@ cluster:
             metrics-bind-address: 0.0.0.0:10249
     scheduler:
         image: k8s.gcr.io/kube-scheduler:v1.25.4
+        extraArgs:
+            bind-address: 0.0.0.0
     discovery:
         enabled: true
         registries:
