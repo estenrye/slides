@@ -158,3 +158,20 @@ tools_server:
               gateway_ip_address: 10.5.0.1
               vip_address: 10.5.11.0
               talos_secrets: "{{ bare_metal_talos_secrets }}"
+        - network: 10.5.11.18/32
+          script:
+            name: talos.ipxe
+            params:
+              arch: amd64
+              node_type: worker
+              machine_type: dell-r610
+              install_disk_size: <=1TB
+              eth0_mac_address: 00:21:9b:99:3d:c7
+              eth1_mac_address: 00:21:9b:99:3d:c9
+              eth2_mac_address: 00:21:9b:99:3d:cb
+              eth3_mac_address: 00:21:9b:99:3d:cd
+              ip_address_bond: 10.5.11.19
+              ip_address_prefix: 16
+              gateway_ip_address: 10.5.0.1
+              vip_address: 10.5.11.0
+              talos_secrets: "{{ bare_metal_talos_secrets }}"
