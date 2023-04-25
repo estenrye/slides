@@ -4,7 +4,7 @@ collections:
   - name: community.postgresql
     version: 2.2.0
   - name: community.general
-    version: 5.6.0
+    version: 5.8.8
   - name: kubernetes.core
     version: 2.3.2
   - name: nginxinc.nginx_core
