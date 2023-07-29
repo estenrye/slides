@@ -1,4 +1,4 @@
-shoelaces_version: 1.2.23
+shoelaces_version: 1.2.25
 shoelaces_repo_url: https://github.com/estenrye/shoelaces
 shoelaces_system: "{{ ansible_system | lower }}"
 shoelaces_arch: "{% if ansible_architecture == 'x86_64' %}amd64{% else %}arm64{% endif %}"
