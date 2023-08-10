@@ -1,5 +1,6 @@
-apt_repos:
+docker_apt_repos:
   - name: docker
-    repo: https://download.docker.com/linux/ubuntu bionic stable
+    repo: https://download.docker.com/linux/ubuntu focal stable
     arch: amd64
     key_url: https://download.docker.com/linux/ubuntu/gpg
+docker_gid: 10004

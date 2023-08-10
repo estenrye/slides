@@ -8,31 +8,31 @@
   ansible.builtin.user:
     uid: "{{ shoelaces_uid | int }}"
     name: shoelaces
-    group: "{{ tftp_group }}"
+    group: "shoelaces"
   become: true
 
-- name: Download Shoelaces Artifact
-  ansible.builtin.get_url:
-    url: "{{ shoelaces_release_url }}"
-    dest: /tmp/shoelaces.tar.gz
+# - name: Download Shoelaces Artifact
+#   ansible.builtin.get_url:
+#     url: "{{ shoelaces_release_url }}"
+#     dest: /tmp/shoelaces.tar.gz
 
-- name: write bin directory
-  ansible.builtin.file:
-    state: directory
-    path: /usr/bin/shoelaces
-    mode: 0755
-  become: true
+# - name: write bin directory
+#   ansible.builtin.file:
+#     state: directory
+#     path: /usr/bin/shoelaces
+#     mode: 0755
+#   become: true
 
-- name: Unarchive Shoelaces Artifact
-  ansible.builtin.unarchive:
-    src: /tmp/shoelaces.tar.gz
-    remote_src: true
-    dest: /usr/bin/shoelaces/
-    mode: 0755
-    owner: root
-    group: root
-  become: true
-  notify: restart shoelaces
+# - name: Unarchive Shoelaces Artifact
+#   ansible.builtin.unarchive:
+#     src: /tmp/shoelaces.tar.gz
+#     remote_src: true
+#     dest: /usr/bin/shoelaces/
+#     mode: 0755
+#     owner: root
+#     group: root
+#   become: true
+#   notify: restart shoelaces
 
 - name: create shoelaces configuration directory
   ansible.builtin.file:

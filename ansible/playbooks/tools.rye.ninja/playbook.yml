@@ -82,6 +82,12 @@
 
 - hosts: tools_server
   roles:
+    - docker
+  tags:
+    - docker
+
+- hosts: tools_server
+  roles:
     - debmirror
   tags:
     - apt
@@ -95,11 +101,15 @@
 
 - hosts: tools_server
   roles:
-    - tftp
     - shoelaces
   tags:
-    - tftp
     - shoelaces
+
+- hosts: tools_server
+  roles:
+    - tftp
+  tags:
+    - tftp
 
 - hosts: tools_server
   roles:

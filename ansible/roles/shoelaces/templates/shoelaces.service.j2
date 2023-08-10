@@ -1,13 +1,23 @@
 [Unit]
 Description=Shoelaces is an iPXE Server
+After=docker.service
+Requires=docker.service
 
 [Service]
-Type=simple
-User=shoelaces
-Group=shoelaces
-
-WorkingDirectory=/usr/bin/shoelaces
-ExecStart=/usr/bin/shoelaces/shoelaces -config=/etc/shoelaces/shoelaces.conf
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker exec %n stop
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=/usr/bin/docker pull estenrye/shoelaces:{{shoelaces_version}}
+ExecStart=/usr/bin/docker run --rm --name %n \
+    -e BASE_URL="{{shoelaces_domain}}" \
+    -e TEMPLATE_EXTENSION="{{ shoelaces_template_extension }}" \
+    -e DEBUG="{{shoelaces_debug}}" \
+    -v /etc/shoelaces/data:/data \
+    -p 30083:8081 \
+    estenrye/shoelaces:{{shoelaces_version}}
+ExecStopPre=/usr/bin/docker exec %n stop
+ExecStop=//usr/bin/docker rm %n
 
 [Install]
 WantedBy=multi-user.target

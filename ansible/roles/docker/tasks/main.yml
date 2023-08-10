@@ -1,11 +1,13 @@
 - name: install required repos
   ansible.builtin.include_role:
     name: add_apt_repos
+  vars:
+    apt_repos: "{{docker_apt_repos}}"
 
 - name: Add Docker Group
   ansible.builtin.group:
     name: docker
-    gid: 10000
+    gid: "{{ docker_gid }}"
     state: present
   become: true
 
@@ -35,4 +37,6 @@
       - docker-ce
       - docker-ce-cli
       - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
   become: true
