@@ -8,6 +8,7 @@
 | nginx     | 10001 |
 | netbox    | 10002 |
 | shoelaces | 10003 |
+| docker    | 10004 |
 | tftp      | 35000 |
 
 ## Group GID
@@ -20,4 +21,5 @@
 | nginx     | 10001 |
 | netbox    | 10002 |
 | shoelaces | 10003 |
+| docker    | 10004 |
 | tftp      | 35000 |
