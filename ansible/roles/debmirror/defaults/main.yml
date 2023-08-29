@@ -38,6 +38,79 @@ local_apt_repo:
 mirror_repos:
   - handler: debmirror
     remote:
+      host: ftp.us.debian.org
+      root: debian
+    mirror:
+      name: debian
+      dists:
+        - bookworm
+        - bookworm-updates
+        - bookworm-security
+      sections:
+        - main
+        - contrib
+      arches:
+        - amd64
+        - i386
+      rsync_extras:
+        - trace
+    state_cache_days: 0
+    download:
+      method: rsync
+    output:
+      verbose: true
+    systemd:
+      on_calendar: '*-*-* 01/6:30:00'
+      accuracy_sec: 1m
+
+  - handler: debmirror
+    remote:
+      host: download.proxmox.com
+      root: debian/pve
+    mirror:
+      name: pve-no-subscription
+      dists:
+        - bookworm
+      sections:
+        - pve-no-subscription
+      arches:
+        - amd64
+      rsync_extras:
+        - trace
+    state_cache_days: 0
+    download:
+      method: rsync
+    output:
+      verbose: true
+    systemd:
+      on_calendar: '*-*-* 01/6:30:00'
+      accuracy_sec: 1m
+
+  - handler: debmirror
+    remote:
+      host: download.proxmox.com
+      root: debian/ceph-quincy
+    mirror:
+      name: pve-no-subscription-ceph-quincy
+      dists:
+        - bookworm
+      sections:
+        - no-subscription
+      arches:
+        - amd64
+      rsync_extras:
+        - trace
+    state_cache_days: 0
+    download:
+      method: rsync
+    output:
+      verbose: true
+    systemd:
+      on_calendar: '*-*-* 01/6:30:00'
+      accuracy_sec: 1m
+
+  - handler: debmirror
+    remote:
       host: mirror.genesisadaptive.com
       root: ubuntu
     mirror:
