@@ -47,6 +47,10 @@ mirror_repos:
         - focal-backports
         - focal-security
         - focal-updates
+        - jammy
+        - jammy-backports
+        - jammy-security
+        - jammy-updates
       sections:
         - main
         - restricted
@@ -75,6 +79,7 @@ mirror_repos:
       name: docker
       dists:
         - focal
+        - jammy
       sections:
         - stable
       arches:
@@ -97,6 +102,7 @@ mirror_repos:
       name: hashicorp
       dists:
         - focal
+        - jammy
       sections:
         - main
       arches:
@@ -113,6 +119,7 @@ mirror_repos:
       name: microsoft-focal
       dists:
         - focal
+        - jammy
       sections:
         - main
       arches:
@@ -132,6 +139,7 @@ mirror_repos:
       name: maas-3.1
       dists:
         - focal
+        - jammy
       sections:
         - main
       arches:
@@ -151,6 +159,7 @@ mirror_repos:
       name: yubico-stable
       dists:
         - focal
+        - jammy
       sections:
         - main
       arches:
