@@ -40,11 +40,37 @@ mirror_repos:
     remote:
       host: ftp.us.debian.org
       root: debian
+      gpg_key: https://ftp-master.debian.org/keys/archive-key-12.asc
     mirror:
       name: debian
       dists:
         - bookworm
         - bookworm-updates
+      sections:
+        - main
+        - contrib
+      arches:
+        - amd64
+        - i386
+      rsync_extras:
+        - trace
+    state_cache_days: 0
+    download:
+      method: rsync
+    output:
+      verbose: true
+    systemd:
+      on_calendar: '*-*-* 01/6:30:00'
+      accuracy_sec: 1m
+
+  - handler: debmirror
+    remote:
+      host: security.debian.org
+      root: ''
+      gpg_key: https://ftp-master.debian.org/keys/archive-key-12-security.asc
+    mirror:
+      name: debian-security
+      dists:
         - bookworm-security
       sections:
         - main
@@ -67,6 +93,7 @@ mirror_repos:
     remote:
       host: download.proxmox.com
       root: debian/pve
+      gpg_key: https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg
     mirror:
       name: pve-no-subscription
       dists:
@@ -90,6 +117,7 @@ mirror_repos:
     remote:
       host: download.proxmox.com
       root: debian/ceph-quincy
+      gpg_key: https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg
     mirror:
       name: pve-no-subscription-ceph-quincy
       dists:
