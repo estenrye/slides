@@ -31,7 +31,7 @@
         loop_var: lv_item
       loop:
         - lv: apt-lv
-          size: 1024g
+          size: 1300g
         - lv: pxe-lv
           size: 500g
       become: true

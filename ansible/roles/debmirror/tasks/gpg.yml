@@ -26,7 +26,14 @@
 
 - name: import trusted keys
   ansible.builtin.command:
-    cmd: gpg --no-default-keyring --keyring trustedkeys.gpg --import {{ mirror_dir }}/gpg/{{ aptmirror.mirror.name }}.gpg
+    cmd:
+      - gpg
+      - --no-options
+      - --no-auto-check-trustdb
+      - --no-default-keyring
+      - --keyring trustedkeys.gpg
+      - --import
+      - '{{ mirror_dir }}/gpg/{{ aptmirror.mirror.name }}.gpg'
   environment:
     GNUPGHOME: /home/{{ debmirror_user_name }}/.gnupg
   loop_control:

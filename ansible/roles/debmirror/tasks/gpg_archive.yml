@@ -1,0 +1,115 @@
+- name: Install jetring
+  ansible.builtin.package:
+    name: jetring
+  become: true
+
+- name: create gpg archive key directory
+  ansible.builtin.file:
+    path: "{{ mirror_dir }}/gpg/{{ aptmirror.mirror.name }}"
+    state: directory
+    mode: 0755
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  loop_control:
+    loop_var: aptmirror
+    label: "{{ aptmirror.mirror.name }}"
+  loop: "{{ mirror_repos | selectattr('remote.gpg_key_archive', 'defined') }}"
+  when:
+    - aptmirror.remote.gpg_key_archive is defined
+  become: true
+
+- name: Download gpg key archives
+  ansible.builtin.get_url:
+    url: "{{ aptmirror.remote.gpg_key_archive.url }}"
+    dest: "{{ mirror_dir }}/gpg/{{ aptmirror.mirror.name }}/{{ aptmirror.remote.gpg_key_archive.url | basename }}"
+    mode: 0644
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  loop_control:
+    loop_var: aptmirror
+    label: "{{ aptmirror.mirror.name }}"
+  loop: "{{ mirror_repos | selectattr('remote.gpg_key_archive', 'defined') }}"
+  when:
+    - aptmirror.remote.gpg_key_archive is defined
+  become: true
+  register: key_download
+
+- name: expand key archive files
+  ansible.builtin.unarchive:
+    src: "{{ mirror_dir }}/gpg/{{ aptmirror.mirror.name }}/{{ aptmirror.remote.gpg_key_archive.url | basename }}"
+    remote_src: true
+    dest: "{{ mirror_dir }}/gpg/{{ aptmirror.mirror.name }}"
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+  loop_control:
+    loop_var: aptmirror
+    label: "{{ aptmirror.mirror.name }}"
+  loop: "{{ mirror_repos | selectattr('remote.gpg_key_archive', 'defined') }}"
+  when:
+    - aptmirror.remote.gpg_key_archive is defined
+  become: true
+
+- name: make keyring
+  community.general.make:
+    chdir: "{{ mirror_dir }}/gpg/{{ aptmirror.mirror.name }}/{{ aptmirror.remote.gpg_key_archive.make_chdir }}"
+    target: "{{ aptmirror.remote.gpg_key_archive.make_target }}"
+  loop_control:
+    loop_var: aptmirror
+    label: "{{ aptmirror.mirror.name }}"
+  loop: "{{ mirror_repos | selectattr('remote.gpg_key_archive', 'defined') }}"
+  when:
+    - aptmirror.remote.gpg_key_archive is defined
+  become: true
+
+- name: display keys
+  ansible.builtin.debug:
+    msg: "{{ lookup('template', 'gpg-key-import-list.j2' ) }}"
+
+- name: import trusted keys
+  ansible.builtin.command:
+    cmd: gpg --no-default-keyring --keyring trustedkeys.gpg --import {{ key }}
+  environment:
+    GNUPGHOME: /home/{{ debmirror_user_name }}/.gnupg
+  loop_control:
+    loop_var: key
+  loop: "{{ lookup('template', 'gpg-key-import-list.j2' ) }}"
+  # when:
+  #   - key_download.changed
+  become: true
+
+- name: Set Permissions on .gnupg
+  ansible.builtin.file:
+    state: directory
+    path: /home/{{ debmirror_user_name }}/.gnupg
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+    mode: 0700
+  become: true
+
+- name: Set Permissions on .gnupg/*
+  ansible.builtin.file:
+    state: file
+    path: /home/{{ debmirror_user_name }}/.gnupg/{{ gpg_file }}
+    owner: "{{ debmirror_user_name }}"
+    group: "{{ debmirror_group_name }}"
+    mode: 0600
+  loop_control:
+    loop_var: gpg_file
+  loop:
+    - trustedkeys.gpg
+    - pubring.kbx
+    - trustdb.gpg
+  become: true
+
+- name: Create www Symlinks for gpg keys
+  ansible.builtin.file:
+    state: link
+    src: "{{ mirror_dir }}/gpg/{{ aptmirror.mirror.name }}"
+    path: "{{ mirror_dir }}/www/{{ aptmirror.mirror.name }}/gpg"
+  loop_control:
+    loop_var: aptmirror
+    label: "{{ aptmirror.mirror.name }} ==> { src={{ mirror_dir }}/gpg/{{ aptmirror.mirror.name }}.gpg, path={{ mirror_dir }}/www/{{ aptmirror.mirror.name }}/gpg }"
+  loop: "{{ mirror_repos | selectattr('remote.gpg_key_archive', 'defined') }}"
+  when:
+    - aptmirror.remote.gpg_key is defined
+  become: true

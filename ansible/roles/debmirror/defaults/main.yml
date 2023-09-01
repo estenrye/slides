@@ -40,7 +40,12 @@ mirror_repos:
     remote:
       host: ftp.us.debian.org
       root: debian
-      gpg_key: https://ftp-master.debian.org/keys/archive-key-12.asc
+      gpg_key_archive:
+        url: http://deb.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2023.3.tar.xz
+        make_chdir: debian-archive-keyring
+        make_target: keyrings/debian-archive-keyring.gpg
+        gpg_keys:
+          - debian-archive-keyring/keyrings/debian-archive-keyring.gpg
     mirror:
       name: debian
       dists:
@@ -56,7 +61,7 @@ mirror_repos:
         - trace
     state_cache_days: 0
     download:
-      method: rsync
+      method: http
     output:
       verbose: true
     systemd:
@@ -82,7 +87,7 @@ mirror_repos:
         - trace
     state_cache_days: 0
     download:
-      method: rsync
+      method: http
     output:
       verbose: true
     systemd:
@@ -102,11 +107,10 @@ mirror_repos:
         - pve-no-subscription
       arches:
         - amd64
-      rsync_extras:
-        - trace
+      rsync_extras: []
     state_cache_days: 0
     download:
-      method: rsync
+      method: http
     output:
       verbose: true
     systemd:
@@ -126,11 +130,10 @@ mirror_repos:
         - no-subscription
       arches:
         - amd64
-      rsync_extras:
-        - trace
+      rsync_extras: []
     state_cache_days: 0
     download:
-      method: rsync
+      method: http
     output:
       verbose: true
     systemd:

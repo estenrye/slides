@@ -5,7 +5,7 @@ echo This automatically overwrites data!
 echo Ubuntu {{.release}} minimal
 
 set mirror http://{{.baseURL}}/tftp/boot/{{.bios_type}}
-set iso_url http://{{.baseURL}}/tftp/images/ubuntu/{{.release}}/ubuntu-{{.release}}-live-server-amd64.iso
+set iso_url http://{{.baseURL}}/tftp/images/ubuntu/{{.release}}/ubuntu-{{.version}}-live-server-amd64.iso
 set ds_url http://{{.baseURL}}/configs/cloud-config-ubuntu?release={{.release}}&hostname={{.hostname}}&password_hash={{.password_hash}}
 
 chain http://{{.baseURL}}/configs/linux.cfg?hostname={{.hostname}}

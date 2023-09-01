@@ -12,6 +12,7 @@
     - configure_local_repo.yml
     - scripts.yml
     - gpg.yml
+    - gpg_archive.yml
     - systemd_timer.yml
   tags:
       - locallisttag
