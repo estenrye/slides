@@ -1,0 +1,9 @@
+[
+{%- for repo in mirror_repos -%}
+  {%- if repo.remote.gpg_key_archive is defined -%}
+    {%- for key in repo.remote.gpg_key_archive.gpg_keys -%}
+"/gpg/{{ repo.mirror.name }}/{{ key }}"{% if not loop.last -%},{% endif %}
+{% endfor %}
+{%- endif %}
+{%- endfor %}
+]

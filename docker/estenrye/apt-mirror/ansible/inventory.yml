@@ -1,0 +1,358 @@
+docker:
+  hosts:
+    localhost:
+  vars:
+    mirror_repos:
+      - handler: debmirror
+        remote:
+          host: ftp.us.debian.org
+          root: debian
+          gpg_key_archive:
+            url: http://deb.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2023.3.tar.xz
+            make_chdir: debian-archive-keyring
+            make_target: keyrings/debian-archive-keyring.gpg
+            gpg_keys:
+              - debian-archive-keyring/keyrings/debian-archive-keyring.gpg
+        mirror:
+          name: debian
+          dists:
+            - bookworm
+            - bookworm-updates
+          sections:
+            - main
+            - contrib
+          arches:
+            - amd64
+            - i386
+          rsync_extras:
+            - trace
+        state_cache_days: 0
+        download:
+          method: http
+        output:
+          verbose: true
+        systemd:
+          on_calendar: '*-*-* 01/6:30:00'
+          accuracy_sec: 1m
+
+      - handler: debmirror
+        remote:
+          host: security.debian.org
+          root: ''
+        mirror:
+          name: debian-security
+          dists:
+            - bookworm-security
+          sections:
+            - main
+            - contrib
+          arches:
+            - amd64
+            - i386
+          rsync_extras:
+            - trace
+        state_cache_days: 0
+        download:
+          method: http
+        output:
+          verbose: true
+        systemd:
+          on_calendar: '*-*-* 01/6:30:00'
+          accuracy_sec: 1m
+
+      - handler: debmirror
+        remote:
+          host: download.proxmox.com
+          root: debian/pve
+          gpg_key: https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg
+        mirror:
+          name: pve-no-subscription
+          dists:
+            - bookworm
+          sections:
+            - pve-no-subscription
+          arches:
+            - amd64
+          rsync_extras: []
+        state_cache_days: 0
+        download:
+          method: http
+        output:
+          verbose: true
+        systemd:
+          on_calendar: '*-*-* 01/6:30:00'
+          accuracy_sec: 1m
+
+      - handler: debmirror
+        remote:
+          host: download.proxmox.com
+          root: debian/ceph-quincy
+          gpg_key: https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg
+        mirror:
+          name: pve-no-subscription-ceph-quincy
+          dists:
+            - bookworm
+          sections:
+            - no-subscription
+          arches:
+            - amd64
+          rsync_extras: []
+        state_cache_days: 0
+        download:
+          method: http
+        output:
+          verbose: true
+        systemd:
+          on_calendar: '*-*-* 01/6:30:00'
+          accuracy_sec: 1m
+
+      - handler: debmirror
+        remote:
+          host: mirror.genesisadaptive.com
+          root: ubuntu
+          gpg_key_archive:
+            url: http://archive.ubuntu.com/ubuntu/pool/main/u/ubuntu-keyring/ubuntu-keyring_2021.03.26.tar.gz
+            gpg_keys:
+              - ubuntu-keyring-2021.03.26/keyrings/ubuntu-archive-keyring.gpg
+        mirror:
+          name: ubuntu
+          dists:
+            - focal
+            - focal-backports
+            - focal-security
+            - focal-updates
+            - jammy
+            - jammy-backports
+            - jammy-security
+            - jammy-updates
+          sections:
+            - main
+            - restricted
+            - universe
+            - multiverse
+          arches:
+            - amd64
+            - i386
+          rsync_extras:
+            - trace
+        state_cache_days: 0
+        download:
+          method: rsync
+        output:
+          verbose: true
+        systemd:
+          on_calendar: '*-*-* 01/6:30:00'
+          accuracy_sec: 1m
+
+      - handler: debmirror
+        remote:
+          host: download.docker.com
+          root: linux/ubuntu
+          gpg_key: https://download.docker.com/linux/ubuntu/gpg
+        mirror:
+          name: docker
+          dists:
+            - focal
+            - jammy
+          sections:
+            - stable
+          arches:
+            - amd64
+        state_cache_days: 0
+        download:
+          method: http
+        output:
+          verbose: true
+
+      # debmirror fails due to bug: https://bugs.launchpad.net/ubuntu/+source/debmirror/+bug/1702059
+      # uses apt-mirror instead.
+      - handler: apt-mirror
+        remote:
+          host: apt.releases.hashicorp.com
+          root: ''
+          scheme: https
+          gpg_key: https://apt.releases.hashicorp.com/gpg
+        mirror:
+          name: hashicorp
+          dists:
+            - focal
+            - jammy
+          sections:
+            - main
+          arches:
+            - amd64
+        download:
+          source: false
+
+      - handler: debmirror
+        remote:
+          host: packages.microsoft.com
+          root: ubuntu/20.04/prod
+          gpg_key: https://packages.microsoft.com/keys/microsoft.asc
+        mirror:
+          name: microsoft-focal
+          dists:
+            - focal
+            - jammy
+          sections:
+            - main
+          arches:
+            - amd64
+        state_cache_days: 0
+        download:
+          method: http
+        output:
+          verbose: true
+
+      - handler: debmirror
+        remote:
+          host: ppa.launchpadcontent.net
+          root: maas/3.1/ubuntu
+          gpg_key: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3ab6dcf1f234e78daa9c104204e7fdc5684d4a1c
+        mirror:
+          name: maas-3.1
+          dists:
+            - focal
+            - jammy
+          sections:
+            - main
+          arches:
+            - amd64
+        state_cache_days: 0
+        download:
+          method: http
+        output:
+          verbose: true
+
+      - handler: debmirror
+        remote:
+          host: ppa.launchpadcontent.net
+          root: yubico/stable/ubuntu
+          gpg_key: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3653e21064b19d134466702e43d5c49532cba1a9
+        mirror:
+          name: yubico-stable
+          dists:
+            - focal
+            - jammy
+          sections:
+            - main
+          arches:
+            - amd64
+        state_cache_days: 0
+        download:
+          method: http
+        output:
+          verbose: true
+
+      - handler: debmirror
+        remote:
+          host: apt.kubernetes.io
+          root: ''
+          gpg_key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        mirror:
+          name: kubernetes
+          dists:
+            - kubernetes-xenial
+          sections:
+            - main
+          arches:
+            - amd64
+        state_cache_days: 0
+        download:
+          method: http
+        output:
+          verbose: true
+
+      - handler: debmirror
+        remote:
+          host: dl.google.com
+          root: linux/chrome/deb
+          gpg_key: https://dl.google.com/linux/linux_signing_key.pub
+        mirror:
+          name: google-chrome
+          dists:
+            - stable
+          sections:
+            - main
+          arches:
+            - amd64
+        state_cache_days: 0
+        download:
+          method: http
+        output:
+          verbose: true
+
+      - handler: debmirror
+        remote:
+          host: pkg.surfacelinux.com
+          root: debian
+          gpg_key: https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc
+        mirror:
+          name: surfacelinux
+          dists:
+            - release
+          sections:
+            - main
+          arches:
+            - amd64
+        state_cache_days: 0
+        download:
+          method: http
+        output:
+          verbose: true
+
+      - handler: debmirror
+        remote:
+          host: baltocdn.com
+          root: /helm/stable/debian
+          gpg_key: https://baltocdn.com/helm/signing.asc
+        mirror:
+          name: helm
+          dists:
+            - all
+          sections:
+            - main
+          arches:
+            - amd64
+        state_cache_days: 0
+        download:
+          method: http
+        output:
+          verbose: true
+
+      - handler: debmirror
+        remote:
+          host: downloads.plex.tv
+          root: /repo/deb
+          gpg_key: https://downloads.plex.tv/plex-keys/PlexSign.key
+        mirror:
+          name: plex
+          dists:
+            - public
+          sections:
+            - main
+          arches:
+            - amd64
+        state_cache_days: 0
+        download:
+          method: http
+        output:
+          verbose: true
+
+      - handler: apt-mirror
+        remote:
+          host: www.ui.com
+          root: downloads/unifi/debian
+          gpg_key: https://dl.ui.com/unifi/unifi-repo.gpg
+        mirror:
+          name: ubiquiti
+          dists:
+            - stable
+          sections:
+            - ubiquiti
+          arches:
+            - amd64
+          state_cache_days: 0
+          download: http
+          output:
+            verbose: true

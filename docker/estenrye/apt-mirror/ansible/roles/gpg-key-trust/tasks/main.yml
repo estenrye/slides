@@ -1,0 +1,48 @@
+- name: create gnupg directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0700
+    owner: root
+    group: root
+  loop:
+    - /gnupg
+    - /gpg
+
+- name: Download gpg keys
+  ansible.builtin.get_url:
+    url: "{{ aptmirror.remote.gpg_key }}"
+    dest: "/gpg/{{ aptmirror.mirror.name }}.gpg"
+    mode: 0644
+    owner: root
+    group: root
+  loop_control:
+    loop_var: aptmirror
+    label: "{{ aptmirror.mirror.name }}"
+  loop: "{{ gpg_key_repos }}"
+  when:
+    - aptmirror.remote.gpg_key is defined
+
+- name: list directory content
+  ansible.builtin.find:
+    paths: /gpg
+    file_type: file
+    recurse: yes
+  register: f
+
+- name: display keys
+  ansible.builtin.debug:
+    var: f.files | map(attribute='path')
+
+- name: import trusted keys
+  ansible.builtin.command:
+    cmd: /usr/bin/gpg --no-options --no-auto-check-trustdb --no-default-keyring --keyring trustedkeys.gpg --import /gpg/{{ aptmirror.mirror.name }}.gpg
+  environment:
+    GNUPGHOME: /gnupg
+  loop_control:
+    loop_var: aptmirror
+    label: "{{ aptmirror.mirror.name }}"
+  loop: "{{ gpg_key_repos }}"
+  when:
+    - aptmirror.remote.gpg_key is defined
+

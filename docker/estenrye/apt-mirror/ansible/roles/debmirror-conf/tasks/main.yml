@@ -1,0 +1,19 @@
+- name: Create debmirror.d directory
+  ansible.builtin.file:
+    state: directory
+    path: /debmirror.d
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Write debmirror config files
+  ansible.builtin.template:
+    src: debmirror.conf.j2
+    dest: "/debmirror.d/{{ aptmirror.mirror.name }}.conf"
+    mode: 0444
+    owner: root
+    group: root
+  loop_control:
+    loop_var: aptmirror
+    label: "{{ aptmirror.mirror.name }}"
+  loop: "{{ mirror_repos }}"

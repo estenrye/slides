@@ -1,0 +1,24 @@
+- name: list directory content
+  ansible.builtin.find:
+    paths: /gpg_archive/{{ repo.mirror.name }}
+    file_type: file
+    recurse: yes
+  register: f
+
+- name: display keys
+  ansible.builtin.debug:
+    var: f.files | map(attribute='path')
+
+- name: import trusted keys
+  ansible.builtin.command:
+    cmd: /usr/bin/gpg --no-default-keyring --keyring trustedkeys.gpg --import /gpg_archive/{{ repo.mirror.name }}/{{ key }}
+  environment:
+    GNUPGHOME: /gnupg
+  loop_control:
+    loop_var: key
+    label: /gpg_archive/{{ repo.mirror.name }}/{{ key }}
+  loop: "{{ repo.remote.gpg_key_archive.gpg_keys }}"
+  when:
+    - repo.remote.gpg_key_archive is defined
+    - repo.remote.gpg_key_archive.gpg_keys is defined
+

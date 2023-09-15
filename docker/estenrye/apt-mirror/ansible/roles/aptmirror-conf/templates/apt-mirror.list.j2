@@ -1,0 +1,27 @@
+set base_path         {{ mirror_dir }}
+set mirror_path       $base_path/mirror
+set skel_path         $base_path/skel/{{ aptmirror.mirror.name }}
+set var_path          $base_path/var/{{ aptmirror.mirror.name }}
+set postmirror_script $base_path/bin/postmirror.sh
+set defaultarch       amd64
+set run_postmirror    0
+set nthreads          20
+set limit_rate        100m
+set _tilde            0
+# Use --unlink with wget (for use with hardlinked directories)
+set unlink            1
+set use_proxy         off
+set http_proxy        127.0.0.1:3128
+set proxy_user        user
+set proxy_password    password
+
+{% for dist in aptmirror.mirror.dists %}
+{% for arch in aptmirror.mirror.arches %}
+deb-{{ arch }} {{ aptmirror.remote.scheme | default('http') }}://{{ aptmirror.remote.host }}{% if aptmirror.remote.root != '' %}/{% endif %}{{ aptmirror.remote.root }} {{ dist }} {{ aptmirror.mirror.sections | default([]) | join(' ') }}
+{% if aptmirror.download.source | default(true) %}
+deb-src {{ aptmirror.remote.scheme | default('http') }}://{{ aptmirror.remote.host }}{% if aptmirror.remote.root != '' %}/{% endif %}{{ aptmirror.remote.root }} {{ dist }} {{ aptmirror.mirror.sections | default([]) | join(' ') }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+clean http://archive.ubuntu.com/ubuntu

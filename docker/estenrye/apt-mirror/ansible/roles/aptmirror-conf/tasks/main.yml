@@ -1,0 +1,19 @@
+- name: Create apt-mirror.d directory
+  ansible.builtin.file:
+    state: directory
+    path: /apt-mirror.d
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Write apt-mirror config files
+  ansible.builtin.template:
+    src: apt-mirror.list.j2
+    dest: "/apt-mirror.d/{{ aptmirror.mirror.name }}.list"
+    mode: 0444
+    owner: root
+    group: root
+  loop_control:
+    loop_var: aptmirror
+    label: "{{ aptmirror.mirror.name }}"
+  loop: "{{ aptmirror_repos }}"

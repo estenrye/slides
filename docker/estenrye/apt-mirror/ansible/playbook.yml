@@ -1,0 +1,20 @@
+- hosts: docker
+  connection: local
+  roles:
+    - role: aptmirror-conf
+      tags:
+        - aptmirror-conf
+    - role: debmirror-conf
+      tags:
+        - debmirror-conf
+    - role: gpg-archive-trust
+      tags:
+        - gpg-archive-trust
+    - role: gpg-key-trust
+      tags:
+        - gpg-key-trust
+  vars:
+    aptmirror_repos: "{{ mirror_repos | selectattr('handler', '==', 'apt-mirror') }}"
+    debmirror_repos: "{{ mirror_repos | selectattr('handler', '==', 'debmirror') }}"
+    gpg_archive_repos: "{{ mirror_repos | selectattr('remote.gpg_key_archive', 'defined') }}"
+    gpg_key_repos: "{{ mirror_repos | selectattr('remote.gpg_key', 'defined') }}"

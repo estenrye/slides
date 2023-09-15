@@ -1,0 +1,235 @@
+# Config for debmirror
+
+# {{ ansible_managed }}
+
+# The config file is a perl script so take care to follow perl syntax.
+# Any setting in /etc/debmirror.conf overrides these defaults and
+# ~/.debmirror.conf overrides those again. Take only what you need.
+#
+# The syntax is the same as on the command line and variable names
+# loosely match option names. If you don't recognize something here
+# then just stick to the command line.
+#
+# Options specified on the command line override settings in the config
+# files.
+
+# Location of the local mirror (use with care)
+$mirrordir="{{ mirror_dir | mandatory }}/mirror/{{ aptmirror.mirror.name | mandatory }}";
+
+#################
+# Output options
+#################
+
+# Displays progress between file downloads when 1.
+$verbose={{ aptmirror.output.verbose | default(false) | int }};
+
+# Displays progress bars as files are downloaded when 1.
+$progress={{ aptmirror.output.progress | default(false) | int }};
+
+# Enables verbose debug output, including ftp protocol dump when 1.
+$debug={{ aptmirror.output.debug | default(false) | int }};
+
+##################
+# Download options
+##################
+
+# Specify the remote host to mirror from. Defaults to ftp.debian.org,
+# you are strongly encouraged to find a closer mirror.
+$host="{{ aptmirror.remote.host | default('archive.ubuntu.com') }}";
+
+# Specify the remote user name to use to log into the remote host.
+# Defaults to "anonymous".
+$user="{{ aptmirror.remote.user | default('anonymous') }}";
+
+# Specify the remote user password to use to log into the remote ftp host.
+# It is used with --user and defaults to "anonymous@".
+$passwd="{{ aptmirror.remote.password | default('anonymous@') }}";
+
+# Specifies the directory on the remote host that is the root of the Debian archive.
+# Defaults to debian, which will work for most mirrors.
+# The root directory has a dists subdirectory.
+$remoteroot="{{ aptmirror.remote.root | default('ubuntu') }}";
+
+# Specify the method to download files.
+# Currently, supported methods are ftp, http, and rsync.
+$download_method="{{ aptmirror.download.method | default('http') }}";
+
+# Mirror current Debian Installer images for the specified dists.
+@dists=( {% for dist in aptmirror.mirror.dists | default(['bionic','focal']) %}'{{ dist }}', {% endfor %});
+
+# Specify the section of Debian to mirror.
+@sections=( {% for section in aptmirror.mirror.sections | default(['main','main/debian-installer','universe','restricted','multiverse']) %}'{{ section }}', {% endfor %});
+
+# Mirror current Debian Installer images for the specified architectures.
+@arches=( {% for arch in aptmirror.mirror.arches | default(['amd64','i386']) %}'{{ arch }}', {% endfor %});
+
+# Never delete any files whose filenames match the regex. May be used multiple times.
+@ignores=( {% for ignore in aptmirror.mirror.ignores | default([]) %}'{{ ignore }}', {% endfor %});
+
+# Never download any files whose filenames match the regex. May be used multiple times.
+@excludes=( {% for exclude in aptmirror.mirror.excludes | default([]) %}'{{ exclude }}', {% endfor %});
+
+# Don't exclude any files whose filenames match the regex. May be used multiple times.
+@includes=( {% for include in aptmirror.mirror.includes | default([]) %}'{{ include }}', {% endfor %});
+
+# Never download any files whose Debian Section (games, doc, oldlibs, science, ...) match the regex. May be used multiple times.
+@excludes=( {% for exclude in aptmirror.mirror.excludes_deb_section | default([]) %}'{{ exclude }}', {% endfor %});
+
+# Limit download to files whose Debian Priority (required, extra, optional, ...) match the regex. May be used multiple times.
+@limit_priority=( {% for limit in aptmirror.mirror.limit_priority | default([]) %}'{{ limit }}', {% endfor %});
+
+# With this option set, debmirror will not create the symlink from suite to codename.
+# This is needed for example when mirroring archived Debian releases as they will all
+# have either "stable" or "oldstable" as suite in their Release files.
+$omit_suite_symlinks={{ aptmirror.omit_suite_symlinks | default(false) | int }};
+
+# Don't re-download Packages and Sources files. Useful if you know they are up-to-date.
+$skippackages={{ aptmirror.download.skip_packages | default(false) | int }};
+
+# Allows to also mirror files from a number of directories that are not part of the package
+# archive itself.  Debmirror will always use rsync for the transfer of these files,
+# irrespective of what transfer method is specified in the --method option. This will
+# therefore not work if your remote mirror does not support rsync, or if the mirror needs a
+# different --root option for rsync than for the main transfer method specified with --method.
+@rsync_extra=( {% for rsync_extra in aptmirror.mirror.rsync_extras | default(['none']) %}'{{ rsync_extra }}', {% endfor %});
+
+# Additionally download Translation-<lang>.bz2 files, which contain translations of package
+# descriptions. Selection of specific translations is possible using the --include and
+# --exclude options. The default is to download only the English file.
+$i18n={{ aptmirror.download.translations | default(false) | int }};
+
+# Additionally download Contents.<arch>.gz files. Note that these files can be relatively
+# big and can change frequently, especially for the testing and unstable suites. Use of the
+# available diff files is strongly recommended (see the --diff option).
+$getcontents={{ aptmirror.download.contents | default(false) | int }};
+
+# Include source in the mirror (default).
+$do_source={{ aptmirror.download.source | default(true) | int }};
+
+# Download at most max-batch number of files (and ignore rest).
+$max_batch={{ aptmirror.download.max_batch | default(0) | int }};
+
+# Mirror current Debian Installer images for the specified dists.
+@di_dists=( {% for di_dist in aptmirror.mirror.di.dists | default([]) %}'{{ di_dist }}', {% endfor %});
+
+# Mirror current Debian Installer images for the specified architectures.
+@di_archs=( {% for di_arch in aptmirror.mirror.di.arches | default([]) %}'{{ di_arch }}', {% endfor %});
+
+# Save the state of the mirror in a cache file between runs. The cache will expire
+# after the specified number of days, at which time a full check and cleanup of the
+# mirror will be done. While the cache is valid, debmirror will trust that the mirror
+# is consistent with this cache.
+#
+# The cache is only used for files that have a unique name, i.e. binary packages and
+# source files. If a mirror update fails for any reason, the cache will be invalidated
+# and the next run will include a full check.
+#
+# Main advantage of using the state cache is that it avoids a large amount of disk
+# access while checking which files need to be fetched. It may also reduce the time
+# required for mirror updates.
+$state_cache_days={{ aptmirror.state_cache_days | default(1) | int }};
+
+#########################
+# Security/Sanity options
+#########################
+
+# Don't fail if the Release.gpg file is missing.
+# If the file does exist, it is mirrored and verified, but any errors are ignored.
+$ignore_release_gpg={{ aptmirror.errors.ignore_release_gpg | default(false) | int }};
+
+# Don't fail if the Release file is missing.
+$ignore_release={{ aptmirror.errors.ignore_release | default(false) | int }};
+
+# Use checksums to determine if files on the local mirror that are the correct size
+# actually have the correct content. Not enabled by default, because it is too paranoid,
+# and too slow.
+#
+# When the state cache is used, debmirror will only check checksums during runs where the
+# cache has expired or been invalidated, so it is worth considering to use these two options
+# together.
+$check_md5sums={{ aptmirror.check_md5sums | default(false) | int }};
+
+# Normally debmirror will report an error if any deb files or sources fail to download and
+# refuse to update the meta data to an inconsistent mirror. Normally this is a good things
+# as it indicates something went wrong during download and should be retried. But sometimes
+# the upstream mirror actually is broken. Specifying --ignore-small-errors causes debmirror
+# to ignore missing or broken deb and source files but still be pedantic about checking
+# meta files.
+$ignore_small_errors={{ aptmirror.errors.ignore_small_errors | default(false) | int }};
+
+##########
+# Cleanup
+##########
+
+# Clean up the local mirror before starting mirroring.
+# This option may be useful if you have limited disk space, but it will result in an
+# inconsistent mirror when debmirror is running.
+$cleanup={{ aptmirror.cleanup.pre_cleanup | default(false) | int }};
+
+# Clean up the local mirror but only after mirroring is complete and only if there was
+# no error. This is the default, because it ensures that the mirror is consistent at
+# all times.
+$post_cleanup={{ aptmirror.cleanup.pre_cleanup | default(true) | int }};
+
+##################
+# Locking options
+##################
+
+# Specifies the timeout to use for network operations (either FTP or rsync).
+# Set this to a higher value if you experience failed downloads. Defaults to 300 seconds.
+$timeout={{ aptmirror.download.timeout | default(300) | int }};
+
+################
+# Rsync options
+################
+
+# Download at most number of files with each rsync call and then loop.
+$rsync_batch={{ aptmirror.rsync.batch | default(300) | int }};
+
+# Specify alternative rsync options to be used. Default options are "-aIL --partial".
+# Care must be taken when specifying alternative options not to disrupt operations,
+# it's best to only add to those options.
+# The most likely option to add is "--bwlimit=x" to avoid saturating the bandwidth of your link.
+$rsync_options="{{ aptmirror.rsync.options | default('-aIL --partial') }}";
+
+##################
+# FTP/HTTP options
+##################
+
+# Download in passive mode when using ftp.
+$passive={{ aptmirror.ftp.passive | default(false) | int }};
+
+# Specifies the http proxy (like Squid) to use for http or ftp methods.
+{% if aptmirror.proxy is defined and aptmirror.proxy.credentials is defined %}
+$proxy="{{ aptmirror.proxy.protocol | default('http') }}://{{ aptmirror.proxy.credentials.user | mandatory | urlencode }}:{{ aptmirror.proxy.credentials.password | mandatory | urlencode }}@{{ aptmirror.proxy.host | mandatory }}:{{ aptmirror.proxy.port | mandatory | int }}";
+{% elif aptmirror.proxy is defined %}
+$proxy="{{ aptmirror.proxy.protocol | default('http') }}://{{ aptmirror.proxy.host | mandatory }}:{{ aptmirror.proxy.port | mandatory | int }}";
+{% else %}
+# $proxy="http://user:pass@proxy:port/";
+{% endif %}
+
+# Dry run
+# Simulate a mirror run.  This will still download the meta files to the ./.temp
+# working directory, but won't replace the old meta files, won't download debs and
+# source files and only simulates cleanup.
+$dry_run={{ aptmirror.dry_run | default(false) | int }};
+
+# Don't keep diff files but use them
+# If --diff=use is specified and the Release file contains entries for diff files,
+# then debmirror will attempt to use them to update Packages, Sources, and Contents
+# files (which can significantly reduce the download size for meta files), but will
+# not include them in the mirror. This is the default behavior and avoids having time
+# consuming diff files for a fast local mirror.
+#
+# Specifying --diff=mirror does the same as use, but will also include the downloaded
+# diff files in the local mirror. Specify --diff=none to completely ignore diff files.
+#
+# Note that if rsync is used as method to download files and the archive being mirrored
+# has "rsyncable" gzipped meta files, then using --diff=none may be the most efficient
+# way to download them. See the gzip(1) man page for information about its rsyncable
+# option.
+$diff_mode="{{ aptmirror.diff_mode | default('use') }}";
+
+# The config file must return true or perl complains.
+# Always copy this.
+1;
