@@ -72,7 +72,6 @@ mirror_repos:
     remote:
       host: security.debian.org
       root: ''
-      gpg_key: https://ftp-master.debian.org/keys/archive-key-12-security.asc
     mirror:
       name: debian-security
       dists:
