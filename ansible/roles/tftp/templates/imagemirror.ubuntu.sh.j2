@@ -34,7 +34,7 @@ IMAGE_ROOT='{{ image_mirror_dir }}/ubuntu'
 VERSION_PATTERN='[0-9][0-9]\.[0-9][0-9]$'
 ISO_PATTERN='live-server-amd64\.iso$'
 
-for ISOFILE in `ls ${IMAGE_ROOT} | grep ${VERSION_PATTERN} | xargs -I% find ${IMAGE_ROOT}/% -print | grep ${ISO_PATTERN}`
+for ISOFILE in `ls ${IMAGE_ROOT} | grep ${VERSION_PATTERN} | xargs -I% find ${IMAGE_ROOT}/%/ -print | grep ${ISO_PATTERN}`
 do
   VERSION=`basename $(dirname $ISOFILE)`
 
