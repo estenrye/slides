@@ -91,6 +91,7 @@
     - debmirror
   tags:
     - apt
+    - debmirror
 
 - hosts: tools_server
   roles:
