@@ -1,7 +1,7 @@
 tools_server:
   hosts:
-    tools.rye.ninja:
-      ansible_host: 10.5.7.10
+    tools.cfssh.rye.ninja:
+      # ansible_host: 10.5.7.10
       ansible_user: automation-user
       #TODO: Pull auth_pass and virtual_router_id from 1Password
       keepalived_auth_pass: 346728
