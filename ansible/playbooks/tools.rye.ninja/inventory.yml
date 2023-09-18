@@ -1,6 +1,6 @@
 tools_server:
   hosts:
-    tools.cfssh.rye.ninja:
+    tools.rye.ninja:
       # ansible_host: 10.5.7.10
       ansible_user: automation-user
       #TODO: Pull auth_pass and virtual_router_id from 1Password
@@ -110,13 +110,12 @@ tools_server:
       pihole_web_password: "{{ pihole_web_password_value | default(lookup('ansible.builtin.password', 'tmp/pihole_web_password chars=ascii_letters,digits length=32')) }}"
       pihole_ipv4_address: 10.5.7.2
       shoelaces_network_maps:
-        # - network: 10.5.11.4/29
-        #   script:
-        #     name: ubuntu.ipxe
-        #     params:
-        #       bios_type: bios
-        #       release: 20.04.5
-        #       password_hash: $6$automation-user$KJJd3iL8sCfkc4YTLOqDAQYnmMj/2VPKZxScl8sDeWZ2VcdoXEJHrAo.VGEVSP8h550ma6ok3NTss7i9elMVP/
+        - network: 10.5.12.0/24
+          script:
+            name: ubuntu-pve.ipxe
+            params:
+              release: 22.04
+              password_hash: $6$jR5wMm4n$8soOl/B/Qr.wLq1yRJAsQMWaUb.WUw8OM/LW0hBybWWBXQLpqxxIa15RHR9Wp2PBsMXSmIEOhyn5cXEKMFKiX.
         - network: 10.5.11.0/30
           script:
             name: talos.ipxe

@@ -28,8 +28,8 @@ rsync --verbose --recursive --times --links --safe-links --hard-links \
 
 date -u > ${BASEDIR}/.trace/$(hostname -f)
 
-LIVE_KERNEL_ROOT='{{ image_mirror_dir }}/live/ubuntu/live-server-amd64'
-ISO_MNT_ROOT=/mnt/iso
+LIVE_KERNEL_ROOT='{{ tftp_directory }}/live/ubuntu/live-server-amd64'
+ISO_MNT_ROOT='{{ image_mirror_dir }}/mnt/iso'
 IMAGE_ROOT='{{ image_mirror_dir }}/ubuntu'
 VERSION_PATTERN='[0-9][0-9]\.[0-9][0-9]$'
 ISO_PATTERN='live-server-amd64\.iso$'
@@ -54,11 +54,15 @@ do
   mkdir -p "${ISO_MNT_ROOT}/${VERSION}"
 
   echo "Mounting ${ISOFILE} to directory ${ISO_MNT_ROOT}/${VERSION}"
-  mount -o loop,ro ${ISOFILE} ${ISO_MNT_ROOT}/${VERSION}
+  sudo /usr/bin/mount -o loop,ro ${ISOFILE} ${ISO_MNT_ROOT}/${VERSION}
 
   echo "Copying ${ISO_MNT_ROOT}/${VERSION}/casper to directory ${LIVE_KERNEL_ROOT}/${VERSION}"
-  cp -r ${ISO_MNT_ROOT}/${VERSION}/casper ${LIVE_KERNEL_ROOT}/${VERSION}
+  cp -r ${ISO_MNT_ROOT}/${VERSION}/casper/initrd ${LIVE_KERNEL_ROOT}/${VERSION}/initrd
+  cp -r ${ISO_MNT_ROOT}/${VERSION}/casper/vmlinuz ${LIVE_KERNEL_ROOT}/${VERSION}/vmlinuz
 
   echo "Unmounting ${ISO_MNT_ROOT}/${VERSION}"
-  umount ${ISO_MNT_ROOT}/${VERSION}
+  sudo /usr/bin/umount ${ISO_MNT_ROOT}/${VERSION}
 done
+
+echo "Changing ownership of {{ tftp_directory }}/live to {{tftp_user}}:{{tftp_group}}"
+sudo chown -R {{ tftp_user }}:{{ tftp_group }} {{ tftp_directory }}/live

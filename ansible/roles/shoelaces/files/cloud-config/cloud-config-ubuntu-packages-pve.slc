@@ -1,0 +1,6 @@
+{{define "cloud-config-ubuntu-packages-pve"}}
+
+  packages:
+    - qemu-guest-agent
+
+{{end}}

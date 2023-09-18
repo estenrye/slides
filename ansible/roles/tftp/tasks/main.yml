@@ -11,6 +11,26 @@
     group: "{{ tftp_group }}"
   become: true
 
+- name: Enable /etc/sudoers.d
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    line: '#includedir /etc/sudoers.d'
+    state: present
+    create: yes
+    validate: 'visudo -cf %s'
+  become: true
+
+- name: Grant sudo permissions to mount isos
+  community.general.sudoers:
+    name: tftp-user-mount
+    user: "{{ tftp_user }}"
+    nopassword: true
+    commands:
+      - /usr/bin/mount -o loop\,ro {{ image_mirror_dir }}/*/*/*.iso {{ image_mirror_dir }}/mnt/iso/*
+      - /usr/bin/umount {{ image_mirror_dir }}/mnt/iso/*
+      - /usr/bin/chown -R {{ tftp_user }}\:{{ tftp_group }} {{ tftp_directory }}/live
+  become: true
+
 - name: create tftp directories
   ansible.builtin.file:
     state: directory
@@ -31,6 +51,7 @@
     - "{{ image_mirror_dir }}"
     - "{{ image_mirror_dir }}/bin"
     - "{{ image_mirror_dir }}/status"
+    - "{{ image_mirror_dir }}/mnt/iso"
 
 - name: create image mirror directories
   ansible.builtin.file:

@@ -1,0 +1,10 @@
+{{define "cloud-config-ubuntu-storage-bm"}}
+      - ptable: msdos
+        path: /dev/sda
+        wipe: superblock
+        preserve: false
+        name: 'ubuntu'
+        grub_device: true
+        type: disk
+        id: disk-ubuntu
+{{end}}

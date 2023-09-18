@@ -1,0 +1,10 @@
+{{define "cloud-config-ubuntu-storage-pve"}}
+      - ptable: msdos
+        path: /dev/vda
+        wipe: superblock
+        preserve: false
+        name: 'ubuntu'
+        grub_device: true
+        type: disk
+        id: disk-ubuntu
+{{end}}

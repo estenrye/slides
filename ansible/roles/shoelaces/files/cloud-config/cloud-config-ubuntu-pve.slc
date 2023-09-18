@@ -1,4 +1,4 @@
-{{define "cloud-config-ubuntu" -}}
+{{define "cloud-config-ubuntu-pve" -}}
 #cloud-config
 autoinstall:
   refresh-installer:
@@ -25,16 +25,15 @@ autoinstall:
   late-commands:
     - echo 'automation-user ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/automation-user
 
-{{template "cloud-config-ubuntu-packages"}}
+{{template "cloud-config-ubuntu-packages-pve"}}
 {{template "cloud-config-ubuntu-ssh"}}
 
   storage:
     config:
-{{template "cloud-config-ubuntu-storage-bm"}}
+{{template "cloud-config-ubuntu-storage-pve"}}
 {{template "cloud-config-ubuntu-storage"}}
     swap:
       swap: 0
-
 
   version: 1
 

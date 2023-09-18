@@ -15,7 +15,8 @@ ExecStart=/usr/bin/docker run --rm --name %n \
     -e DEBUG="{{shoelaces_debug}}" \
     -v /etc/shoelaces/data:/data \
     -p 30083:8081 \
-    estenrye/shoelaces:{{shoelaces_version}}
+    estenrye/shoelaces:{{shoelaces_version}} \
+    -dns-addr {{dns_server}}
 ExecStopPre=/usr/bin/docker exec %n stop
 ExecStop=//usr/bin/docker rm %n
 

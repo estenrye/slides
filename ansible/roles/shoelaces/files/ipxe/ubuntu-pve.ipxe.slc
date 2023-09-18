@@ -1,11 +1,11 @@
-{{define "ubuntu.ipxe" -}}
+{{define "ubuntu-pve.ipxe" -}}
 #!ipxe
 
 echo This automatically overwrites data!
 echo Ubuntu {{.release}} minimal
 
 set mirror http://{{.baseURL}}/tftp/live/ubuntu/live-server-amd64/{{.release}}
-set ds_url http://{{.baseURL}}/configs/cloud-config-ubuntu?hostname={{.hostname}}&password_hash={{.password_hash}}
+set ds_url http://{{.baseURL}}/configs/cloud-config-ubuntu-pve?hostname={{.hostname}}&password_hash={{.password_hash}}
 
 chain http://{{.baseURL}}/configs/linux.cfg?hostname={{.hostname}}
 
