@@ -112,7 +112,8 @@ GEM
     multi_json (1.15.0)
     multipart-post (2.2.3)
     nio4r (2.5.8)
-    oj (3.13.11)
+    oj (3.16.3)
+      bigdecimal (>= 3.0)
     protocol-hpack (1.4.2)
     protocol-http (0.23.12)
     protocol-http1 (0.14.6)
@@ -149,7 +150,7 @@ DEPENDENCIES
   fluent-plugin-s3 (= 1.7.1)
   fluentd (= 1.14.6)
   json (= 2.6.2)
-  oj (= 3.13.11)
+  oj (= 3.16.3)
 
 BUNDLED WITH
    2.3.10
