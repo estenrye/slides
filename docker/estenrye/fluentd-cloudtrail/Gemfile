@@ -14,7 +14,7 @@ gem "ext_monitor", "= 0.1.2"
 
 gem "fluentd", "= 1.14.6"
 
-gem "bigdecimal", "= 3.1.2"
+gem "bigdecimal", "= 3.1.8"
 
 gem "fluent-plugin-s3", "= 1.7.1"
 
