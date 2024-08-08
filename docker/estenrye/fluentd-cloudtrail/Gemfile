@@ -4,7 +4,7 @@ source "https://rubygems.org"
 
 # gem "rails"
 
-gem "oj", "= 3.13.11"
+gem "oj", "= 3.16.5"
 
 gem "json", "= 2.6.2"
 
