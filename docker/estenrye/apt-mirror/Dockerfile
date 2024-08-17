@@ -1,4 +1,4 @@
-FROM ubuntu:jammy-20230816 as configbase
+FROM ubuntu:jammy-20240808 as configbase
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
