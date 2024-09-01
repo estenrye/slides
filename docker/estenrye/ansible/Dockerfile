@@ -1,4 +1,4 @@
-FROM alpine:3.16 AS download
+FROM alpine:3.20 AS download
 RUN apk update \
   && apk add bash curl git openssl tar wget
 RUN ( \
@@ -23,7 +23,7 @@ RUN if [[ "$(uname -m)" == 'x86_64']]; \
     /root/.krew/bin/kubectl-krew install minio; \
   fi
 
-FROM alpine:3.16
+FROM alpine:3.20
 COPY --from=download /root/.krew /root/.krew
 COPY --from=download \
   /usr/local/bin/helm \
