@@ -1,11 +1,11 @@
-FROM alpine:3.16 AS base
+FROM alpine:3.20 AS base
 COPY vendor/ /vendor/
 RUN apk add bash
 WORKDIR /apk
 RUN cp /vendor/linux/$(uname -m)/cdrkit-1.1.11-r2.apk /apk/cdrkit.apk \
   && cp /vendor/linux/$(uname -m)/xorriso-1.5.2-r0.apk /apk/xorriso.apk
 
-FROM alpine:3.16
+FROM alpine:3.20
 
 COPY --from=base  /apk /apk
 RUN apk update && apk upgrade \
