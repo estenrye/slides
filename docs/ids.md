@@ -13,13 +13,14 @@
 
 ## Group GID
 
-| Username  | UID   |
-| --------- | ----- |
-| video     |    47 |
-| plex      |   997 |
-| debmirror | 10000 |
-| nginx     | 10001 |
-| netbox    | 10002 |
-| shoelaces | 10003 |
-| docker    | 10004 |
-| tftp      | 35000 |
+| Username      | UID   |
+| ------------- | ----- |
+| video         |    47 |
+| plex          |   997 |
+| debmirror     | 10000 |
+| nginx         | 10001 |
+| netbox        | 10002 |
+| shoelaces     | 10003 |
+| docker        | 10004 |
+| tftp          | 35000 |
+| acl-pcd-admin | 35001 |
