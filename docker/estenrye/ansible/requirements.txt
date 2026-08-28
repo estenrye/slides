@@ -1,5 +1,5 @@
 # Required to generate X509 certificates and keys.
-cryptography ==38.0.1
+cryptography ==38.0.4
 
 # Required to interact with Kubernetes Clusters
 kubernetes ==24.2.0
